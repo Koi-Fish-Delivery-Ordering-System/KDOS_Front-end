@@ -4,7 +4,7 @@ import Homepage from './components/common/Homepage';
 import LoginPage from './components/common/loginpage';
 import RegisterPage from './components/common/registerpage';
 // import ProfilePage from './page/profile';
-
+import ServicePage from './components/common/servicepage';
 
 export const router = createBrowserRouter([
 

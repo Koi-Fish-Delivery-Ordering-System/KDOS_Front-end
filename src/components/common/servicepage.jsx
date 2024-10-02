@@ -1,7 +1,7 @@
 import React from 'react'
 import Navbar from './navbar'
 import Footer from './footer'
-import './index.css'
+import '../../css/servicepage.css'
 import { useNavigate } from 'react-router-dom';
 function ServicePage() {
     const handleClick = () => {
