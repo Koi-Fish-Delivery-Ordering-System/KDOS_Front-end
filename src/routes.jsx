@@ -1,8 +1,8 @@
 import { createBrowserRouter } from 'react-router-dom';
 
 import Homepage from './components/common/Homepage';
-import LoginPage from './pages/login';
-import RegisterPage from './pages/register';
+import LoginPage from './components/common/loginpage';
+import RegisterPage from './components/common/registerpage';
 // import ProfilePage from './page/profile';
 
 
