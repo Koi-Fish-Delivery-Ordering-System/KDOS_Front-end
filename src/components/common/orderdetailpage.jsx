@@ -8,7 +8,7 @@ import { useState } from 'react';
 
 function OrderDetailPage() {
     const location = useLocation();
-    const { values } = location.state || {};
+    const { info } = location.state || {};
     const [fishList, setFishList] = useState([]);
     const [fishForm] = Form.useForm();
     const handleAddFish = (values) => {
@@ -19,8 +19,10 @@ function OrderDetailPage() {
 
     const handleSubmitOrder = () => {
         const order = { fishList }; // Tạo đơn hàng từ danh sách cá
+        
         console.log(order);
-        navigate("/checkout", { state: order }); // Chuyển hướng đến trang checkout
+        console.log(info);
+        navigate("/checkout", { state: {order, info} }); // Chuyển hướng đến trang checkout
     };
 
     return (
@@ -29,7 +31,7 @@ function OrderDetailPage() {
             <div>
             <h1>Order Detail</h1>
             <div>
-                {values.phone}
+               {info.phone}
             </div>
             <h2>Add Fish</h2>
           <Form

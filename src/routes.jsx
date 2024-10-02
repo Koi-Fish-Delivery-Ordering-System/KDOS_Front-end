@@ -7,6 +7,7 @@ import RegisterPage from './components/common/registerpage';
 import ServicePage from './components/common/servicepage';
 import OrderPage from './components/common/orderinformationpage';
 import OrderDetailPage from './components/common/orderdetailpage';
+import CheckoutPage from './components/common/checkout';
 export const router = createBrowserRouter([
 
   {
@@ -32,6 +33,10 @@ export const router = createBrowserRouter([
   {
     path: "orderdetail",
     element: <OrderDetailPage />,
+  },
+  {
+    path: "checkout",
+    element: <CheckoutPage />,
   },
   // {
   //   path: "profile",

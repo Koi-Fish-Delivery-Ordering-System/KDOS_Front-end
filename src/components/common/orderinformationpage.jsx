@@ -9,9 +9,9 @@ function OrderPage() {
     const location = useLocation();
     const navigate = useNavigate();
     const { transport} = location.state || {};
-    const handleSubmit = (values) => {
-      console.log(values);
-      navigate("/orderdetail",{state: {values}});
+    const handleSubmit = (info) => {
+      console.log(info);
+      navigate("/orderdetail",{state: {info}});
     };
     return (
         <div>

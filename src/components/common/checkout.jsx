@@ -7,12 +7,19 @@ import { useNavigate } from 'react-router-dom'
 import { useState } from 'react';
 
 function CheckoutPage() {
+    const location = useLocation();
+    const { order } = location.state || {};
+    const { info } = location.state || {};
     
     return (
         <div>
             <Navbar />
             <div>
-            <h1>Order Detail</h1>
+                <h1>Checkout</h1>
+                <div>
+                   
+                    {info.phone}
+                </div>
             </div>
             <Footer />
         </div>
