@@ -1,5 +1,5 @@
 import React from "react";
-import AuthenTemplate from "../../components/authen-template";
+import AuthenTemplate from "./validationlogin";
 import { Button, Form, Input } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../config/axios";

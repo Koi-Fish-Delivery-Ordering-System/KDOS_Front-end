@@ -22,7 +22,7 @@ export default function Navbar() {
           </ul>
         </div>
         <div className="nav-right">
-          <div><Link to="/login"  className="nav-item-login">LOGIN</Link></div>
+          <div><Link to="/login" className="nav-item-login">LOGIN</Link></div>
         </div>
       </nav>
 
