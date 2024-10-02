@@ -5,7 +5,8 @@ import LoginPage from './components/common/loginpage';
 import RegisterPage from './components/common/registerpage';
 // import ProfilePage from './page/profile';
 import ServicePage from './components/common/servicepage';
-
+import OrderPage from './components/common/orderinformationpage';
+import OrderDetailPage from './components/common/orderdetailpage';
 export const router = createBrowserRouter([
 
   {
@@ -23,6 +24,14 @@ export const router = createBrowserRouter([
   {
     path: "service",
     element: <ServicePage />,
+  },
+  {
+    path: "orderinformation",
+    element: <OrderPage />,
+  },
+  {
+    path: "orderdetail",
+    element: <OrderDetailPage />,
   },
   // {
   //   path: "profile",
