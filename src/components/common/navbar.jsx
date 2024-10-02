@@ -1,8 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import "../../css/navbar.css"; // Make sure the path is correct
-
+import { useNavigate } from 'react-router-dom';
 export default function Navbar() {
+  const navigate = useNavigate();
   return (
     <header className="header-container">
       <nav className="navbar">
@@ -21,7 +22,7 @@ export default function Navbar() {
           </ul>
         </div>
         <div className="nav-right">
-          <div className="nav-item-login">LOGIN</div>
+          <div><Link to="/login"  className="nav-item-login">LOGIN</Link></div>
         </div>
       </nav>
 
