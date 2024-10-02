@@ -1,6 +1,6 @@
 import React from 'react'
-import Navbar from '../../components/common/navbar'
-import Footer from '../../components/common/footer'
+import Navbar from './navbar'
+import Footer from './footer'
 import './index.css'
 import { useNavigate } from 'react-router-dom';
 function ServicePage() {
@@ -11,7 +11,7 @@ function ServicePage() {
         <div>
             <Navbar />
             <div className="pricing-container">
-                <div className="pricing-card popular-plan"> 
+                <div className="pricing-card popular-plan">
                     <img className="img" src="src/images/truck.png" alt="error" />
                     <ul className="features">
                         <li>giá theo kg</li>
