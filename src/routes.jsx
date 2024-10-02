@@ -1,8 +1,8 @@
 import { createBrowserRouter } from 'react-router-dom';
 
-import Homepage from './components/common/homepage';
-import LoginPage from './components/common/loginpage';
-import RegisterPage from './components/common/registerpage';
+import Homepage from './components/common/Homepage';
+import LoginPage from './pages/login';
+import RegisterPage from './pages/register';
 // import ProfilePage from './page/profile';
 
 
@@ -19,6 +19,10 @@ export const router = createBrowserRouter([
   {
     path: "register",
     element: <RegisterPage />,
+  },
+  {
+    path: "service",
+    element: <ServicePage />,
   },
   // {
   //   path: "profile",

@@ -1,0 +1,74 @@
+/* General Container */
+.pricing-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-start;
+    gap: 20px;
+    margin: 50px;
+    
+  }
+  
+  /* Card Styles */
+  .pricing-card {
+    background-color: #fff;
+    border-radius: 10px;
+    width: 400px;
+    height: 500px;
+    padding: 20px;
+    text-align: center;
+    position: relative;
+    border: 2px solid  #ff7700;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  }
+  
+  .pricing-card:hover {
+  transform: translateY(-10px); /* Add hover effect */
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2); /* Enhance shadow on hover */
+}
+  
+.img{
+    width: 300px;
+    height: 300px;
+}
+  
+  /* Button Styles */
+  .buy-button {
+    background-color: #ff7700;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    width: 200px;
+    font-size: 16px;
+    margin: 15px 0;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .buy-button:hover {
+    background-color:orangered;
+  }
+  
+  /* Features List */
+  .features {
+    text-align: left;
+    margin-top: 10px;
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  .features li {
+    margin: 10px 0;
+    font-size: 20px;
+    color: #666;
+    display: flex;
+    align-items: center;
+  }
+  
+  .features li::before {
+    content: '•';
+    color: black;
+    font-weight: bold;
+    margin-right: 8px;
+  }
+  

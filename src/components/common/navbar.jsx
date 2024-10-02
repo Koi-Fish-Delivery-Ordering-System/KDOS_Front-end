@@ -9,9 +9,9 @@ export default function Navbar() {
       <nav className="navbar">
         <div className="nav-left">
           <ul className="nav-list">
-            <li className="nav-item">HOME</li>
+            <li className="nav-item"><Link to="/">HOME</Link></li>
             <li className="nav-item">ABOUT</li>
-            <li className="nav-item">SERVICE</li>
+            <li className="nav-item"><Link to="/service">SERVICE</Link></li>
             <li className="nav-item">
               <Link to="/feedback">FEEDBACK</Link>
             </li>
