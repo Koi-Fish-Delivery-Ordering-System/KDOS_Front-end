@@ -1,19 +1,50 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import Navbar from './navbar';
 import Footer from './footer';
-import { List, Card } from 'antd';
+import { List, Card, Button } from 'antd';
 import '../../css/checkout.css';
+
 function CheckoutPage() {
+    const [paymentMethod, setPaymentMethod] = useState('cash'); // Trạng thái cho phương thức thanh toán
+
     const location = useLocation();
     const { order, info } = location.state || {};
 
     // Calculate total number of fish and total weight
     const totalFishCount = order.fishList.length;
-    const totalWeight = order.fishList.reduce((total, fish) => total + fish.weight, 0);
+    const totalWeight = order.fishList.reduce((total, fish) => total + (Number(fish.weight) || 0), 0);
+    const totalPrice = totalWeight * (info.transport === 'road' ? 50000 : info.transport === 'air' ? 150000 : 0) *(info.transport === 'road' ? (totalFishCount >= 10 ? 1.1 : totalFishCount >= 5 ? 1.05 : 1) : info.transport === 'air' ? (totalFishCount >= 10 ? 1.3 : totalFishCount >= 5 ? 1.15 : 1) : 0);
+
+    const handlePaymentChange = (e) => {
+        setPaymentMethod(e.target.value);
+    };
+
+    const handlePlaceOrder = () => {
+        // Gửi thông tin vào cơ sở dữ liệu
+        const orderData = {
+            // Thêm thông tin đơn hàng cần thiết
+            sender: info.sender,
+            senderPhone: info.senderPhone,
+            recipient: info.recipient,
+            recipientPhone: info.recipientPhone,
+            pickUpProvince: info.pickUpProvince,
+            pickUpAddress: info.pickUpAddress,
+            destinationProvince: info.destinationProvince,
+            destinationAddress: info.destinationAddress,
+            transport: info.transport,
+            totalWeight,
+            totalFishCount,
+            totalPrice,
+            paymentMethod,
+            // ... các thông tin khác ...
+        };
+        console.log(orderData);
+        // Gọi API để gửi orderData vào cơ sở dữ liệu
+    };
 
     return (
-        <div>
+        <div className="checkout-page">
             <Navbar />
             <div className="checkout-container">
                 <h1 className="checkout-title">Checkout</h1>
@@ -63,7 +94,40 @@ function CheckoutPage() {
                     <h2 className="info-title">Total Information</h2>
                     <p><strong>Total Fish Count:</strong> {totalFishCount}</p>
                     <p><strong>Total Weight:</strong> {totalWeight} kg</p>
+                    <p><strong>Transport Service: {info.transport}</strong></p>
+                    <h3>Total Price: {totalPrice} VND</h3>
                 </div>
+                
+                <div className="payment-methods">
+                    <h2 className="info-title">Payment Method</h2>
+                    <label className="payment-option">
+                        <input 
+                            type="radio" 
+                            value="cash" 
+                            checked={paymentMethod === 'cash'} 
+                            onChange={handlePaymentChange} 
+                        />
+                        Cash
+                    </label>
+                    <label className="payment-option">
+                        <input 
+                            type="radio" 
+                            value="credit" 
+                            checked={paymentMethod === 'credit'} 
+                            onChange={handlePaymentChange} 
+                        />
+                        Credit
+                    </label>
+                    {paymentMethod === 'credit' && (
+                    <div className="credit-image-container">
+                        <img src="path/to/your/image.jpg" alt="Credit Payment" className="credit-image" />
+                    </div>
+                )}
+
+                </div>
+
+                
+                <Button type="primary" onClick={handlePlaceOrder}>Place Order</Button>
             </div>
             <Footer />
         </div>
