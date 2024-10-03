@@ -1,6 +1,6 @@
+/* orderdetailpage.css */
 
-
-.order-page-container {
+.order-detail-container {
     width: 400px;
     margin: 0 auto;
     padding: 20px;
@@ -14,17 +14,24 @@
     min-height: 80vh;
 }
 
-h1 {
+h1, h2 {
     text-align: center;
     color: #333;
     margin-bottom: 20px;
 }
 
-.form .ant-form-item {
+.contact-info {
+    margin-bottom: 20px;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.fish-form .ant-form-item {
     margin-bottom: 16px;
 }
 
-.form input {
+.fish-form input {
     width: 100%;
     padding: 8px;
     border: 1px solid #ddd;
@@ -32,14 +39,24 @@ h1 {
     font-size: 14px;
 }
 
-.ant-btn-primary {
-    background-color: #ff7700;
+/* .ant-btn-primary {
+    background-color: #1890ff;
+    border-color: #1890ff;
     width: 100%;
     height: 40px;
     font-size: 16px;
     border-radius: 4px;
 }
+ */
 
-.ant-btn-primary:hover {
-    background-color: orangered !important;
+.fish-list {
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.fish-list .ant-list-item {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    font-size: 14px;
+    color: #333;
 }

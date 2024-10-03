@@ -19,12 +19,13 @@
     position: relative;
     border: 2px solid  #ff7700;
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
   
   .pricing-card:hover {
-  transform: translateY(-10px); /* Add hover effect */
-  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2); /* Enhance shadow on hover */
-}
+    transform: translateY(-10px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
+  }
   
 .img{
     width: 300px;
@@ -43,6 +44,7 @@
     margin: 15px 0;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    transition: 'background-color 0.3s'
   }
   
   .buy-button:hover {
@@ -71,4 +73,3 @@
     font-weight: bold;
     margin-right: 8px;
   }
-  
