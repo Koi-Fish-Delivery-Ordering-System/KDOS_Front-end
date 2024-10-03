@@ -1,5 +1,5 @@
 import React from 'react'
-// import '../../css/orderpage.css'
+import '../../css/orderinformationpage.css'
 import Navbar from './navbar'
 import Footer from './footer'
 import { useLocation } from 'react-router-dom';
@@ -18,7 +18,6 @@ function OrderPage() {
             <Navbar />
             <div>
                 <h1>Order Information</h1>
-                <div>transport: {transport}</div>
                 <Form
               className="form"
               labelCol={{

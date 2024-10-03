@@ -18,7 +18,7 @@ function ServicePage() {
                         <li>giá theo kg</li>
                         <li>giá theo con</li>
                     </ul>
-                    <Button onClick={() => {navigate("/orderinformation", { state: { transport: "road" } });}}className="buy-button">Chọn dịch vụ</Button>
+                    <button onClick={() => {navigate("/orderinformation", { state: { transport: "road" } });}}className="buy-button">Chọn dịch vụ</button>
                 </div>
 
                 <div className="pricing-card ai-plan">
