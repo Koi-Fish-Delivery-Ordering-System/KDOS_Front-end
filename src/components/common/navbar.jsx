@@ -1,9 +1,22 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import "../../css/navbar.css"; // Make sure the path is correct
-import { useNavigate } from 'react-router-dom';
+
 export default function Navbar() {
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Start with user not logged in
+
+  const handleLogin = () => {
+    // Perform login logic here
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    // Perform logout logic here
+    setIsLoggedIn(false);
+    navigate('/login');
+  };
+
   return (
     <header className="header-container">
       <nav className="navbar">
@@ -22,7 +35,19 @@ export default function Navbar() {
           </ul>
         </div>
         <div className="nav-right">
-          <div><Link to="/login" className="nav-item-login">LOGIN</Link></div>
+          {!isLoggedIn ? (
+            <div><Link to="/login" className="nav-item-login" onClick={handleLogin}>LOGIN</Link></div>
+          ) : (
+            <div className="avatar-dropdown">
+              <img src="path/to/avatar.png" alt="User Avatar" className="avatar" />
+              <ul className="dropdown-menu">
+                <li><Link to="/profile">Thông Tin</Link></li>
+                <li><Link to="/orderhistory">Lịch Sử Đơn Hàng</Link></li>
+                <li><Link to="/trackorder">Theo Dõi Đơn Hàng</Link></li>
+                <li><a href="#" onClick={handleLogout}>Đăng Xuất</a></li>
+              </ul>
+            </div>
+          )}
         </div>
       </nav>
 
