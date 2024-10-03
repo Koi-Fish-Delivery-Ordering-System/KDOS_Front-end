@@ -12,7 +12,7 @@
   .pricing-card {
     background-color: #fff;
     border-radius: 10px;
-    width: 500px;
+    width: 510px;
     height: 600px;
     padding: 20px;
     text-align: center;
@@ -21,7 +21,11 @@
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
-  
+  .title-service{
+    font-size: 20px;
+    font-weight: bold;
+    color: #ff7700;
+  }
   .pricing-card:hover {
     transform: translateY(-10px);
     box-shadow: 0 12px 25px rgba(0, 0, 0, 0.2);
