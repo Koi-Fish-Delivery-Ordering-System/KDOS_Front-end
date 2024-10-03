@@ -11,7 +11,7 @@ function LoginPage() {
   const handleLogin = async (values) => {
     console.log(values);
     try {
-      const response = await api.post("login", values);
+      const response = await api.post("https://66f3691871c84d8058789db4.mockapi.io/Login", values);
       console.log(response);
       const { role, token } = response.data;
       localStorage.setItem("token", token);

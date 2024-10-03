@@ -9,7 +9,7 @@ import OrderDetailPage from './components/common/orderdetailpage';
 import CheckoutPage from './components/common/checkout';
 import ProfilePage from './components/common/profilepage';
 import OrderHistory from './components/common/orderhistory';
-// import TrackOrderPage from './components/common/trackorder';
+import TrackOrderPage from './components/common/trackorder';
 export const router = createBrowserRouter([
 
   {
@@ -48,9 +48,9 @@ export const router = createBrowserRouter([
     path: "orderhistory",
     element: <OrderHistory />,
   },
-   // {
-  //   path: "trackorder",
-  //   element: <TrackOrderPage />,
-  // },
+   {
+    path: "trackorder",
+    element: <TrackOrderPage />,
+  },
 
 ]);

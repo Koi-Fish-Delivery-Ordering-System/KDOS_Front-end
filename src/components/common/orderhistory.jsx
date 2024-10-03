@@ -15,7 +15,7 @@ const OrderHistory = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('https://66f3691871c84d8058789db4.mockapi.io/orders');
+      const response = await axios.get('https://66f3691871c84d8058789db4.mockapi.io/apiorders');
       if (response.data && Array.isArray(response.data)) {
         setOrders(response.data);
       } else {
