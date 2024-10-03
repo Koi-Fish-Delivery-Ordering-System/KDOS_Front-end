@@ -10,6 +10,14 @@ export default function Homepage() {
     "src/images/homepage2.png",
     "src/images/homepage3.png"
   ];
+  const fishImageList = [
+    "src/images/fish1.png",
+    "src/images/fish2.png",
+    "src/images/fish3.png",
+    "src/images/fish4.png",
+    "src/images/fish5.png",
+    "src/images/fish6.png",
+  ];
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -89,8 +97,17 @@ export default function Homepage() {
             </div>
           </div>
           <div className="divider" />
-
-
+          <div className="wrapper">
+            <div className="item item1"><img src={fishImageList[0]}></img></div>
+            <div className="item item2"><img src={fishImageList[1]}></img></div>
+            <div className="item item3"><img src={fishImageList[2]}></img></div>
+            <div className="item item4"><img src={fishImageList[3]}></img></div>
+            <div className="item item5"><img src={fishImageList[4]}></img></div>
+            <div className="item item6"><img src={fishImageList[5]}></img></div>
+            <div className="item item7"><img src={fishImageList[0]}></img></div>
+            <div className="item item8"><img src={fishImageList[1]}></img></div>
+          </div>
+          <div className="divider" />
         </section>
       </div>
       <Footer />
