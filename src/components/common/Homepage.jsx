@@ -46,6 +46,7 @@ export default function Homepage() {
         <Navbar />
 
         <section className="content-section">
+          <div className="divider" />
           <div className="row" ref={(el) => (rowsRef.current[0] = el)}>
             <img
               src={imageList[0]}
@@ -59,7 +60,7 @@ export default function Homepage() {
               </p>
             </div>
           </div>
-          <div className="divider"></div>
+          <div className="divider" />
           <div className="row reverse" ref={(el) => (rowsRef.current[1] = el)}>
             <img
               src={imageList[1]}
@@ -73,7 +74,7 @@ export default function Homepage() {
               </p>
             </div>
           </div>
-          <div className="divider"></div>
+          <div className="divider" />
           <div className="row" ref={(el) => (rowsRef.current[2] = el)}>
             <img
               src={imageList[2]}
@@ -87,9 +88,9 @@ export default function Homepage() {
               </p>
             </div>
           </div>
-          <div className="divider"></div>
-          <Blogcarousel />
-          <div className="divider"></div>
+          <div className="divider" />
+
+
         </section>
       </div>
       <Footer />

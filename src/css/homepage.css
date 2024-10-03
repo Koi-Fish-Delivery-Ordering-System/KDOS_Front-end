@@ -46,7 +46,7 @@
   
   .divider {
     height: 2px;
-    width: 80%;
+    width: 100%;
     background-color: #ff7700; /* Color of the divider */
     margin: 40px auto; /* Center it horizontally */
   }

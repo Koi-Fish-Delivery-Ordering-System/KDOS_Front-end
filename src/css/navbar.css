@@ -7,7 +7,7 @@
   }
   /* Navbar styling */
   .navbar {
-    position: absolute;
+    position: fixed;
     display: flex;
     justify-content: space-between; /* Align items left and right */
     top: 0;
@@ -16,9 +16,10 @@
     background-color: rgba(0, 0, 0, 0.5); /* Transparent background */
     transition: all 0.3s ease-in-out;
     opacity: 50%;
+    z-index: 1000; /* Ensure it stays above other elements */
   }
   .navbar:hover{
-    opacity: 100%;
+    opacity: 1;
   }
 
 .nav-list {
@@ -31,7 +32,7 @@
 .nav-left {
     display: flex;
   }
-.nav-item {
+.nav-item { 
   color: white;
   cursor: pointer;
   transition: all 0.3s ease-in-out;
