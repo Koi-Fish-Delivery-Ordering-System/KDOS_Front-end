@@ -24,6 +24,7 @@ function RegisterPage() {
 
   return (
     <AuthenTemplate>
+      <h2 style={{ marginBottom: '24px', textAlign: 'center' }}>Register</h2>
       <Form
         labelCol={{
           span: 24,
@@ -107,9 +108,9 @@ function RegisterPage() {
         >
           <Input />
         </Form.Item>
-
-        <Link to="/login">Already have account? Go to login page</Link>
-
+        <div style={{ marginBottom: '24px' }}>
+          <Link to="/login">Already have account? Go to login page</Link>
+        </div>
         <Button type="primary" htmlType="submit">
           Register
         </Button>

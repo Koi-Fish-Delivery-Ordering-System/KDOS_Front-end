@@ -26,6 +26,7 @@ function LoginPage() {
 
   return (
     <AuthenTemplate>
+      <h2 style={{ marginBottom: '24px', textAlign: 'center' }}>Log in</h2>
       <Form
         labelCol={{
           span: 24,
@@ -56,14 +57,15 @@ function LoginPage() {
         >
           <Input.Password />
         </Form.Item>
-
-        <div>
+        <div style={{ marginBottom: '24px' }}>
           <Link to="/register">Don't have account? Register new account</Link>
         </div>
 
-        <Button type="primary" htmlType="submit">
-          Login
-        </Button>
+        <Form.Item>
+          <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
+            Login
+          </Button>
+        </Form.Item>
 
       </Form>
     </AuthenTemplate>
