@@ -77,7 +77,10 @@ console.log('values.images?.fileList:', values.images?.fileList);
                     <Form.Item
                         label="Weight"
                         name="weight"
-                        rules={[{ required: true, message: "Please enter fish weight!" }]}
+                        rules={[
+                            { required: true, message: "Please enter fish weight!" },
+                            
+                        ]}
                     >
                         <Input type="text" placeholder="Weight" />
                     </Form.Item>
@@ -127,10 +130,7 @@ console.log('values.images?.fileList:', values.images?.fileList);
                                                 alt={`Fish ${index + 1} Image ${imgIndex + 1}`} 
                                                 style={{ maxWidth: '100px', maxHeight: '100px', marginRight: '5px' }} 
                                             />
-                                            {image ? 
-                                                <p>Image loaded</p> : 
-                                                <p>Image not loaded</p>
-                                            }
+                                            
                                         </div>
                                     ))}
                                 </div>
