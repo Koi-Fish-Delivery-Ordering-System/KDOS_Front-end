@@ -146,7 +146,7 @@ function OrderPage() {
 
                     {/* Submit button */}
                     <Form.Item>
-                        <Button type="primary" htmlType="submit">
+                        <Button className='continue-button' type="primary" htmlType="submit">
                             Continue
                         </Button>
                     </Form.Item>

@@ -95,8 +95,12 @@ function CheckoutPage() {
                     <p><strong>Total Fish Count:</strong> {totalFishCount}</p>
                     <p><strong>Total Weight:</strong> {totalWeight} kg</p>
                     <p><strong>Transport Service: {info.transport}</strong></p>
-                    <h3>Total Price: {totalPrice} VND</h3>
                 </div>
+                <div className='total-price-container'>
+                    <h2 className="info-title-price">Total Price</h2>
+                    <h3 className="total-price">{totalPrice.toLocaleString()} VND</h3>
+                </div>
+                
                 
                 <div className="payment-methods">
                     <h2 className="info-title">Payment Method</h2>

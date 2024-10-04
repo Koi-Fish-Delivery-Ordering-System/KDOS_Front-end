@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Navbar from './navbar';
 import Footer from './footer';
-import { Form, Input, Button, List, Upload } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+import { Form, Input, Button, List, Upload, Popconfirm } from 'antd';
+import { UploadOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import '../../css/orderdetailpage.css';
 
@@ -60,6 +60,10 @@ console.log('values.images?.fileList:', values.images?.fileList);
         navigate("/checkout", { state: { order, info } });
     };
 
+    const handleRemoveFish = (index) => {
+        setFishList(prevList => prevList.filter((_, i) => i !== index));
+    };
+
     return (
         <div>
             <Navbar />
@@ -75,7 +79,7 @@ console.log('values.images?.fileList:', values.images?.fileList);
                         <Input type="text" placeholder="Fish Name" />
                     </Form.Item>
                     <Form.Item
-                        label="Weight"
+                        label="Weight (Kg)"
                         name="weight"
                         rules={[
                             { required: true, message: "Please enter fish weight!" },
@@ -120,23 +124,40 @@ console.log('values.images?.fileList:', values.images?.fileList);
                     dataSource={fishList}
                     renderItem={(item, index) => (
                         <List.Item key={index}>
-                            {item.fishName} - {item.weight}
-                            {item.images && item.images.length > 0 ? (
-                                <div style={{ display: 'flex', marginLeft: '10px' }}>
-                                    {item.images.map((image, imgIndex) => (
-                                        <div key={imgIndex}>
-                                            <img 
-                                                src={image}
-                                                alt={`Fish ${index + 1} Image ${imgIndex + 1}`} 
-                                                style={{ maxWidth: '100px', maxHeight: '100px', marginRight: '5px' }} 
-                                            />
-                                            
+                            <div className="fish-item">
+                                <div>
+                                    {item.fishName} - {item.weight}
+                                    {item.images && item.images.length > 0 ? (
+                                        <div style={{ display: 'flex', marginLeft: '10px' }}>
+                                            {item.images.map((image, imgIndex) => (
+                                                <div key={imgIndex}>
+                                                    <img 
+                                                        src={image}
+                                                        alt={`Fish ${index + 1} Image ${imgIndex + 1}`} 
+                                                        style={{ maxWidth: '100px', maxHeight: '100px', marginRight: '5px' }} 
+                                                    />
+                                                </div>
+                                            ))}
                                         </div>
-                                    ))}
+                                    ) : (
+                                        <p>No images for this fish</p>
+                                    )}
                                 </div>
-                            ) : (
-                                <p>No images for this fish</p>
-                            )}
+                                <Popconfirm
+                                    title="Are you sure you want to remove this fish?"
+                                    onConfirm={() => handleRemoveFish(index)}
+                                    okText="Yes"
+                                    cancelText="No"
+                                >
+                                    <Button 
+                                    className='remove-button'
+                                        type="danger" 
+                                        icon={<DeleteOutlined />}
+                                    >
+                                        Remove
+                                    </Button>
+                                </Popconfirm>
+                            </div>
                         </List.Item>
                     )}
                 />
