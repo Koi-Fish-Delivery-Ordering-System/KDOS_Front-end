@@ -37,6 +37,7 @@
   cursor: pointer;
   transition: all 0.3s ease-in-out;
   font-size: 21px;
+  font-family: 'Times New Roman';
 }
 
 /* Right side login item */
@@ -51,6 +52,7 @@
   cursor: pointer;
   transition: all 0.3s ease-in-out;
   font-size: 21px;
+  font-family: 'Times New Roman';
   text-decoration: none;
 }
 
