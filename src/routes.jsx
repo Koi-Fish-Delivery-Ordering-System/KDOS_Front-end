@@ -10,6 +10,7 @@ import CheckoutPage from './components/common/checkout';
 import ProfilePage from './components/common/profilepage';
 import OrderHistory from './components/common/orderhistory';
 import TrackOrderPage from './components/common/trackorder';
+import PlaceOrderPage from './components/common/placeorderpage';
 export const router = createBrowserRouter([
 
   {
@@ -51,6 +52,10 @@ export const router = createBrowserRouter([
    {
     path: "trackorder",
     element: <TrackOrderPage />,
+  },
+  {
+    path: "placeorder",
+    element: <PlaceOrderPage />,
   },
 
 ]);
