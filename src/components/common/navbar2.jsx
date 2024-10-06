@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import "../../css/navbar2.css"; // Make sure the path is correct
+import "../../css/navbar.css"; // Make sure the path is correct
 
 export default function Navbar2() {
   const navigate = useNavigate();
@@ -18,13 +18,13 @@ export default function Navbar2() {
   };
 
   return (
-    <header className="header-container">
+    <header className="header-container" style={{ height: '0vh' }}>
       <nav className="navbar">
         <div className="nav-left">
           <ul className="nav-list">
             <li className="nav-item"><Link to="/">HOME</Link></li>
             <li className="nav-item">ABOUT</li>
-            <li className="nav-item"><Link to="/service">SERVICE</Link></li>
+            <li className="nav-item"><Link to="/placeorder">PLACE ORDER</Link></li>
             <li className="nav-item">
               <Link to="/feedback">FEEDBACK</Link>
             </li>

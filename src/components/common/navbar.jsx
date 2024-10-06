@@ -24,7 +24,7 @@ export default function Navbar() {
           <ul className="nav-list">
             <li className="nav-item"><Link to="/">HOME</Link></li>
             <li className="nav-item">ABOUT</li>
-            <li className="nav-item"><Link to="/service">SERVICE</Link></li>
+            <li className="nav-item"><Link to="/placeorder">PLACE ORDER</Link></li>
             <li className="nav-item">
               <Link to="/feedback">FEEDBACK</Link>
             </li>

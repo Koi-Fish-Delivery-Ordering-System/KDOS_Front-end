@@ -16,7 +16,7 @@
   .left-section {
     margin-bottom: 120px;
     padding: 20px;
-    background-color: #f9f9f9;
+    background-color: rgb(249, 249, 249,0.8);
     border-right: 1px solid #ddd;
     overflow-y: auto;
     border-radius: 10px;
