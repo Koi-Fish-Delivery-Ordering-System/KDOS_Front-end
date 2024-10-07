@@ -80,7 +80,7 @@ function PlaceOrderPage() {
 
     return (
         <div>
-            <Row className="delivery-page">
+            <Row className="placeorder-page">
                 {/* Left Section: Route and Vehicle Selection */}
                 <Navbar2/>
                 <Col span={8} className="left-section">
@@ -148,7 +148,7 @@ function PlaceOrderPage() {
                             </Checkbox.Group>
                         </Form.Item>
                         <Form.Item>
-                            <Button type="primary" htmlType="submit">
+                            <Button className="submit-btn" type="primary" htmlType="submit">
                                 Continue
                             </Button>
                         </Form.Item>

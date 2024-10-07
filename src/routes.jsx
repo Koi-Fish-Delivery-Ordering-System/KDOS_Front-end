@@ -11,6 +11,7 @@ import ProfilePage from './components/common/profilepage';
 import OrderHistory from './components/common/orderhistory';
 import TrackOrderPage from './components/common/trackorder';
 import PlaceOrderPage from './components/common/placeorderpage';
+import DeliveryPage from './components/common/deliverypage';
 export const router = createBrowserRouter([
 
   {
@@ -57,5 +58,8 @@ export const router = createBrowserRouter([
     path: "placeorder",
     element: <PlaceOrderPage />,
   },
-
+  {
+    path: "delivery",
+    element: <DeliveryPage />,
+  },
 ]);

@@ -1,0 +1,85 @@
+.delivery-page{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 110vh;
+    background-image: url('src/images/background.jpg');
+    
+    background-position: center;
+}
+.main-section{
+    justify-content: center;
+    height: 95vh;
+    border-radius: 10px;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.4);
+    background-color: rgb(249, 249, 249,0.8);
+}
+.delivery-info-list{
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center the cards horizontally */
+    width: 100%;
+}
+.delivery-card{
+    margin: 10px;
+    width: 80%;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.4);
+}
+.detail-delivery-btn{
+    color: white;
+    border-radius: 10px;
+    background-color: #ff7700;
+    padding: 10px;
+    font-weight: bold;
+}
+.delivery-location{
+    text-align: center;
+    border: 1px solid;
+    border-radius: 10px;
+    padding: 10px;
+    max-height: 100px;
+    overflow: hidden;
+    white-space: nowrap; /* Prevent text from wrapping to the next line */
+    text-overflow: ellipsis; /* Add ellipsis (...) when text overflows */
+}
+.total-cost-and-status{
+    display: flex;
+    justify-content: center;
+
+}
+.total-cost-and-status {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.pagination-controls .ant-btn {
+    margin: 0 10px;
+    padding: 5px 15px;
+    border-radius: 5px;
+    background-color: #ff7700;
+    color: #fff;
+    border: none;
+    transition: background-color 0.3s ease;
+}
+
+.pagination-controls .ant-btn:hover {
+    background-color: orangered !important;
+    color: #fff !important;
+}
+
+.pagination-controls .ant-btn:disabled {
+    background-color: #d9d9d9;
+    color: #bfbfbf;
+}
+.filter-input{
+    width: 200px;
+    text-align: center;
+    margin-left: 10px;
+}
+
