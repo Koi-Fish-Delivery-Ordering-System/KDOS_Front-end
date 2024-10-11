@@ -8,7 +8,7 @@
     justify-content: center; /* Căn giữa theo chiều ngang */
     align-items: center; /* Căn giữa theo chiều dọc */
     height: 100vh; /* Chiều cao toàn bộ viewport */
-    background-image: url('src/images/background.jpg'); /* Đường dẫn đến hình ảnh nền */
+    background-image: url('../images/background.jpg'); /* Đường dẫn đến hình ảnh nền */
     background-size: cover; /* Đảm bảo hình ảnh phủ toàn bộ */
     background-position: center; /* Căn giữa hình ảnh */
 }

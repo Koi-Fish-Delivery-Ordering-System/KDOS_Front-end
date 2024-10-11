@@ -61,7 +61,8 @@ function DeliveryPage() {
             setCurrentPage(currentPage - 1);
         }
     };
-
+    if (loading) return <div>Loading...</div>;
+    if (!orders) return <div>No order found</div>;
     return (
         <div>
             <Row className="delivery-page">
@@ -89,7 +90,7 @@ function DeliveryPage() {
                                 key={order.id}
                                 className="delivery-card"
                                 title={order.id}
-                                extra={<a href={`/detaildelivery/${order.id}`} className="detail-delivery-btn">Detail</a>}
+                                extra={<a href={`/deliverydetail/${order.id}`} className="detail-delivery-btn">Detail</a>}
                             >
                                 <Row>
                                     <Col span={7}>

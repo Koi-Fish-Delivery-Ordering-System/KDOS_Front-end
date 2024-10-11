@@ -12,6 +12,7 @@ import OrderHistory from './components/common/orderhistory';
 import TrackOrderPage from './components/common/trackorder';
 import PlaceOrderPage from './components/common/placeorderpage';
 import DeliveryPage from './components/common/deliverypage';
+import DeliveryDetail from './components/common/deliverydetail';
 export const router = createBrowserRouter([
 
   {
@@ -62,4 +63,9 @@ export const router = createBrowserRouter([
     path: "delivery",
     element: <DeliveryPage />,
   },
+  {
+    path: "deliverydetail/:orderId",
+    element: <DeliveryDetail />,
+  },
+  
 ]);

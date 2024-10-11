@@ -1,0 +1,27 @@
+.deliverydetail-page{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 110vh;
+    background-image: url('../images/background.jpg');  
+
+    background-position: center;
+}
+.delivery-info{
+    margin-left: 20px;
+    display: flex;
+    flex-direction: column;
+    font-size: 20px;
+}
+.status-btn{
+    display: block;
+    margin-top: 20px;
+    width: 30%;
+    height: 40px;
+    background-color: #ff7700;
+    margin-left: auto;
+    margin-right: auto;
+}
+.status-btn:hover {
+    background-color: orangered !important;
+  }

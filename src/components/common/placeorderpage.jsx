@@ -94,6 +94,7 @@ function PlaceOrderPage() {
                     >
                         <Form.Item label="Pick-up location" name="pickUpLocation" rules={[{ required: true, message: 'Please select pick-up location' }]}>
                             <Select
+                                allowClear
                                 showSearch
                                 placeholder="Select pick-up location"
                                 filterOption={(input, option) =>
@@ -109,6 +110,7 @@ function PlaceOrderPage() {
                         </Form.Item>
                         <Form.Item label="Drop-off location" name="dropOffLocation" rules={[{ required: true, message: 'Please select drop-off location' }]}>
                             <Select
+                                allowClear
                                 showSearch
                                 placeholder="Select Drop-off location"
                                 filterOption={(input, option) =>
