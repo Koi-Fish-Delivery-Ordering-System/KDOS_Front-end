@@ -1,5 +1,5 @@
 .profile-container {
-  max-width: 500px; /* Adjust this value to make the form narrower */
+  max-width: 500px;
   margin: 0 auto;
   padding: 20px;
 }
@@ -9,32 +9,34 @@
 }
 
 .profile-form .ant-form-item {
-  margin-bottom: 12px; /* Adjust this value to control the spacing */
-}
-
-.profile-form .ant-form-item-label {
-  padding-bottom: 4px; /* Reduce the padding below labels */
-}
-
-.profile-form h3 {
-  margin-top: 16px;
   margin-bottom: 12px;
 }
 
-.change-password-section {
-  margin-top: 24px;
+.profile-form .ant-form-item-label {
+  padding-bottom: 4px;
 }
 
-/* Make inputs and buttons full width */
-.profile-form .ant-input,
-.profile-form .ant-btn {
-  width: 100%;
+.field-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-/* Adjust the layout for items with "Change" buttons */
-.profile-form .ant-form-item-control-input-content {
+.view-mode {
   display: flex;
   align-items: center;
+  flex-grow: 1;
+}
+
+.edit-mode {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+}
+
+.profile-form .ant-btn-link {
+  color: #CB5217;
+  margin-left: 8px;
 }
 
 .profile-form .ant-form-item-control-input-content .ant-input {

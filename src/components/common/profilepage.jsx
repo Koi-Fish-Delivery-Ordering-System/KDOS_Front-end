@@ -1,99 +1,102 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, createContext, useContext } from "react";
 import { Button, Form, Input } from "antd";
 import { toast } from "react-toastify";
-import api from "../../config/axios";
+import axios from "axios";
 import "../../css/profile.css";
 
- function ProfilePage() {
+// Create UserContext
+const UserContext = createContext();
+
+const UserProvider = ({ children }) => {
+  const [userId, setUserId] = useState(1); // Default user ID for demonstration
+
+  return (
+    <UserContext.Provider value={{ userId, setUserId }}>
+      {children}
+    </UserContext.Provider>
+  );
+};
+
+function ProfilePage() {
+  const { userId } = useContext(UserContext);
   const [profile, setProfile] = useState({
-    fullName: '',
+    firstName: '',
+    lastName: '',
     phone: '',
     email: '',
-    password: '',
-    dob: '',
-    contactPhone: '',
-    creditCardInfo: '',
-    bankAccount: ''
   });
 
-  const handleChangeClick = (field) => {
-    // Logic to handle change action for each field
-    toast.info(`Change ${field}`);
-  };
+  const [editField, setEditField] = useState(null);
+  const [tempValue, setTempValue] = useState('');
 
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setProfile({ ...profile, [name]: value });
-  };
-
-  const handlePasswordChange = (e) => {
-    const { name, value } = e.target;
-    if (name === 'currentPassword') {
-      setCurrentPassword(value);
-    } else if (name === 'newPassword') {
-      setNewPassword(value);
-    } else if (name === 'confirmPassword') {
-      setConfirmPassword(value);
+  useEffect(() => {
+    if (userId) {
+      axios.get('https://66f3691871c84d8058789db4.mockapi.io/apiorders/1')
+        .then(response => {
+          const { firstName, lastName, phone, email } = response.data;
+          setProfile({ firstName, lastName, phone, email });
+        })
+        .catch(error => {
+          console.error('API Error:', error);
+          toast.error('Failed to load profile data');
+        });
     }
+  }, [userId]);
+
+  const handleChangeClick = (field) => {
+    setEditField(field);
+    setTempValue(profile[field]);
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Handle form submission logic here
-    console.log(profile, currentPassword, newPassword, confirmPassword);
-    toast.success('Profile updated successfully');
+  const handleCancel = () => {
+    setEditField(null);
+  };
+
+  const handleContinue = () => {
+    setProfile({ ...profile, [editField]: tempValue });
+    setEditField(null);
+    toast.success(`${editField} updated successfully`);
   };
 
   return (
     <div className="profile-container">
       <h2>Profile</h2>
-      <Form onSubmit={handleSubmit} className="profile-form">
-        <Form.Item label="Full Name">
-          <Input type="text" name="fullName" value={profile.fullName} onChange={handleChange} />
-        </Form.Item>
-        <Form.Item label="Phone">
-          <Input value={profile.phone} readOnly />
-          <Button type="link" onClick={() => handleChangeClick('Phone')}>Thay Đổi</Button>
-        </Form.Item>
-        <Form.Item label="Email">
-          <Input value={profile.email} readOnly />
-          <Button type="link" onClick={() => handleChangeClick('Email')}>Thay Đổi</Button>
-        </Form.Item>
+      <Form className="profile-form">
+        {['firstName', 'lastName', 'phone', 'email'].map(field => (
+          <Form.Item key={field} label={field.replace(/^\w/, c => c.toUpperCase())}>
+            <div className="field-container">
+              {editField === field ? (
+                <div className="edit-mode">
+                  <Input value={tempValue} onChange={e => setTempValue(e.target.value)} />
+                  <Button type="link" onClick={handleCancel}>Cancel</Button>
+                  <Button type="link" onClick={handleContinue}>Continue</Button>
+                </div>
+              ) : (
+                <div className="view-mode">
+                  <Input value={profile[field]} readOnly />
+                  <Button type="link" onClick={() => handleChangeClick(field)}>Change</Button>
+                </div>
+              )}
+            </div>
+          </Form.Item>
+        ))}
         <Form.Item label="Password">
-          <Input type="password" name="password" value={profile.password} onChange={handleChange} />
+          <Button type="link" onClick={() => handleChangeClick('Password')}>Change Password</Button>
         </Form.Item>
-        <Form.Item label="Date of Birth">
-          <Input type="date" name="dob" value={profile.dob} onChange={handleChange} />
+        <Form.Item label="Account">
+          <Button type="link" onClick={() => handleChangeClick('Account')}>Delete Account</Button>
         </Form.Item>
-        <Form.Item label="Contact Phone">
-          <Input type="tel" name="contactPhone" value={profile.contactPhone} onChange={handleChange} />
-        </Form.Item>
-        <Form.Item label="Credit Card Info">
-          <Input type="text" name="creditCardInfo" value={profile.creditCardInfo} onChange={handleChange} />
-        </Form.Item>
-        <Form.Item label="Bank Account">
-          <Input type="text" name="bankAccount" value={profile.bankAccount} onChange={handleChange} />
-        </Form.Item>
-        <div className="change-password-section">
-          <h3>Change Password</h3>
-          <Form.Item label="Current Password">
-            <Input type="password" name="currentPassword" value={currentPassword} onChange={handlePasswordChange} />
-          </Form.Item>
-          <Form.Item label="Enter New Password">
-            <Input type="password" name="newPassword" value={newPassword} onChange={handlePasswordChange} />
-          </Form.Item>
-          <Form.Item label="Re-type New Password">
-            <Input type="password" name="confirmPassword" value={confirmPassword} onChange={handlePasswordChange} />
-          </Form.Item>
-        </div>
-        <Button type="primary" htmlType="submit">Save</Button>
       </Form>
     </div>
   );
 }
 
-export default ProfilePage;
+function App() {
+  return (
+    <UserProvider>
+      <ProfilePage />
+    </UserProvider>
+  );
+}
+
+export default App;

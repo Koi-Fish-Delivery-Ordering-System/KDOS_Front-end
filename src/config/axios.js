@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://66f3691871c84d8058789db4.mockapi.io/orders",
+  baseURL: "https://66f3691871c84d8058789db4.mockapi.io/",
 });
 
 //  làm 1 hành động gì đó trc khi call api
