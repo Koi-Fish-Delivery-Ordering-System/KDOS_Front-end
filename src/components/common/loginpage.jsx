@@ -9,16 +9,14 @@ function LoginPage() {
   const navigate = useNavigate();
 
   const handleLogin = async (values) => {
-    console.log(values);
     try {
       const response = await api.post("https://66f3691871c84d8058789db4.mockapi.io/Login", values);
-      console.log(response);
-      const { role, token } = response.data;
+      const { token, avatar, username } = response.data;
       localStorage.setItem("token", token);
+      localStorage.setItem("avatar", avatar);
+      localStorage.setItem("username", username);
 
-      if (role === "ADMIN") {
-        navigate("/dashboard");
-      }
+      navigate("/"); // Redirect to homepage after login
     } catch (err) {
       toast.error(err.response.data);
     }

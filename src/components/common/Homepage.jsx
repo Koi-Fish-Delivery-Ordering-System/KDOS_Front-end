@@ -1,9 +1,20 @@
 import React, { useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from './navbar'
 import "../../css/homepage.css"
 import Footer from "./footer";
 import Blogcarousel from "./blogcarousel";
+
 export default function Homepage() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate('/login');
+    }
+  }, [navigate]);
+
   const rowsRef = useRef([]);
   const imageList = [
     "src/images/homepage1.png",
@@ -18,6 +29,7 @@ export default function Homepage() {
     "src/images/fish5.png",
     "src/images/fish6.png",
   ];
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -48,6 +60,7 @@ export default function Homepage() {
       });
     };
   }, []); // Empty dependency array so this runs only on mount
+
   return (
     <>
       <div>
