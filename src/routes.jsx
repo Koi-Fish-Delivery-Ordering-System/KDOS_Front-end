@@ -8,7 +8,7 @@ import RegisterPage from './components/common/registerpage';
 // import OrderDetailPage from './components/common/orderdetailpage';
 // import CheckoutPage from './components/common/checkout';
 import ProfilePage from './components/common/profilepage';
-import OrderHistory from './components/common/orderhistory';
+import Records from './components/common/records';
 import TrackOrderPage from './components/common/trackorder';
 import PlaceOrderPage from './components/common/placeorderpage';
 import DeliveryPage from './components/common/deliverypage';
@@ -48,8 +48,8 @@ export const router = createBrowserRouter([
     element: <ProfilePage />,
   },
    {
-    path: "orderhistory",
-    element: <OrderHistory />,
+    path: "records",
+    element: <Records />,
   },
    {
     path: "trackorder",
