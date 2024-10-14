@@ -52,12 +52,6 @@ function PlaceOrderPage() {
             pickUpLocation !== dropOffLocation
         );
     };
-
-    const mapContainerStyle = {
-        height: '100vh',
-        width: '100%',
-    };
-  
     const provinces = [
         'Hà Giang', 'Cao Bằng', 'Bắc Kạn', 'Tuyên Quang', 'Lào Cai', 'Yên Bái', 'Thái Nguyên', 
         'Lạng Sơn', 'Quảng Ninh', 'Phú Thọ', 'Vĩnh Phúc', 'Bắc Giang', 'Bắc Ninh', 'Hà Nội', 
@@ -73,10 +67,6 @@ function PlaceOrderPage() {
     const provincesHasPlane = [
         "Hà Nội","TP Hồ Chí Minh","Đà Nẵng","Nha Trang","Phú Quốc","Thừa Thiên-Huế","Vinh","Cần Thơ","Hải Phòng","Buôn Ma Thuột"
     ];
-    const center = {
-        lat: 10.8231, // Ho Chi Minh City
-        lng: 106.6297,
-    };
 
     return (
         <div>
