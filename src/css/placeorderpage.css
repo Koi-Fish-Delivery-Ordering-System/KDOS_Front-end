@@ -14,6 +14,7 @@
 }
   /* Left Section: Form and Vehicle Selection */
   .left-section {
+    text-align: left;
     margin-bottom: 120px;
     padding: 20px;
     background-color: rgb(249, 249, 249,0.8);
@@ -25,7 +26,7 @@
   
   /* Section titles */
   .section-title {
-    text-align: center;
+    text-align: left;
     font-size: 24px;
     margin-bottom: 16px;
     font-weight: bold;

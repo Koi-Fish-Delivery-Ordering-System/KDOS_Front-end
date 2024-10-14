@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Input, Form, Card, Row, Col, Select, Radio, Checkbox } from 'antd';
+import { useNavigate } from 'react-router-dom';
 // import { LoadScript, GoogleMap } from '@react-google-maps/api';
 import '../../css/placeorderpage.css';
 import Navbar from './navbar';
@@ -7,6 +8,7 @@ import Footer from './footer';
 import Navbar2 from './navbar2';
 
 function PlaceOrderPage() {
+    const navigate = useNavigate();
     const [form] = Form.useForm(); // Thêm dòng này để sử dụng form
     const [airAvailable, setAirAvailable] = useState(false);
 
@@ -14,7 +16,7 @@ function PlaceOrderPage() {
         console.log(info);
         // navigate("/orderdetail", { state: { info } });
     };
-
+    
     const handleValuesChange = () => {
         const pickUpLocation = form.getFieldValue('pickUpLocation');
         const dropOffLocation = form.getFieldValue('dropOffLocation');
@@ -26,7 +28,6 @@ function PlaceOrderPage() {
             pickUpLocation !== dropOffLocation
         );
     };
-
     useEffect(() => {
         const pickUpLocation = form.getFieldValue('pickUpLocation');
         const dropOffLocation = form.getFieldValue('dropOffLocation');
@@ -37,7 +38,11 @@ function PlaceOrderPage() {
             provincesHasPlane.includes(dropOffLocation) &&
             pickUpLocation !== dropOffLocation
         );
-    }, [form]);
+        const token = localStorage.getItem("token");
+        if (!token) {
+          navigate('/login');
+        }
+    }, [form], [navigate]);
 
     // Hàm kiểm tra xem địa điểm có trong provincesHasPlane không
     const isAirAvailable = () => {
