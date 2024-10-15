@@ -5,7 +5,7 @@
   } */
   .placeorder-page {
     display: flex;
-    justify-content: center; /* Căn giữa theo chiều ngang */
+    justify-content: left; /* Căn giữa theo chiều ngang */
     align-items: center; /* Căn giữa theo chiều dọc */
     height: 100vh; /* Chiều cao toàn bộ viewport */
     background-image: url('../images/background.jpg'); /* Đường dẫn đến hình ảnh nền */
@@ -17,7 +17,7 @@
     text-align: left;
     margin-bottom: 120px;
     padding: 20px;
-    background-color: rgb(249, 249, 249,0.8);
+    background-color: rgb(249, 249, 249);
     border-right: 1px solid #ddd;
     overflow-y: auto;
     border-radius: 10px;

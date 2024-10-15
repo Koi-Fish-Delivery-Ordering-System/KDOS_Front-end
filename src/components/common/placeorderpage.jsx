@@ -137,13 +137,13 @@ function PlaceOrderPage() {
                                 )}
                             </Radio.Group>
                         </Form.Item>
-                        <h2 className="section-title">Additional Services</h2>
+                        {/* <h2 className="section-title">Additional Services</h2>
                         <Form.Item name="additionalServices" valuePropName="checked" className="additional-services">
                             <Checkbox.Group>
                                 <Checkbox value="specialCare">Special Care +100.000VND  </Checkbox>
                                 <Checkbox value="insurance">Insurance +100.00VND</Checkbox>
                             </Checkbox.Group>
-                        </Form.Item>
+                        </Form.Item> */}
                         <Form.Item>
                             <Button className="submit-btn" type="primary" htmlType="submit">
                                 Continue

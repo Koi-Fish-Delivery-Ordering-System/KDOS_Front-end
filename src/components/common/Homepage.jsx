@@ -69,7 +69,7 @@ export default function Homepage() {
         <section className="content-section">
           <div className="order-button-container">
             <button className="create-order-button" onClick={() => navigate('/placeorder')}>
-              Create order now
+              CREATE ORDER NOW
             </button>
           </div>
           <div className="divider" />
