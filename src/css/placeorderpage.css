@@ -17,12 +17,15 @@
     text-align: left;
     margin-bottom: 120px;
     padding: 20px;
-    background-color: rgb(249, 249, 249,0.8);
+    background-color: rgb(249, 249, 249);
     border-right: 1px solid #ddd;
     overflow-y: auto;
     border-radius: 10px;
     width: 500px;
-    height: 90vh;
+    
+    /* Animation properties */
+    animation: slideInFade 0.5s ease-out;
+    animation-fill-mode: both;
   }
   
   /* Section titles */
@@ -45,7 +48,8 @@
   .submit-btn {
     display: block;
     margin-top: 20px;
-    width: 100%;
+    width: 100% !important;
+    height: 40px;
     background-color: #ff7700;
   }
   .submit-btn:hover {
@@ -122,3 +126,14 @@
     margin-bottom: 10px; /* Adds spacing between checkboxes */
   }
   
+/* Keyframes for the slide-in and fade-in effect */
+@keyframes slideInFade {
+  0% {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
