@@ -40,11 +40,22 @@
 }
 
 .searchInput {
-  width: 100%;
+  /* width: 100%;
   padding: 8px;
   border: none;
   outline: none;
-  background-color: transparent;
+  background-color: transparent; */
+  display: inline-flex;
+    -webkit-box-pack: start;
+    justify-content: flex-start;
+    -webkit-box-align: center;
+    align-items: center;
+    border-radius: 2px;
+    box-sizing: border-box;
+    height: 44px;
+    padding: 0px 1em;
+    border: 1px solid rgb(178, 178, 178);
+    font-size: 14px;
 }
 
 .toggleContainer {
@@ -68,13 +79,13 @@
 
 .filterContainer {
   box-sizing: border-box;
-    margin: 0px;
-    min-width: 0px;
-    display: flex;
-    -webkit-box-pack: justify;
-    justify-content: space-between;
-    -webkit-box-align: center;
-    align-items: center;
+  margin: 0px;
+  min-width: 0px;
+  display: flex;
+  -webkit-box-pack: justify;
+  justify-content: space-between;
+  -webkit-box-align: center;
+  align-items: center;
 }
 
 .statusFilter {
@@ -85,34 +96,82 @@
 .dropdownButton {
   padding: 8px 12px;
   border: 1px solid #ccc;
-  background-color: #f8f9fa;
+  background-color: #fff;
   cursor: pointer;
   border-radius: 4px;
-  width: 150px;
+  width: auto;
   text-align: left;
   transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .dropdownButton:hover {
-  background-color: #e2e6ea;
+  background-color: #f0f0f0;
 }
 
 .checkboxDropdown {
+  display: flex;
+  flex-direction: column; /* Sắp xếp các checkbox theo cột */
+  align-items: flex-start; /* Căn chỉnh các checkbox theo hàng dọc */
   position: absolute;
-  background-color: white;
-  border: 1px solid #ccc;
   border-radius: 4px;
-  padding: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 1000;
-  width: 200px;
+  width: 220px;
   top: 40px;
+  left: 0;
+}
+
+.checkboxDropdown ul {
+  list-style-type: none; /* Loại bỏ dấu chấm đầu dòng */
+  padding: 0;
+  margin: 0;
+}
+
+.checkboxDropdown li {
+  margin-bottom: 5px; /* Khoảng cách giữa các mục */
 }
 
 .checkboxLabel {
-  display: block;
-  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
   font-size: 0.9rem;
+  white-space: nowrap;
+  margin-bottom: 5px; /* Khoảng cách giữa các checkbox */
+  width: 100%; /* Đảm bảo tất cả checkbox có cùng chiều rộng */
+  font-family: "Noto Sans Variable", system-ui, sans-serif;
+}
+
+.checkboxLabel input {
+  margin-right: 8px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #ccc;
+  border-radius: 3px;
+  background-color: #fff;
+  cursor: pointer;
+  position: relative;
+}
+
+.checkboxLabel input:checked {
+  background-color: #ff5722; /* Màu cam giống ảnh */
+  border-color: #ff5722;
+}
+
+.checkboxLabel input:checked::after {
+  content: '✔';
+  color: white;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 14px;
+  
 }
 
 .resetButton {
@@ -122,18 +181,45 @@
   color: #ff5722;
   cursor: pointer;
   text-decoration: underline;
+  font-size: 0.9rem;
+}
+
+.combinedFilter {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  /* Khoảng cách giữa status và date */
 }
 
 .dateFilter {
-  display: flex;
-  align-items: center;
+  border-radius: 2px;
+  padding: 0px 12px;
+  border: 1px solid rgb(178, 178, 178);
 }
 
 .dateInput {
-  margin: 0 5px;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  font-family: "Noto Sans Variable", system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 16px;
+  background-color: rgb(255, 255, 255);
+ 
+  width: 120px;
+  
+  border-width: 0px 0px 2px;
+  border-top-style: initial;
+  border-top-color: initial;
+  border-right-style: initial;
+  border-right-color: initial;
+  border-bottom-style: solid;
+  border-bottom-color: transparent;
+  border-left-style: initial;
+  border-left-color: initial;
+  box-sizing: border-box;
+}
+
+.dateArrow {
+  font-size: 1.2rem;
+  color: #666;
 }
 
 .emptyState {

@@ -19,17 +19,18 @@ export default function Navbar() {
     localStorage.removeItem("token");
     localStorage.removeItem("avatar");
     localStorage.removeItem("username");
-    setUserInfo({}); // Clear user info
+    setUserInfo({});
     navigate('/login');
+  };
+
+  const handleAccountManagement = () => {
+    navigate('/account-management');
   };
 
   const menu_user = (
     <Menu>
       <Menu.Item>
-        <Link to="/profile">Thông Tin</Link>
-      </Menu.Item>
-      <Menu.Item>
-        <Link to="/records">Xem đơn hàng</Link>
+        <a href="#" onClick={handleAccountManagement}>Quản lý tài khoản</a>
       </Menu.Item>
       <Menu.Item>
         <a href="#" onClick={handleLogout}>Đăng Xuất</a>
