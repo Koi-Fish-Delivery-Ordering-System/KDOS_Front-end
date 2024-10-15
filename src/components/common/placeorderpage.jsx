@@ -78,7 +78,7 @@ function PlaceOrderPage() {
             <Row className="placeorder-page">
                 {/* Left Section: Route and Vehicle Selection */}
                 <Navbar2/>
-                <Col span={8} className="left-section">
+                <Col span={12} className="left-section">
                     <h2 className="section-title">Location</h2>
                     <Form
                         layout="vertical"
