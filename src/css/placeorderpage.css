@@ -4,13 +4,9 @@
     height: 100vh;
   } */
   .placeorder-page {
-    display: flex;
-    justify-content: left; /* Căn giữa theo chiều ngang */
-    align-items: center; /* Căn giữa theo chiều dọc */
+
     height: 100vh; /* Chiều cao toàn bộ viewport */
-    background-image: url('../images/background.jpg'); /* Đường dẫn đến hình ảnh nền */
-    background-size: cover; /* Đảm bảo hình ảnh phủ toàn bộ */
-    background-position: center; /* Căn giữa hình ảnh */
+
 }
   /* Left Section: Form and Vehicle Selection */
   .left-section {
@@ -87,7 +83,12 @@
     cursor: pointer;
     transition: background-color 0.3s ease, border-color 0.3s ease;
   }
-  
+  .vehicle-scroll-container {
+    overflow-y: auto;  /* Thêm thanh cuộn dọc nếu nội dung vượt quá chiều cao */
+    border: 1px solid #d9d9d9; /* Thêm viền cho container */
+    border-radius: 4px; /* Bo góc cho container */
+    padding: 10px; /* Thêm khoảng cách bên trong */
+}
   .vehicle-radio-group .ant-radio-wrapper:hover {
     background-color: #ff770070; /* light hover background */
     border-color: #ff7700; /* change border on hover */
@@ -116,7 +117,20 @@
   .vehicle-radio-group .ant-radio-wrapper-checked img {
     filter: drop-shadow(0px 0px 4px rgba(0, 0, 0, 0.2)); /* add a small shadow to selected image */
   }
-  
+  .distance-display {
+    background-color: whitesmoke; /* Light background color */
+    border: 1px solid #ff7700; /* Border color */
+    border-radius: 8px; /* Rounded corners */
+    padding: 15px; /* Padding for spacing */
+    margin-top: 20px; /* Space above the element */
+    font-size: 1.5em; /* Larger font size */
+    font-weight: bold; /* Bold text */
+    color: black; /* Dark text color */
+    text-align: center; /* Center the text */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    transition: background-color 0.3s; /* Smooth transition for hover effect */
+}
+
   .additional-services .ant-checkbox-group {
     display: flex;
     flex-direction: column;
