@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Input, Form, Card, Row, Col, Select, Radio, Checkbox } from 'antd';
-// import { LoadScript, GoogleMap } from '@react-google-maps/api';
+import { useNavigate } from 'react-router-dom';
+import { LoadScript, GoogleMap } from '@react-google-maps/api';
 import '../../css/placeorderpage.css';
 import Navbar from './navbar';
 import Footer from './footer';
 import Navbar2 from './navbar2';
 
 function PlaceOrderPage() {
+    const navigate = useNavigate();
     const [form] = Form.useForm(); // Thêm dòng này để sử dụng form
     const [airAvailable, setAirAvailable] = useState(false);
 
@@ -14,7 +16,7 @@ function PlaceOrderPage() {
         console.log(info);
         // navigate("/orderdetail", { state: { info } });
     };
-
+    
     const handleValuesChange = () => {
         const pickUpLocation = form.getFieldValue('pickUpLocation');
         const dropOffLocation = form.getFieldValue('dropOffLocation');
@@ -26,7 +28,6 @@ function PlaceOrderPage() {
             pickUpLocation !== dropOffLocation
         );
     };
-
     useEffect(() => {
         const pickUpLocation = form.getFieldValue('pickUpLocation');
         const dropOffLocation = form.getFieldValue('dropOffLocation');
@@ -37,7 +38,11 @@ function PlaceOrderPage() {
             provincesHasPlane.includes(dropOffLocation) &&
             pickUpLocation !== dropOffLocation
         );
-    }, [form]);
+        const token = localStorage.getItem("token");
+        if (!token) {
+          navigate('/login');
+        }
+    }, [form], [navigate]);
 
     // Hàm kiểm tra xem địa điểm có trong provincesHasPlane không
     const isAirAvailable = () => {
@@ -52,12 +57,6 @@ function PlaceOrderPage() {
             pickUpLocation !== dropOffLocation
         );
     };
-
-    const mapContainerStyle = {
-        height: '100vh',
-        width: '100%',
-    };
-  
     const provinces = [
         'Hà Giang', 'Cao Bằng', 'Bắc Kạn', 'Tuyên Quang', 'Lào Cai', 'Yên Bái', 'Thái Nguyên', 
         'Lạng Sơn', 'Quảng Ninh', 'Phú Thọ', 'Vĩnh Phúc', 'Bắc Giang', 'Bắc Ninh', 'Hà Nội', 
@@ -73,9 +72,15 @@ function PlaceOrderPage() {
     const provincesHasPlane = [
         "Hà Nội","TP Hồ Chí Minh","Đà Nẵng","Nha Trang","Phú Quốc","Thừa Thiên-Huế","Vinh","Cần Thơ","Hải Phòng","Buôn Ma Thuột"
     ];
+
+    const mapContainerStyle = {
+        height: "400px", // Set the desired height
+        width: "100%",   // Set the desired width
+    };
+
     const center = {
-        lat: 10.8231, // Ho Chi Minh City
-        lng: 106.6297,
+        lat: 10.8231,    // Set the latitude for the center of the map
+        lng: 106.6297,   // Set the longitude for the center of the map
     };
 
     return (
@@ -83,7 +88,7 @@ function PlaceOrderPage() {
             <Row className="placeorder-page">
                 {/* Left Section: Route and Vehicle Selection */}
                 <Navbar2/>
-                <Col span={8} className="left-section">
+                <Col span={12} className="left-section">
                     <h2 className="section-title">Location</h2>
                     <Form
                         layout="vertical"
@@ -142,13 +147,13 @@ function PlaceOrderPage() {
                                 )}
                             </Radio.Group>
                         </Form.Item>
-                        <h2 className="section-title">Additional Services</h2>
+                        {/* <h2 className="section-title">Additional Services</h2>
                         <Form.Item name="additionalServices" valuePropName="checked" className="additional-services">
                             <Checkbox.Group>
                                 <Checkbox value="specialCare">Special Care +100.000VND  </Checkbox>
                                 <Checkbox value="insurance">Insurance +100.00VND</Checkbox>
                             </Checkbox.Group>
-                        </Form.Item>
+                        </Form.Item> */}
                         <Form.Item>
                             <Button className="submit-btn" type="primary" htmlType="submit">
                                 Continue
@@ -158,19 +163,19 @@ function PlaceOrderPage() {
 
                 </Col>
 
-                {/* Right Section: Google Map */}
-                {/* <Col span={16} className="map-section">
-                    <LoadScript googleMapsApiKey="YOUR_GOOGLE_MAPS_API_KEY">
+                 Right Section: Google Map 
+                 <Col span={16} className="map-section">
+                    <LoadScript googleMapsApiKey="AIzaSyDJO2B-_FLwk1R1pje5gKEAB9h2qUDb-FU">
                         <GoogleMap
                             mapContainerStyle={mapContainerStyle}
                             zoom={10}
                             center={center}
                         />
                     </LoadScript>
-                </Col> */}
-                {/* <Col span={16} className="map-section">
+                </Col> 
+                 {/* <Col span={16} className="map-section">
                     <img src="src/images/background.jpg" alt="Map" />
-                </Col> */}
+                </Col>  */}
             </Row>
             <Footer/>
         </div>

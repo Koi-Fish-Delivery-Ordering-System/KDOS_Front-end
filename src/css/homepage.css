@@ -1,10 +1,38 @@
+body {
+  background-color: #f9f9f9;
+}
 /* Content Section Styles */
 .content-section {
     padding: 0px 5vw;
     background-color: #f9f9f9; /* Light background for contrast */
 
   }
-  
+  .order-button-container {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+  }
+  .create-order-button {
+    background-color: #FF8C00;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  .create-order-button:hover {
+    background-color: #FF7F00;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+  }
+  .create-order-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
   .row {
     display: flex;
     align-items: center;

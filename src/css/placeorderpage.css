@@ -5,7 +5,7 @@
   } */
   .placeorder-page {
     display: flex;
-    justify-content: center; /* Căn giữa theo chiều ngang */
+    justify-content: left; /* Căn giữa theo chiều ngang */
     align-items: center; /* Căn giữa theo chiều dọc */
     height: 100vh; /* Chiều cao toàn bộ viewport */
     background-image: url('../images/background.jpg'); /* Đường dẫn đến hình ảnh nền */
@@ -14,18 +14,23 @@
 }
   /* Left Section: Form and Vehicle Selection */
   .left-section {
+    text-align: left;
     margin-bottom: 120px;
     padding: 20px;
-    background-color: rgb(249, 249, 249,0.8);
+    background-color: rgb(249, 249, 249);
     border-right: 1px solid #ddd;
     overflow-y: auto;
     border-radius: 10px;
     width: 500px;
+    
+    /* Animation properties */
+    animation: slideInFade 0.5s ease-out;
+    animation-fill-mode: both;
   }
   
   /* Section titles */
   .section-title {
-    text-align: center;
+    text-align: left;
     font-size: 24px;
     margin-bottom: 16px;
     font-weight: bold;
@@ -43,7 +48,8 @@
   .submit-btn {
     display: block;
     margin-top: 20px;
-    width: 100%;
+    width: 100% !important;
+    height: 40px;
     background-color: #ff7700;
   }
   .submit-btn:hover {
@@ -120,3 +126,14 @@
     margin-bottom: 10px; /* Adds spacing between checkboxes */
   }
   
+/* Keyframes for the slide-in and fade-in effect */
+@keyframes slideInFade {
+  0% {
+    opacity: 0;
+    transform: translateX(-50px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

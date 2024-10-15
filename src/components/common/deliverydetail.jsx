@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Navbar2 from './navbar2';
 import Footer from './footer';
 import '../../css/deliverydetail.css';
-import { Row, Col, Button } from 'antd';
+import { Row, Col, Button} from 'antd';
 import { useParams } from 'react-router-dom';
 import axios from '../../config/axios';
 
@@ -47,44 +47,50 @@ const DeliveryDetail = () => {
     if (!order) return <div>No order found</div>;
 
     return (
-        <div>
-            <Row className="deliverydetail-page">
-                <Navbar2 />
-                <Col span={12} className="main-section">
-                    <h1 className="section-title">Delivery Detail</h1>
-                    <Row className="delivery-info">
+        <Row className="deliverydetail-page">
+            <Navbar2 />
+            <Col span={24} className="main-section">
+                <h1 className="section-title">Delivery Detail</h1>
+                <Row className="delivery-info">
+                    <Col span={24}>
                         <h2>Order ID: {order.id}</h2>
-                        
-                    </Row>
-                    <Row className="delivery-info">
+                    </Col>
+                </Row>
+                <Row className="delivery-info">
+                    <Col span={24}>
                         <h2>Sender Information</h2>
                         <p>Name: {order.senderName}</p>
                         <p>Phone: {order.senderPhone}</p>
                         <p>Address: {order.pickUpAddr}</p>
-                        <br />
-                        <hr />
-                    </Row>
-                    <Row className="delivery-info">
+                    </Col>
+                </Row>
+                <Row className="delivery-info">
+                    <Col span={24}>
                         <h2>Receiver Information</h2>
                         <p>Name: {order.receiverName}</p>
                         <p>Phone: {order.receiverPhone}</p>
                         <p>Address: {order.dropOffAddr}</p>
-                    </Row>
-                    <Row className="delivery-info">
+                    </Col>
+                </Row>
+                <Row className="delivery-info">
+                    <Col span={24}>
                         <h2>Fish List</h2>
-                        {order.fishList.map(element => (
-                            <p>{element}</p>
-                        ))}   
-                    </Row>
-                    <h2>Status: {order.status}</h2>
-                    <Button type="primary" className="status-btn" onClick={() => updateOrderStatus('Delivered')}>Delivered</Button>
-                    <Row>
-                        
-                    </Row>
-                </Col>
-            </Row>
+                        {order.fishList.map((element, index) => (
+                            <p key={index}>{element}</p>
+                        ))}
+                    </Col>
+                </Row>
+                <Row className="delivery-info">
+                    <Col span={24}>
+                        <h2>Status: {order.status}</h2>
+                        <Button type="primary" className="status-btn" onClick={() => updateOrderStatus('Delivered')}>
+                            Mark as Delivered
+                        </Button>
+                    </Col>
+                </Row>
+            </Col>
             <Footer />
-        </div>
+        </Row>
     );
 };
 

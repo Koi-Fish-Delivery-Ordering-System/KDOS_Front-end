@@ -67,6 +67,11 @@ export default function Homepage() {
         <Navbar />
 
         <section className="content-section">
+          <div className="order-button-container">
+            <button className="create-order-button" onClick={() => navigate('/placeorder')}>
+              CREATE ORDER NOW
+            </button>
+          </div>
           <div className="divider" />
           <div className="row" ref={(el) => (rowsRef.current[0] = el)}>
             <img

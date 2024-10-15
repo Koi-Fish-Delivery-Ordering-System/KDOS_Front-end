@@ -1,24 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import "../../css/navbar.css"; // Make sure the path is correct
+import { Dropdown, Menu } from 'antd';
+import "../../css/navbar.css"; // Ensure the path is correct
 
-export default function Navbar2() {
+export default function Navbar() {
   const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(false); // Start with user not logged in
+  const [userInfo, setUserInfo] = useState({});
 
-  const handleLogin = () => {
-    // Perform login logic here
-    setIsLoggedIn(true);
-  };
+  useEffect(() => {
+    const storedAvatar = localStorage.getItem("avatar");
+    const storedUsername = localStorage.getItem("username");
+    if (storedAvatar && storedUsername) {
+      setUserInfo({ avatar: storedAvatar, username: storedUsername });
+    }
+  }, []);
 
   const handleLogout = () => {
-    // Perform logout logic here
-    setIsLoggedIn(false);
+    localStorage.removeItem("token");
+    localStorage.removeItem("avatar");
+    localStorage.removeItem("username");
+    setUserInfo({}); // Clear user info
     navigate('/login');
   };
 
+  const menu_user = (
+    <Menu>
+      <Menu.Item>
+        <Link to="/profile">Thông Tin</Link>
+      </Menu.Item>
+      <Menu.Item>
+        <Link to="/records">Xem đơn hàng</Link>
+      </Menu.Item>
+      <Menu.Item>
+        <a href="#" onClick={handleLogout}>Đăng Xuất</a>
+      </Menu.Item>
+    </Menu>
+  );
+
   return (
-    <header className="header-container" style={{ height: '0vh' }}>
+    <header className="header-container" style={{height: '0vh'}}>
       <nav className="navbar">
         <div className="nav-left">
           <ul className="nav-list">
@@ -35,17 +55,23 @@ export default function Navbar2() {
           </ul>
         </div>
         <div className="nav-right">
-          {!isLoggedIn ? (
-            <div><Link to="/login" className="nav-item-login" onClick={handleLogin}>LOGIN</Link></div>
+          {userInfo?.username ? (
+            <div className="dropdown">
+              <Dropdown overlay={menu_user} trigger={["hover"]}>
+                <a className="dropdown-link">
+                  <img 
+                    src={userInfo.avatar} 
+                    alt={userInfo.username} 
+                    className="avatar-image" 
+                    style={{ width: '30px', height: '30px', borderRadius: '50%', marginRight: '8px' }}
+                  />
+                  {userInfo.username}
+                </a>
+              </Dropdown>
+            </div>
           ) : (
-            <div className="avatar-dropdown">
-              <img src="path/to/avatar.png" alt="User Avatar" className="avatar" />
-              <ul className="dropdown-menu">
-                <li><Link to="/profile">Thông Tin</Link></li>
-                <li><Link to="/orderhistory">Lịch Sử Đơn Hàng</Link></li>
-                <li><Link to="/trackorder">Theo Dõi Đơn Hàng</Link></li>
-                <li><a href="#" onClick={handleLogout}>Đăng Xuất</a></li>
-              </ul>
+            <div onClick={() => navigate("/login")}>
+              <Link to="/login" className="nav-item-login">LOGIN</Link>
             </div>
           )}
         </div>
@@ -53,7 +79,7 @@ export default function Navbar2() {
 
       {/* <div className="header-content">
         <img
-          src="src\images\header.png"
+          src="src/images/header.png"
           alt="Service"
           className="service-image"
         />
