@@ -1,9 +1,12 @@
-body {
+/* body {
     background-image: url('../images/background.jpg');
     background-size: cover;
     background-position: center;
-}
+} */
 .deliverydetail-page {
+    background-image: url('../images/background.jpg');
+    background-size: cover;
+    background-position: center;
     min-height: 100vh;
 }
 

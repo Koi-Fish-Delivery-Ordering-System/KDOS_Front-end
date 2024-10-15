@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Input, Form, Card, Row, Col, Select, Radio, Checkbox } from 'antd';
 import { useNavigate } from 'react-router-dom';
-// import { LoadScript, GoogleMap } from '@react-google-maps/api';
+import { LoadScript, GoogleMap } from '@react-google-maps/api';
 import '../../css/placeorderpage.css';
 import Navbar from './navbar';
 import Footer from './footer';
@@ -72,6 +72,16 @@ function PlaceOrderPage() {
     const provincesHasPlane = [
         "Hà Nội","TP Hồ Chí Minh","Đà Nẵng","Nha Trang","Phú Quốc","Thừa Thiên-Huế","Vinh","Cần Thơ","Hải Phòng","Buôn Ma Thuột"
     ];
+
+    const mapContainerStyle = {
+        height: "400px", // Set the desired height
+        width: "100%",   // Set the desired width
+    };
+
+    const center = {
+        lat: 10.8231,    // Set the latitude for the center of the map
+        lng: 106.6297,   // Set the longitude for the center of the map
+    };
 
     return (
         <div>
@@ -153,19 +163,19 @@ function PlaceOrderPage() {
 
                 </Col>
 
-                {/* Right Section: Google Map */}
-                {/* <Col span={16} className="map-section">
-                    <LoadScript googleMapsApiKey="YOUR_GOOGLE_MAPS_API_KEY">
+                 Right Section: Google Map 
+                 <Col span={16} className="map-section">
+                    <LoadScript googleMapsApiKey="AIzaSyDJO2B-_FLwk1R1pje5gKEAB9h2qUDb-FU">
                         <GoogleMap
                             mapContainerStyle={mapContainerStyle}
                             zoom={10}
                             center={center}
                         />
                     </LoadScript>
-                </Col> */}
-                {/* <Col span={16} className="map-section">
+                </Col> 
+                 {/* <Col span={16} className="map-section">
                     <img src="src/images/background.jpg" alt="Map" />
-                </Col> */}
+                </Col>  */}
             </Row>
             <Footer/>
         </div>

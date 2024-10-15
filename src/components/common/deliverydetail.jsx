@@ -47,7 +47,7 @@ const DeliveryDetail = () => {
     if (!order) return <div>No order found</div>;
 
     return (
-        <div className="deliverydetail-page">
+        <Row className="deliverydetail-page">
             <Navbar2 />
             <Col span={24} className="main-section">
                 <h1 className="section-title">Delivery Detail</h1>
@@ -90,7 +90,7 @@ const DeliveryDetail = () => {
                 </Row>
             </Col>
             <Footer />
-        </div>
+        </Row>
     );
 };
 

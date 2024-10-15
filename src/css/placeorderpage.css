@@ -5,7 +5,7 @@
   } */
   .placeorder-page {
     display: flex;
-    justify-content: center; /* Căn giữa theo chiều ngang */
+    justify-content: left; /* Căn giữa theo chiều ngang */
     align-items: center; /* Căn giữa theo chiều dọc */
     height: 100vh; /* Chiều cao toàn bộ viewport */
     background-image: url('../images/background.jpg'); /* Đường dẫn đến hình ảnh nền */
@@ -22,6 +22,7 @@
     overflow-y: auto;
     border-radius: 10px;
     width: 500px;
+    height: 90vh;
   }
   
   /* Section titles */
