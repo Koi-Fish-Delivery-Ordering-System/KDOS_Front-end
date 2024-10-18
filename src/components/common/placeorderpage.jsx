@@ -156,16 +156,19 @@ function PlaceOrderPage() {
     const normalizeLocationName = (name) => {
         return name.toLowerCase()
             .replace(/thành phố|tp\.|tỉnh/g, '')
+            .replace(/\(.*?\)/g, '') // Remove content within parentheses
+            .replace(/,.*$/, '') // Remove everything after the first comma
             .replace(/\s+/g, ' ')
             .trim();
     };
 
     const checkAirportAvailability = (location) => {
         const normalizedLocation = normalizeLocationName(location);
-        return provincesWithAirport.some(province => 
-            normalizeLocationName(province.name).includes(normalizedLocation) ||
-            normalizedLocation.includes(normalizeLocationName(province.name))
-        );
+        return provincesWithAirport.some(province => {
+            const normalizedProvince = normalizeLocationName(province.name);
+            return normalizedLocation.includes(normalizedProvince) ||
+                   normalizedProvince.includes(normalizedLocation);
+        });
     };
 
     const [showVehicleTypes, setShowVehicleTypes] = useState(false);
@@ -180,6 +183,9 @@ function PlaceOrderPage() {
         if (pickUpLocation && dropOffLocation) {
             const pickUpHasAirport = checkAirportAvailability(pickUpLocation);
             const dropOffHasAirport = checkAirportAvailability(dropOffLocation);
+
+            console.log('Pick-up location:', pickUpLocation, 'Has airport:', pickUpHasAirport);
+            console.log('Drop-off location:', dropOffLocation, 'Has airport:', dropOffHasAirport);
 
             setIsAirVisible(pickUpHasAirport && dropOffHasAirport && pickUpLocation !== dropOffLocation);
         } else {
@@ -240,7 +246,7 @@ function PlaceOrderPage() {
                                                 }
                                                 return (
                                                     <Radio key={type.id} value={type.transportName}>
-                                                        <img src={type.image} alt={type.transportName} />
+                                                        <img src={type.image} />
                                                         <div>{type.transportName}</div>
                                                     </Radio>
                                                 );
@@ -251,18 +257,12 @@ function PlaceOrderPage() {
                             </>
                         )}
                         <Form.Item
-                            name="price" // Name of the hidden field
-                            style={{ display: 'none' }} // Hide the item
+                            name="price"
+                            style={{ display: 'none' }}
                         >
-                            <Input /> {/* Hidden input for price, no need to set value here */}
+                            <Input />
                         </Form.Item>
-                        {/* <h2 className="section-title">Additional Services</h2>
-                        <Form.Item name="additionalServices" valuePropName="checked" className="additional-services">
-                            <Checkbox.Group>
-                                <Checkbox value="specialCare">Special Care +100.000VND  </Checkbox>
-                                <Checkbox value="insurance">Insurance +100.00VND</Checkbox>
-                            </Checkbox.Group>
-                        </Form.Item> */}
+                       
                         {distance !== null && distance > 0 && vehicleType && ( 
                             <div className="distance-display">
                                 Provisional Price: {Math.round(distance * vehicleType.pricePerKm).toLocaleString()} VNĐ
