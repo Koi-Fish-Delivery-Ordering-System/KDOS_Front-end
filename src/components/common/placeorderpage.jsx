@@ -177,7 +177,7 @@ function PlaceOrderPage() {
                                             <Radio key={type.id} value={type.transportName}>
                                                 <img src={type.image}  />
                                                 <div>{type.transportName}</div>
-                                                <div>{type.pricePerKm}</div>
+                                               
                                             </Radio>
                                         );
                                     })}
@@ -199,7 +199,7 @@ function PlaceOrderPage() {
                         </Form.Item> */}
                         {distance !== null && vehicleType && ( 
                             <div className="distance-display">
-                                Provisional Price: {distance*vehicleType.pricePerKm}
+                                Provisional Price: {distance*vehicleType.pricePerKm} VNĐ
                             </div>
                         )}
                         <Form.Item>

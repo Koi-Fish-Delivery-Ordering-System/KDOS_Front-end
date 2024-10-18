@@ -44,15 +44,6 @@ export default function Navbar() {
         <div className="nav-left">
           <ul className="nav-list">
             <li className="nav-item"><Link to="/">HOME</Link></li>
-            <li className="nav-item">ABOUT</li>
-            <li className="nav-item"><Link to="/placeorder">PLACE ORDER</Link></li>
-            <li className="nav-item">
-              <Link to="/feedback">FEEDBACK</Link>
-            </li>
-            <li className="nav-item">
-              <Link to="/ordertracking">ORDERTRACKING</Link>
-            </li>
-            <li className="nav-item">CONTACT</li>
           </ul>
         </div>
         <div className="nav-right">
