@@ -10,16 +10,17 @@ function LoginPage() {
 
   const handleLogin = async (values) => {
     try {
-      const response = await api.post("https://66f3691871c84d8058789db4.mockapi.io/Login", values);
-      const { token, avatar, username } = response.data;
+      const response = await api.post("https://6711071d4eca2acdb5f3478a.mockapi.io/Login", values);
+      const { token, avatar, username, userId, role } = response.data; // Assume role is returned
       localStorage.setItem("token", token);
       localStorage.setItem("avatar", avatar);
       localStorage.setItem("username", username);
+      localStorage.setItem("userId", userId);
+      localStorage.setItem("role", role); // Store role
 
       navigate("/"); // Redirect to homepage after login
     } catch (err) {
-      toast.error(err.response.data);
-      console.log(token)
+      toast.error(err.response.data.message || "Login failed");
     }
   };
 

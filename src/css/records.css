@@ -31,31 +31,24 @@
 }
 
 .searchContainer {
-  display: flex;
-  align-items: center;
-  border-radius: 4px;
-  border: 1px solid #ccc;
-  padding: 0 10px;
-  background-color: #f9f9f9;
+  border-radius: 2px;
+    padding: 0px 12px;
+    border: 1px solid rgb(178, 178, 178);
 }
 
 .searchInput {
-  /* width: 100%;
-  padding: 8px;
+  display: inline-flex;
+  justify-content: flex-start;
+  align-items: center;
+  border-radius: 2px;
+  box-sizing: border-box;
+  height: 44px;
+  padding: 0px 1em;
+  font-size: 14px;
+  width: 350px;
   border: none;
   outline: none;
-  background-color: transparent; */
-  display: inline-flex;
-    -webkit-box-pack: start;
-    justify-content: flex-start;
-    -webkit-box-align: center;
-    align-items: center;
-    border-radius: 2px;
-    box-sizing: border-box;
-    height: 44px;
-    padding: 0px 1em;
-    border: 1px solid rgb(178, 178, 178);
-    font-size: 14px;
+  background-color: transparent;
 }
 
 .toggleContainer {
@@ -105,33 +98,51 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: relative;
+  white-space: nowrap;
+  overflow: visible;
+  text-overflow: clip;
+  padding-right: 30px;
+  /* Add extra padding to the right */
 }
 
 .dropdownButton:hover {
   background-color: #f0f0f0;
 }
 
+.dropdownButton::after {
+  content: '▼';
+  font-size: 12px;
+  color: #666;
+  position: absolute;
+  right: 10px;
+  /* Adjust position */
+}
+
 .checkboxDropdown {
   display: flex;
-  flex-direction: column; /* Sắp xếp các checkbox theo cột */
-  align-items: flex-start; /* Căn chỉnh các checkbox theo hàng dọc */
+  flex-direction: column;
+  /* Sắp xếp các checkbox theo cột */
+  align-items: flex-start;
+  /* Căn chỉnh các checkbox theo hàng dọc */
   position: absolute;
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 1000;
-  width: 220px;
   top: 40px;
   left: 0;
 }
 
 .checkboxDropdown ul {
-  list-style-type: none; /* Loại bỏ dấu chấm đầu dòng */
+  list-style-type: none;
+  /* Loại bỏ dấu chấm đầu dòng */
   padding: 0;
   margin: 0;
 }
 
 .checkboxDropdown li {
-  margin-bottom: 5px; /* Khoảng cách giữa các mục */
+  margin-bottom: 5px;
+  /* Khoảng cách giữa các mục */
 }
 
 .checkboxLabel {
@@ -139,9 +150,13 @@
   align-items: center;
   font-size: 0.9rem;
   white-space: nowrap;
-  margin-bottom: 5px; /* Khoảng cách giữa các checkbox */
-  width: 100%; /* Đảm bảo tất cả checkbox có cùng chiều rộng */
+  margin-bottom: 5px;
+  width: 100%;
   font-family: "Noto Sans Variable", system-ui, sans-serif;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  /* Subtle bottom border */
+  padding-bottom: 5px;
+  /* Add padding for spacing */
 }
 
 .checkboxLabel input {
@@ -159,7 +174,8 @@
 }
 
 .checkboxLabel input:checked {
-  background-color: #ff5722; /* Màu cam giống ảnh */
+  background-color: #ff5722;
+  /* Màu cam giống ảnh */
   border-color: #ff5722;
 }
 
@@ -171,7 +187,7 @@
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 14px;
-  
+
 }
 
 .resetButton {
@@ -187,39 +203,35 @@
 .combinedFilter {
   display: flex;
   align-items: center;
-  gap: 5px;
-  /* Khoảng cách giữa status và date */
+
+  flex-direction: row;
 }
 
 .dateFilter {
-  border-radius: 2px;
-  padding: 0px 12px;
-  border: 1px solid rgb(178, 178, 178);
+  display: flex;
+  align-items: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 5px;
+  background-color: #fff;
 }
 
 .dateInput {
   font-family: "Noto Sans Variable", system-ui, sans-serif;
   font-size: 1rem;
-  line-height: 16px;
-  background-color: rgb(255, 255, 255);
- 
-  width: 120px;
-  
-  border-width: 0px 0px 2px;
-  border-top-style: initial;
-  border-top-color: initial;
-  border-right-style: initial;
-  border-right-color: initial;
-  border-bottom-style: solid;
-  border-bottom-color: transparent;
-  border-left-style: initial;
-  border-left-color: initial;
-  box-sizing: border-box;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  width: 100px; /* Adjust width for better visibility */
+  text-align: center;
+  padding: 5px;
+  margin: 0 5px;
 }
 
 .dateArrow {
   font-size: 1.2rem;
   color: #666;
+  margin: 0 10px;
 }
 
 .emptyState {
@@ -241,4 +253,34 @@
 .emptyState p {
   font-size: 1.1rem;
   color: #666;
+}
+
+.calendarIcon {
+  font-size: 1.2rem;
+  color: #666;
+  margin-left: 10px;
+  cursor: pointer;
+  border: none;
+}
+
+.react-datepicker {
+  border: none; /* Remove border */
+  box-shadow: none; /* Remove shadow */
+}
+
+.react-datepicker__day {
+  background-color: white; /* Default day color */
+  color: #333; /* Default text color */
+  border-radius: 4px; /* Add border radius for days */
+}
+
+.react-datepicker__day--selected {
+  background-color: #CB5217; /* Highlight selected day */
+  color: white; /* Text color for selected day */
+  border-radius: 50%; /* Make the selected day circular */
+}
+
+.react-datepicker__day:hover {
+  background-color: white; /* Keep hover color same as default */
+  color: #333; /* Keep text color same as default */
 }
