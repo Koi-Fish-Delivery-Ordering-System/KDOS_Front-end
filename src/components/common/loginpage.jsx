@@ -19,6 +19,7 @@ function LoginPage() {
       navigate("/"); // Redirect to homepage after login
     } catch (err) {
       toast.error(err.response.data);
+      console.log(token)
     }
   };
 

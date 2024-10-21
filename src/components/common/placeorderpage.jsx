@@ -53,15 +53,6 @@ function PlaceOrderPage() {
             }
         };
         fetchVehicleTypes(); // Gọi hàm fetchVehicleTypes
-        const fetchProvinces = async () => {
-            try {
-                const response = await axios.get('https://670e78b03e7151861654ae2d.mockapi.io/Province'); // Thay thế bằng URL API của bạn
-                setProvinces(response.data); // Lưu trữ danh sách tỉnh vào state
-            } catch (error) {
-                console.error('Error fetching provinces:', error);
-            }
-        };
-        fetchProvinces();
         const fetchProvincesWithAirport = async () => {
             try {
                 const response = await axios.get('https://670e78b03e7151861654ae2d.mockapi.io/provinceHasPlane');
@@ -79,14 +70,22 @@ function PlaceOrderPage() {
         setVehicleType(selectedType); // Cập nhật loại xe đã chọn
     };
 
+    const normalizeLocationName = (name) => {
+        return name.toLowerCase()
+            .replace(/thành phố|tp\.|tỉnh/g, '')
+            .replace(/\(.*?\)/g, '') // Remove content within parentheses
+            .replace(/,.*$/, '') // Remove everything after the first comma
+            .replace(/\s+/g, ' ')
+            .trim();
+    };
+
     const isAirAvailable = () => {
-        const pickUpLocation = form.getFieldValue('pickUpLocation');
-        const dropOffLocation = form.getFieldValue('dropOffLocation');
+        const pickUpLocation = normalizeLocationName(form.getFieldValue('pickUpLocation'));
+        const dropOffLocation = normalizeLocationName(form.getFieldValue('dropOffLocation'));
 
-        const pickUp = provinces.find(province => province.provinceName === pickUpLocation);
-        const dropOff = provinces.find(province => province.provinceName === dropOffLocation);
+        const pickUp = provinces.find(province => normalizeLocationName(province.name) === pickUpLocation);
+        const dropOff = provinces.find(province => normalizeLocationName(province.name) === dropOffLocation);
 
-        // Kiểm tra xem cả hai địa điểm có isPlane = true và không trùng nhau
         return pickUp?.isPlane && dropOff?.isPlane && pickUpLocation !== dropOffLocation;
     };
 
@@ -151,15 +150,6 @@ function PlaceOrderPage() {
             // Có thể thêm xử lý lỗi ở đây, ví dụ hiển thị thông báo cho người dùng
         }
         setDropOffSuggestions([]);
-    };
-
-    const normalizeLocationName = (name) => {
-        return name.toLowerCase()
-            .replace(/thành phố|tp\.|tỉnh/g, '')
-            .replace(/\(.*?\)/g, '') // Remove content within parentheses
-            .replace(/,.*$/, '') // Remove everything after the first comma
-            .replace(/\s+/g, ' ')
-            .trim();
     };
 
     const checkAirportAvailability = (location) => {
