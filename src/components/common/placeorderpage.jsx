@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Input, Form, Card, Row, Col, Select, Radio } from 'antd';
+import { Button, Input, Form, Card, Row, Col, Select, Radio, AutoComplete } from 'antd';
 import { useNavigate } from 'react-router-dom';
 // import { LoadScript, GoogleMap, LoadScriptNext } from '@react-google-maps/api';
 import '../../css/placeorderpage.css';
 import Footer from './footer';
 import Navbar2 from './navbar2';
 import axios from 'axios'; // Thêm import axios
+import DeliveryMap from './Map';
+
+// Add this near the top of your file, with other constant declarations
+const defaultPosition = [10.8231, 106.6297]; // Default coordinates for Ho Chi Minh City
 
 function PlaceOrderPage() {
     const navigate = useNavigate();
@@ -14,6 +18,7 @@ function PlaceOrderPage() {
     const [vehicleType, setVehicleType] = useState(null); // Thêm state để lưu trữ loại xe đã chọn
     const [distance, setDistance] = useState(null); // Thêm state để lưu trữ distance
     const [provinces, setProvinces] = useState([]); // State để lưu trữ danh sách tỉnh
+    const [provincesWithAirport, setProvincesWithAirport] = useState([]);
     const [isAirVisible, setIsAirVisible] = useState(false); // State để kiểm soát hiển thị "Air"
     const mapContainerStyle = {
         height: "100%", // Set the desired height
@@ -33,38 +38,7 @@ function PlaceOrderPage() {
         // ...
     };
     
-    const handleValuesChange = async () => {
-        const pickUpLocation = form.getFieldValue('pickUpLocation');
-        const dropOffLocation = form.getFieldValue('dropOffLocation');
-
-        // Kiểm tra nếu cả hai địa điểm đều đã được chọn
-        if (pickUpLocation && dropOffLocation) {
-            try {
-                const response = await axios.get('https://6703b45dab8a8f8927314be8.mockapi.io/orderEx/Provinces'); // Thay thế 'YourCorrectEndpoint' bằng endpoint chính xác
-                const distances = response.data;
-
-                const matchedDistance = distances.find(distance => 
-                    distance.pickUp.toLowerCase() === pickUpLocation.toLowerCase() && 
-                    distance.Dropoff.toLowerCase() === dropOffLocation.toLowerCase()
-                );
-
-                if (matchedDistance) {
-                    setDistance(matchedDistance.distance); // Cập nhật distance
-                } else {
-                    setDistance(null); // Không tìm thấy distance
-                }
-                console.log(distance);
-            } catch (error) {
-                console.error('Error fetching distances:', error);
-            }
-
-            // Cập nhật trạng thái hiển thị "Air"
-            setIsAirVisible(isAirAvailable());
-        } else {
-            setDistance(null); // Reset distance if no location
-            setIsAirVisible(false); // Hide "Air" if no location
-        }
-    };
+    
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -79,6 +53,15 @@ function PlaceOrderPage() {
             }
         };
         fetchVehicleTypes(); // Gọi hàm fetchVehicleTypes
+        const fetchProvinces = async () => {
+            try {
+                const response = await axios.get('https://670e78b03e7151861654ae2d.mockapi.io/Province'); // Thay thế bằng URL API của bạn
+                setProvinces(response.data); // Lưu trữ danh sách tỉnh vào state
+            } catch (error) {
+                console.error('Error fetching provinces:', error);
+            }
+        };
+        fetchProvinces();
         const fetchProvincesWithAirport = async () => {
             try {
                 const response = await axios.get('https://670e78b03e7151861654ae2d.mockapi.io/provinceHasPlane');
@@ -96,29 +79,21 @@ function PlaceOrderPage() {
         setVehicleType(selectedType); // Cập nhật loại xe đã chọn
     };
 
-    const normalizeLocationName = (name) => {
-        return name.toLowerCase()
-            .replace(/thành phố|tp\.|tỉnh/g, '')
-            .replace(/\(.*?\)/g, '') // Remove content within parentheses
-            .replace(/,.*$/, '') // Remove everything after the first comma
-            .replace(/\s+/g, ' ')
-            .trim();
-    };
-
     const isAirAvailable = () => {
-        const pickUpLocation = normalizeLocationName(form.getFieldValue('pickUpLocation'));
-        const dropOffLocation = normalizeLocationName(form.getFieldValue('dropOffLocation'));
+        const pickUpLocation = form.getFieldValue('pickUpLocation');
+        const dropOffLocation = form.getFieldValue('dropOffLocation');
 
-        const pickUp = provinces.find(province => normalizeLocationName(province.name) === pickUpLocation);
-        const dropOff = provinces.find(province => normalizeLocationName(province.name) === dropOffLocation);
+        const pickUp = provinces.find(province => province.provinceName === pickUpLocation);
+        const dropOff = provinces.find(province => province.provinceName === dropOffLocation);
 
+        // Kiểm tra xem cả hai địa điểm có isPlane = true và không trùng nhau
         return pickUp?.isPlane && dropOff?.isPlane && pickUpLocation !== dropOffLocation;
     };
 
     useEffect(() => {
         // Update the hidden price whenever distance or vehicleType changes
         if (vehicleType && distance !== null) {
-            const price = distance * vehicleType.pricePerKm; // Calculate price
+            const price = Math.round(distance * vehicleType.pricePerKm); // Calculate price
             form.setFieldsValue({ price: price }); // Set the hidden price
         }
     }, [distance, vehicleType]); // Dependencies: distance and vehicleType
@@ -178,6 +153,15 @@ function PlaceOrderPage() {
         setDropOffSuggestions([]);
     };
 
+    const normalizeLocationName = (name) => {
+        return name.toLowerCase()
+            .replace(/thành phố|tp\.|tỉnh/g, '')
+            .replace(/\(.*?\)/g, '') // Remove content within parentheses
+            .replace(/,.*$/, '') // Remove everything after the first comma
+            .replace(/\s+/g, ' ')
+            .trim();
+    };
+
     const checkAirportAvailability = (location) => {
         const normalizedLocation = normalizeLocationName(location);
         return provincesWithAirport.some(province => {
@@ -221,79 +205,67 @@ function PlaceOrderPage() {
                         className="route-form"
                         onFinish={handleSubmit}
                         form={form}
-                        onValuesChange={handleValuesChange} // Theo dõi sự thay đổi của form
+                        // Theo dõi sự thay đổi của form
                     >
                         <Form.Item label="Pick-up location" name="pickUpLocation" rules={[{ required: true, message: 'Please select pick-up location' }]}>
-                            <Select
-                                allowClear
-                                showSearch
+                            <AutoComplete
+                                options={pickUpSuggestions.map(suggestion => ({
+                                    value: suggestion.display_name,
+                                    lat: suggestion.lat,
+                                    lon: suggestion.lon,
+                                }))}
+                                onSearch={handlePickUpSearch}
+                                onSelect={handlePickUpSelect}
                                 placeholder="Select pick-up location"
-                                filterOption={(input, option) =>
-                                    option.children.toLowerCase().includes(input.toLowerCase())
-                                }
-                            >
-                                {provinces.map((province) => (
-                                    <Select.Option key={province.id} value={province.provinceName}>
-                                        {province.provinceName}
-                                    </Select.Option>
-                                ))}
-                            </Select>
+                            />
                         </Form.Item>
                         <Form.Item label="Drop-off location" name="dropOffLocation" rules={[{ required: true, message: 'Please select drop-off location' }]}>
-                            <Select
-                                allowClear
-                                showSearch
+                            <AutoComplete
+                                options={dropOffSuggestions.map(suggestion => ({
+                                    value: suggestion.display_name,
+                                    lat: suggestion.lat,
+                                    lon: suggestion.lon,
+                                }))}
+                                onSearch={handleDropOffSearch}
+                                onSelect={handleDropOffSelect}
                                 placeholder="Select Drop-off location"
-                                filterOption={(input, option) =>
-                                    option.children.toLowerCase().includes(input.toLowerCase())
-                                }
-                            >
-                                {provinces.map((province) => (
-                                    <Select.Option key={province.id} value={province.provinceName}>
-                                        {province.provinceName}
-                                    </Select.Option>
-                                ))}
-                            </Select>
+                            />
                         </Form.Item>
                         <h2 className="section-title">Transport Services</h2>
+                        {showVehicleTypes && (
+                            <>                               
+                                <Form.Item
+                                    name="vehicleType"
+                                    rules={[{ required: true, message: 'Please select a vehicle type' }]}
+                                >
+                                    <div className="vehicle-scroll-container" style={{ border: 'none' }}>
+                                        <Radio.Group className="vehicle-radio-group" onChange={handleVehicleChange}>
+                                            {vehicleTypes.map((type) => {
+                                                if (type.transportName === "Air" && !isAirVisible) {
+                                                    return null; // Không hiển thị "Air"
+                                                }
+                                                return (
+                                                    <Radio key={type.id} value={type.transportName}>
+                                                        <img src={type.image} />
+                                                        <div>{type.transportName}</div>
+                                                    </Radio>
+                                                );
+                                            })}
+                                        </Radio.Group>
+                                    </div>
+                                </Form.Item>
+                            </>
+                        )}
                         <Form.Item
-                            name="vehicleType"
-                            rules={[{ required: true, message: 'Please select a vehicle type' }]}
+                            name="price"
+                            style={{ display: 'none' }}
                         >
-                            <div className="vehicle-scroll-container"> {/* Thêm container cho thanh trượt */}
-                                <Radio.Group className="vehicle-radio-group" onChange={handleVehicleChange}>
-                                    {vehicleTypes.map((type) => {
-                                        // Chỉ hiển thị "Air" nếu cả hai địa điểm đều có isPlane = true
-                                        if (type.transportName === "Air" && !isAirVisible) {
-                                            return null; // Không hiển thị "Air"
-                                        }
-                                        return (
-                                            <Radio key={type.id} value={type.transportName}>
-                                                <img src={type.image}  />
-                                                <div>{type.transportName}</div>
-                                                <div>{type.pricePerKm}</div>
-                                            </Radio>
-                                        );
-                                    })}
-                                </Radio.Group>
-                            </div>
+                            <Input />
                         </Form.Item>
-                        <Form.Item
-                            name="price" // Name of the hidden field
-                            style={{ display: 'none' }} // Hide the item
-                        >
-                            <Input /> {/* Hidden input for price, no need to set value here */}
-                        </Form.Item>
-                        {/* <h2 className="section-title">Additional Services</h2>
-                        <Form.Item name="additionalServices" valuePropName="checked" className="additional-services">
-                            <Checkbox.Group>
-                                <Checkbox value="specialCare">Special Care +100.000VND  </Checkbox>
-                                <Checkbox value="insurance">Insurance +100.00VND</Checkbox>
-                            </Checkbox.Group>
-                        </Form.Item> */}
-                        {distance !== null && vehicleType && ( 
+                       
+                        {distance !== null && distance > 0 && vehicleType && ( 
                             <div className="distance-display">
-                                Provisional Price: {distance*vehicleType.pricePerKm}
+                                Provisional Price: {Math.round(distance * vehicleType.pricePerKm).toLocaleString()} VNĐ
                             </div>
                         )}
                         <Form.Item>
@@ -311,7 +283,15 @@ function PlaceOrderPage() {
                     </Form>
 
                 </Col>
-
+                <Col span={16}>
+                <DeliveryMap 
+                   suggestion={{
+                       form: pickUpLocation ? [pickUpLocation.lat, pickUpLocation.lng] : defaultPosition,
+                       to: dropOffLocation ? [dropOffLocation.lat, dropOffLocation.lng] : defaultPosition
+                   }}
+                   autoSetDistance={setDistance}
+                />
+                </Col>            
                 {/* Right Section: Google Map */}
                  {/* <Col span={16} className="map-section">
                     <LoadScriptNext googleMapsApiKey="AIzaSyDJO2B-_FLwk1R1pje5gKEAB9h2qUDb-FU">

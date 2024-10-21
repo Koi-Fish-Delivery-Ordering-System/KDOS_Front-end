@@ -52,7 +52,7 @@ export default function Navbar() {
   );
 
   return (
-    <header className="header-container">
+    <header className="header-container" style={{height: "0vh"}}>
       <nav className="navbar">
         <div className="nav-left">
           <ul className="nav-list">
