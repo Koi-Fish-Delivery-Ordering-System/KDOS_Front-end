@@ -10,8 +10,14 @@ export default function Navbar() {
   useEffect(() => {
     const storedAvatar = localStorage.getItem("avatar");
     const storedUsername = localStorage.getItem("username");
-    if (storedAvatar && storedUsername) {
-      setUserInfo({ avatar: storedAvatar, username: storedUsername });
+    const storedRole = localStorage.getItem("role");
+
+    if (storedAvatar && storedUsername && storedRole) {
+      setUserInfo({
+        avatar: storedAvatar,
+        username: storedUsername,
+        role: storedRole,
+      });
     }
   }, []);
 
@@ -19,17 +25,25 @@ export default function Navbar() {
     localStorage.removeItem("token");
     localStorage.removeItem("avatar");
     localStorage.removeItem("username");
-    setUserInfo({}); // Clear user info
+    setUserInfo({});
     navigate('/login');
+  };
+
+  const handleAccountManagement = () => {
+    const role = localStorage.getItem("role");
+    const rolePathMap = {
+      // shipper: '/shipper-account-management',
+      customer: '/account-management',
+      // manager: '/manager-account-management',
+    };
+
+    navigate(rolePathMap[role] || '/account-management'); // Default or error page
   };
 
   const menu_user = (
     <Menu>
       <Menu.Item>
-        <Link to="/profile">Thông Tin</Link>
-      </Menu.Item>
-      <Menu.Item>
-        <Link to="/records">Xem đơn hàng</Link>
+        <a href="#" onClick={handleAccountManagement}>Quản lý tài khoản</a>
       </Menu.Item>
       <Menu.Item>
         <a href="#" onClick={handleLogout}>Đăng Xuất</a>
@@ -38,20 +52,11 @@ export default function Navbar() {
   );
 
   return (
-    <header className="header-container" style={{height: '0vh'}}>
+    <header className="header-container">
       <nav className="navbar">
         <div className="nav-left">
           <ul className="nav-list">
             <li className="nav-item"><Link to="/">HOME</Link></li>
-            <li className="nav-item">ABOUT</li>
-            <li className="nav-item"><Link to="/placeorder">PLACE ORDER</Link></li>
-            <li className="nav-item">
-              <Link to="/feedback">FEEDBACK</Link>
-            </li>
-            <li className="nav-item">
-              <Link to="/ordertracking">ORDERTRACKING</Link>
-            </li>
-            <li className="nav-item">CONTACT</li>
           </ul>
         </div>
         <div className="nav-right">
@@ -65,7 +70,7 @@ export default function Navbar() {
                     className="avatar-image" 
                     style={{ width: '30px', height: '30px', borderRadius: '50%', marginRight: '8px' }}
                   />
-                  {userInfo.username}
+                  {userInfo.username} ({userInfo.role}) {/* Display role */}
                 </a>
               </Dropdown>
             </div>

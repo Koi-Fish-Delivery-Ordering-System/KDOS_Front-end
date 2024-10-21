@@ -8,12 +8,6 @@ import Blogcarousel from "./blogcarousel";
 export default function Homepage() {
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate('/login');
-    }
-  }, [navigate]);
 
   const rowsRef = useRef([]);
   const imageList = [

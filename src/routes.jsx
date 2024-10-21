@@ -14,6 +14,7 @@ import PlaceOrderPage from './components/common/placeorderpage';
 import DeliveryPage from './components/common/deliverypage';
 import DeliveryDetail from './components/common/deliverydetail';
 import AccountManagement from './components/common/AccountManagement';
+import TransportService from './components/common/transportservice';
 export const router = createBrowserRouter([
 
   {
@@ -69,7 +70,12 @@ export const router = createBrowserRouter([
     element: <DeliveryDetail />,
   },
   {
-    path: "account",
+    path: "account-management",
     element: <AccountManagement />,
+  },
+  {
+    path: "transport-service",
+    element: <TransportService />,
   }
+    
 ]);

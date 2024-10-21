@@ -1,30 +1,50 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import ProfilePage from './profilepage'; 
+import Orders from './records'; 
+import Navbar from './navbar2'; // Import the Navbar component
 import '../../css/accountManagement.css';
 
 const AccountManagement = () => {
-  const location = useLocation();
+  const [activeComponent, setActiveComponent] = useState('profile');
+
+  const renderContent = () => {
+    switch (activeComponent) {
+      case 'profile':
+        return <ProfilePage />;
+      case 'orders':
+        return <Orders />;
+      default:
+        return (
+          <div>
+            <h2>Welcome to Your Account</h2>
+            <p>Select an option from the sidebar to view details.</p>
+          </div>
+        );
+    }
+  };
 
   return (
-    <div className="account-management">
-      <div className="sidebar">
-        <h3>Account Management</h3>
-        <ul>
-          <li>
-            <Link to="/profile" className={location.pathname === '/profile' ? 'active' : ''}>
-              Profile
-            </Link>
-          </li>
-          <li>
-            <Link to="/records" className={location.pathname === '/records' ? 'active' : ''}>
-              Orders
-            </Link>
-          </li>
-        </ul>
-      </div>
-      <div className="content">
-        <h2>Welcome to Your Account</h2>
-        <p>Select an option from the sidebar to view details.</p>
+    <div>
+      <Navbar />
+      <div className="account-management">
+        <div className="sidebar">
+          <h3>Account Management</h3>
+          <ul>
+            <li>
+              <button onClick={() => setActiveComponent('profile')} className={activeComponent === 'profile' ? 'active' : ''}>
+                Profile
+              </button>
+            </li>
+            <li>
+              <button onClick={() => setActiveComponent('orders')} className={activeComponent === 'orders' ? 'active' : ''}>
+                Orders
+              </button>
+            </li>
+          </ul>
+        </div>
+        <div className="content">
+          {renderContent()}
+        </div>
       </div>
     </div>
   );
