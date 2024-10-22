@@ -43,7 +43,7 @@ export default function Navbar() {
   const menu_user = (
     <Menu>
       <Menu.Item>
-        <a href="#" onClick={handleAccountManagement}>Quản lý tài khoản</a>
+        <a href="#" onClick={handleAccountManagement}>Account Management</a>
       </Menu.Item>
       <Menu.Item>
         <a href="#" onClick={handleLogout}>Đăng Xuất</a>

@@ -34,7 +34,7 @@ function ProfilePage() {
 
   useEffect(() => {
     if (userId) {
-      axios.get('https://66f3691871c84d8058789db4.mockapi.io/apiorders/1')
+      axios.get(`https://66f3691871c84d8058789db4.mockapi.io/apiorders/${userId}`)
         .then(response => {
           const { firstName, lastName, phone, email } = response.data;
           setProfile({ firstName, lastName, phone, email });
@@ -88,7 +88,7 @@ function ProfilePage() {
 
   return (
     <div className="profile-container">
-      <h2 className="profile-title">Profile</h2>
+      <h1 className="profile-title">Profile</h1>
       <Form className="profile-form">
         {['firstName', 'lastName', 'phone', 'email'].map(field => (
           <Form.Item key={field} label={field.replace(/^\w/, c => c.toUpperCase())}>

@@ -1,10 +1,8 @@
 .profile-container {
-  max-width: 600px;
-  margin: 0 auto;
-  padding: 40px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  max-width: 670px;
+  padding: 0px;
+  border: 0px;
+  margin: 32px;
 }
 
 .profile-form {
@@ -12,17 +10,15 @@
 }
 
 .profile-title {
-  text-align: center;
-  margin-bottom: 24px;
-  font-size: 32px;
-  line-height: 40px;
-  letter-spacing: .25px;
+  margin: 0.67em 0px;
+  padding-bottom: 10px;
 }
 
 .field-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 16px;
 }
 
 .view-mode {
@@ -38,8 +34,22 @@
 }
 
 .ant-btn-link {
-  color: #CB5217;
+  color: #FF7E36;
   margin-left: 8px;
+}
+
+.ant-form-item-label {
+  font-weight: bold;
+  text-transform: uppercase;
+  color: #666;
+  width: 150px;
+}
+
+.ant-form-item-control-input-content {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: 100%;
 }
 
 .ant-form-item-control-input-content .ant-input {
@@ -49,4 +59,24 @@
 
 .ant-form-item-control-input-content .ant-btn {
   width: auto;
+}
+
+.ant-form-item {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.ant-modal-content {
+  border-radius: 8px;
+}
+
+.ant-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.ant-modal-title {
+  font-weight: bold;
 }

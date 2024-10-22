@@ -1,44 +1,15 @@
 .account-management {
   display: flex;
-  padding: 0;
-  background-color: #f9f9fb;
   min-height: 100vh;
   font-family: "Noto Sans Variable", system-ui, sans-serif;
-}
-
-.account-management h2 {
-  font-size: 24px;
-  margin-bottom: 20px;
-}
-
-.account-management ul {
-  list-style: none;
-  padding: 0;
-}
-
-.account-management ul li {
-  margin-bottom: 10px;
-}
-
-.account-management ul li a {
-  text-decoration: none;
-  color: #ff4500;
-  font-weight: bold;
-}
-
-.account-management ul li a:hover {
-  text-decoration: underline;
 }
 
 .sidebar {
   width: 250px;
   background-color: #f0f4f8;
-  /* Light blue background */
   border-right: 1px solid #e0e0e0;
   padding: 20px;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
-  margin-top: 0;
-  /* Ensure no top margin */
 }
 
 .sidebar h3 {
@@ -46,25 +17,14 @@
   margin-bottom: 20px;
   color: #333;
   font-weight: bold;
-  white-space: nowrap;
-  /* Prevents text from wrapping */
 }
 
 .sidebar ul {
   list-style: none;
-  padding: 0px 0px 16px;
-  margin: 0px;
-  display: inline-block;
-  box-sizing: border-box;
-  color: rgb(48, 48, 48);
-  min-width: 16rem;
-  box-shadow: none;
-  width: 100%;
-  background-color: transparent;
+  padding: 0;
 }
 
 .sidebar ul li {
-  position: relative;
   margin-bottom: 15px;
 }
 
@@ -73,11 +33,10 @@
   align-items: center;
   padding: 8px 16px;
   border-left: 2px solid transparent;
-  margin-bottom: 4px;
   cursor: pointer;
   outline: 0;
   border: none;
-  background-color: transparent; /* Ensure no background color */
+  background-color: transparent;
 }
 
 .sidebar ul li button.active {
@@ -85,28 +44,11 @@
   background-color: rgba(241, 102, 34, 0.05);
 }
 
-.sidebar ul li button:hover {
-  background-color: transparent; /* Remove hover background color */
-}
-
 .content {
   flex-grow: 1;
   padding: 40px;
   background-color: #fff;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
-  margin-left: 20px;
   border-radius: 8px;
-  margin-top: 0;
-  /* Ensure no top margin */
-}
-
-.content h2 {
-  font-size: 24px;
-  margin-bottom: 20px;
-  color: #333;
-}
-
-.content p {
-  font-size: 16px;
-  color: #666;
+  margin-left: 20px;
 }
