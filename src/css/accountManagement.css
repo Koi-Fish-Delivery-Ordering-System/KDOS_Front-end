@@ -6,7 +6,7 @@
 
 .sidebar {
   width: 250px;
-  background-color: #f0f4f8;
+  background-color: #fff;
   border-right: 1px solid #e0e0e0;
   padding: 20px;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
@@ -37,11 +37,16 @@
   outline: 0;
   border: none;
   background-color: transparent;
+  width: 100%;
 }
 
 .sidebar ul li button.active {
   border-left: 2px solid rgb(241, 102, 34);
-  background-color: rgba(241, 102, 34, 0.05);
+  background-color: rgba(241, 102, 34, 0.1);
+}
+.sidebar ul li button:hover {
+  border-left: 2px solid rgb(241, 102, 34);
+  background-color: rgba(241, 102, 34, 0.1);
 }
 
 .content {

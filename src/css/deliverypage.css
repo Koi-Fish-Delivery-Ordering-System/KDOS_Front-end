@@ -1,84 +1,40 @@
-.delivery-page{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-    background-image: url('src/images/background.jpg'); 
-    background-position: center;
-}
-.main-section{
-    justify-content: left;
-    height: 100%;
-    border-radius: 10px;
-    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.4);
-    background-color: rgb(249, 249, 249,0.8);
-}
-.delivery-info-list{
-    display: flex;
-    flex-direction: column;
-    align-items: center; /* Center the cards horizontally */
+.delivery-table{
     width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
 }
-.delivery-card{
-    margin: 10px;
-    width: 80%;
-    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.4);
+.delivery-table th, .delivery-table td{
+    padding: 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+.delivery-table th {
+    background-color: #ff7700;
+    color: white;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+.delivery-table tr:nth-child(even) {
+    background-color: #f8f8f8;
+}
+.delivery-table tr:hover {
+    background-color: #f1f1f1;
+    transition: background-color 0.3s ease;
 }
 .detail-delivery-btn{
     color: white;
-    border-radius: 10px;
-    background-color: #ff7700;
-    padding: 10px;
-    font-weight: bold;
-}
-.delivery-location{
-    text-align: center;
-    border: 1px solid;
-    border-radius: 10px;
-    padding: 10px;
-    max-height: 100px;
-    overflow: hidden;
-    white-space: nowrap; /* Prevent text from wrapping to the next line */
-    text-overflow: ellipsis; /* Add ellipsis (...) when text overflows */
-}
-.total-cost-and-status{
-    display: flex;
-    justify-content: center;
-
-}
-.total-cost-and-status {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-.pagination-controls {
-    display: flex;
-    justify-content: center;
-    margin-top: 20px;
-}
-
-.pagination-controls .ant-btn {
-    margin: 0 10px;
-    padding: 5px 15px;
     border-radius: 5px;
     background-color: #ff7700;
-    color: #fff;
-    border: none;
+    padding: 8px 12px;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-block;
     transition: background-color 0.3s ease;
+    text-decoration: none;
+    cursor: pointer;
+    border-width: 0px;
 }
-
-.pagination-controls .ant-btn:hover {
-    background-color: orangered !important;
-    color: #fff !important;
+.detail-delivery-btn:hover {
+    background-color: #e66c00;
 }
-
-.pagination-controls .ant-btn:disabled {
-    background-color: #d9d9d9;
-    color: #bfbfbf;
-}
-.filter-input{
-    width: 200px;
-    text-align: center;
-    margin-left: 10px;
-}
-

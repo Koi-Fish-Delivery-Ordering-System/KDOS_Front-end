@@ -88,7 +88,12 @@ export default function Navbar() {
           alt="Service"
           className="service-image"
         />
-        <h1 className="service-name">Koi <br></br>Delivery</h1>
+        <h1 className="service-name">Swift, Safe, and Stress-Free Koi Delivery<br></br> Order Today, Enjoy Tomorrow!</h1>
+        
+            <button className="create-order-button" onClick={() => navigate('/placeorder')}>
+              CREATE ORDER NOW
+            </button>
+        
       </div>
     </header>
   );
