@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import Navbar2 from './navbar2';
-import Footer from './footer';
-import '../../css/deliverydetail.css';
-import { Row, Col, Button } from 'antd';
+import Navbar2 from '../navbar2';
+import Footer from '../footer';
+import '../../../css/deliverydetail.css';
+import { Row, Col, Button, Input } from 'antd';
 import { ArrowLeftOutlined } from '@ant-design/icons';
-import axios from '../../config/axios';
+import axios from '../../../config/axios';
 
-const DeliveryDetail = ({ orderId, onBack }) => {
+const HealDetail = ({ orderId, onBack }) => {
     const [order, setOrder] = useState(null);
     const [loading, setLoading] = useState(false);
-    const [status, setStatus] = useState('');
+    const [healNote, setHealNote] = useState('');
 
     useEffect(() => {
         fetchOrder();
@@ -20,6 +20,7 @@ const DeliveryDetail = ({ orderId, onBack }) => {
             setLoading(true);
             const response = await axios.get(`https://6703b45dab8a8f8927314be8.mockapi.io/orderEx/Order/${orderId}`);
             setOrder(response.data);
+            setHealNote(response.data.healNote || '');
         } catch (err) {
             console.error("Error fetching order:", err);
         } finally {
@@ -27,16 +28,19 @@ const DeliveryDetail = ({ orderId, onBack }) => {
         }
     };
 
-    const updateOrderStatus = async (newStatus) => {
+    const updateHealNote = async () => {
         try {
             setLoading(true);
+            const currentDate = new Date().toLocaleString(); // Get current date in ISO format
             const response = await axios.put(`https://6703b45dab8a8f8927314be8.mockapi.io/orderEx/Order/${orderId}`, {
-                status: newStatus
+                healNote: healNote,
+                checkDate: currentDate // Add this line to update checkDate
             });
             setOrder(response.data);
-            setStatus(newStatus);
+            alert('Heal note updated successfully!');
         } catch (err) {
-            console.error("Error updating order status:", err);
+            console.error("Error updating heal note:", err);
+            alert('Failed to update heal note. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -54,13 +58,13 @@ const DeliveryDetail = ({ orderId, onBack }) => {
                     </Button>
                 </Col>
             </Row>
-            <h1 className="section-title">Delivery Detail</h1>
+            <h1 className="section-title">Heal Detail</h1>
             <Row className="delivery-info">
                 <Col span={24}>
                     <h2>Order ID: {order.id}</h2>
                 </Col>
             </Row>
-            <Row className="delivery-info">
+            {/* <Row className="delivery-info">
                 <Col span={24}>
                     <h2>Sender Information</h2>
                     <p>Name: {order.senderName}</p>
@@ -75,7 +79,7 @@ const DeliveryDetail = ({ orderId, onBack }) => {
                     <p>Phone: {order.receiverPhone}</p>
                     <p>Address: {order.dropOffAddr}</p>
                 </Col>
-            </Row>
+            </Row> */}
             <Row className="delivery-info">
                 <Col span={24}>
                     <h2>Fish List</h2>
@@ -86,9 +90,26 @@ const DeliveryDetail = ({ orderId, onBack }) => {
             </Row>
             <Row className="delivery-info">
                 <Col span={24}>
-                    <h2>Status: {order.status}</h2>
-                    <Button type="primary" className="status-btn" onClick={() => updateOrderStatus('Pickup')}>
-                         Pickup
+                    <h2>Heal Note</h2>
+                    <Input.TextArea
+                        rows={4}
+                        value={healNote}
+                        onChange={(e) => setHealNote(e.target.value)}
+                        placeholder="Enter heal note here..."
+                    />
+                    <Button 
+                        type="primary" 
+                        onClick={updateHealNote} 
+                        style={{
+                            backgroundColor: '#FF8C00',
+                            marginTop: '1rem',
+                            width: '100%',
+                            height: '40px',
+                            fontSize: '1rem'
+                        }}
+                        loading={loading}
+                    >
+                        Update Heal Note
                     </Button>
                 </Col>
             </Row>
@@ -96,4 +117,4 @@ const DeliveryDetail = ({ orderId, onBack }) => {
     );
 };
 
-export default DeliveryDetail;
+export default HealDetail;

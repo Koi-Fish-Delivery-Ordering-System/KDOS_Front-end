@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Row, Col, Card, Button, Select } from 'antd';
-import '../../css/deliverypage.css';
-import axios from "../../config/axios";
+import '../../../css/deliverypage.css';
+import axios from "../../../config/axios";
 
-function DeliveryPage({ onDetailClick }) {
+function DeliveryProcess({ onDetailClick }) {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(false);
     useEffect(() => {
@@ -60,4 +60,4 @@ function DeliveryPage({ onDetailClick }) {
     );
 }
 
-export default DeliveryPage;
+export default DeliveryProcess;

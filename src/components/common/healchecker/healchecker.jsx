@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import ProfilePage from './profilepage';
-import Navbar2 from './navbar2';
-import DeliveryPage from './deliverypickup';
-import DeliveryDetail from './deliverydetail';
-import '../../css/accountmanagement.css';
+import ProfilePage from '../profilepage';
+import Navbar2 from '../navbar2';
+import HealDetail from './healdetail';
+import HealOrder from './healorder';
+import '../../../css/accountmanagement.css';
 
-function Delivery() {
+function HealChecker() {
   const [activeComponent, setActiveComponent] = useState('profile');
   const [selectedOrderId, setSelectedOrderId] = useState(null);
 
@@ -14,18 +14,18 @@ function Delivery() {
     setActiveComponent('detail');
   };
 
-  const handleBackToPending = () => {
-    setActiveComponent('pending');
+  const handleBackToOrders = () => {
+    setActiveComponent('orders');
   };
 
   const renderContent = () => {
     switch (activeComponent) {
       case 'profile':
         return <ProfilePage />;
-      case 'pending':
-        return <DeliveryPage onDetailClick={handleDetailClick} />;
+      case 'orders':
+        return <HealOrder onDetailClick={handleDetailClick} />;
       case 'detail':
-        return <DeliveryDetail orderId={selectedOrderId} onBack={handleBackToPending} />;
+        return <HealDetail orderId={selectedOrderId} onBack={handleBackToOrders} />;
       default:
         return (
           <div>
@@ -41,7 +41,7 @@ function Delivery() {
       <Navbar2/>
       <div className="account-management">
         <div className="sidebar">
-          <h3>Delivery</h3>
+          <h3>Heal Checker</h3>
           <ul>
             <li>
               <button onClick={() => setActiveComponent('profile')} className={activeComponent === 'profile' ? 'active' : ''}>
@@ -49,8 +49,8 @@ function Delivery() {
               </button>
             </li>
             <li>
-              <button onClick={() => setActiveComponent('pending')} className={activeComponent === 'pending' ? 'active' : ''}>
-                Pending Orders
+              <button onClick={() => setActiveComponent('orders')} className={activeComponent === 'orders' ? 'active' : ''}>
+                 Orders
               </button>
             </li>
           </ul>
@@ -63,4 +63,4 @@ function Delivery() {
   );
 }
 
-export default Delivery;
+export default HealChecker;

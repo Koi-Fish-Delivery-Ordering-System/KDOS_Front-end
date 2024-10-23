@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Input, Form, Card, Row, Col, Select, Radio, AutoComplete } from 'antd';
+import { Button, Input, Form, Card, Row, Col, Select, Radio, AutoComplete, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
 // import { LoadScript, GoogleMap, LoadScriptNext } from '@react-google-maps/api';
 import '../../css/placeorderpage.css';
@@ -29,13 +29,30 @@ function PlaceOrderPage() {
         lat: 10.8231,    // Set the latitude for the center of the map
         lng: 106.6297,   // Set the longitude for the center of the map
     };
-    const handleSubmit = async (info) => {
-    
-        
-        console.log(info); // Kiểm tra dữ liệu gửi đi
+    const handleSubmit = async (values) => {
+        try {
+            // Prepare the data to be sent
+            const orderData = {
+                fromAddress: values.pickUpLocation,
+                toAddress: values.dropOffLocation,
+                transportServiceId: values.vehicleType,
+                totalPrice: values.price,
 
-        // Tiến hành gửi dữ liệu đến server hoặc xử lý tiếp
-        // ...
+            };
+            console.log(orderData);
+            // Send the data to the API
+            const response = await axios.post('http://26.61.210.173:3001/api/orders/create-order', orderData);
+
+            // Check if the request was successful
+            if (response.status === 200 || response.status === 201) {
+                message.success('Order placed successfully!');
+            } else {
+                message.error('Failed to place order. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error submitting order:', error);
+            message.error('An error occurred while placing the order. Please try again.');
+        }
     };
     
     
@@ -274,6 +291,7 @@ function PlaceOrderPage() {
                                     className="submit-btn" 
                                     type="primary" 
                                     htmlType="submit"
+                                    onClick={handleSubmit}
                                 >
                                     Continue
                                 </Button>

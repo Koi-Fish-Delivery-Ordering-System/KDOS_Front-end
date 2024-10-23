@@ -7,11 +7,12 @@ import ProfilePage from './components/common/profilepage';
 import Records from './components/common/records';
 import TrackOrderPage from './components/common/trackorder';
 import PlaceOrderPage from './components/common/placeorderpage';
-import DeliveryPage from './components/common/deliverypickup';
-import DeliveryDetail from './components/common/deliverydetail';
+import DeliveryPage from './components/common/delivery/deliverypickup';
+import DeliveryDetail from './components/common/delivery/deliverydetail';
 import AccountManagement from './components/common/AccountManagement';
 import TransportService from './components/common/transportservice';
-import Delivery from './components/common/delivery';
+import Delivery from './components/common/delivery/delivery';
+import HealChecker from './components/common/healchecker/healchecker';
 export const router = createBrowserRouter([
 
   {
@@ -61,6 +62,11 @@ export const router = createBrowserRouter([
   {
     path: "delivery",
     element: <Delivery />,
+  },
+  {
+    path: "healchecker",
+    element: <HealChecker />,
   } 
+  
     
 ]);
