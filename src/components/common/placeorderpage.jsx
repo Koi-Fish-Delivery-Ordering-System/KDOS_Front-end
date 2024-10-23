@@ -23,42 +23,75 @@ function PlaceOrderPage() {
         height: "100%", // Set the desired height
         width: "100%",   // Set the desired width
     };
-    
+
     const center = {
         lat: 10.8231,    // Set the latitude for the center of the map
         lng: 106.6297,   // Set the longitude for the center of the map
     };
-    const handleSubmit = async (values) => {
+
+    const handleSubmit = async (info) => {
+
+
+        console.log(info); // Kiểm tra dữ liệu gửi đi
+
+        // Tiến hành gửi dữ liệu đến server hoặc xử lý tiếp
+        // ...
+    }; const handleContinue = async () => {
         try {
-            // Prepare the data to be sent
-            const orderData = {
-                fromAddress: values.pickUpLocation,
-                toAddress: values.dropOffLocation,
-                transportServiceId: values.vehicleType,
-                totalPrice: values.price,
+            // Get the form values
+            const formData = form.getFieldsValue();
 
-            };
-            console.log(orderData);
-            // Send the data to the API
-            const response = await axios.post('http://26.61.210.173:3001/api/orders/create-order', orderData);
+            console.log(formData); // Check the data being sent
 
-            // Check if the request was successful
-            if (response.status === 200 || response.status === 201) {
-                message.success('Order placed successfully!');
-            } else {
-                message.error('Failed to place order. Please try again.');
-            }
+            // Proceed to the sender info page
+            navigate('/order-confirmation', {
+                state: {
+                    pickUpLocation: {
+                        lat: pickUpLocation.lat,
+                        lng: pickUpLocation.lng,
+                    },
+                    dropOffLocation: {
+                        lat: dropOffLocation.lat,
+                        lng: dropOffLocation.lng,
+                    },
+                    vehicleType: vehicleType
+                }
+            });
         } catch (error) {
-            console.error('Error submitting order:', error);
-            message.error('An error occurred while placing the order. Please try again.');
+            console.error('Error during submission:', error);
+
+//     const handleSubmit = async (values) => {
+//         try {
+//             // Prepare the data to be sent
+//             const orderData = {
+//                 fromAddress: values.pickUpLocation,
+//                 toAddress: values.dropOffLocation,
+//                 transportServiceId: values.vehicleType,
+//                 totalPrice: values.price,
+
+//             };
+//             console.log(orderData);
+//             // Send the data to the API
+//             const response = await axios.post('http://26.61.210.173:3001/api/orders/create-order', orderData);
+
+//             // Check if the request was successful
+//             if (response.status === 200 || response.status === 201) {
+//                 message.success('Order placed successfully!');
+//             } else {
+//                 message.error('Failed to place order. Please try again.');
+//             }
+//         } catch (error) {
+//             console.error('Error submitting order:', error);
+//             message.error('An error occurred while placing the order. Please try again.');
+
         }
     };
-    
-    
+
+
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (!token) {
-          navigate('/login');
+            navigate('/login');
         }
         const fetchVehicleTypes = async () => {
             try {
@@ -89,11 +122,16 @@ function PlaceOrderPage() {
         fetchProvincesWithAirport();
     }, [form], [navigate]);
 
+
+
+   
+
     
     // const handleVehicleChange = (e) => {
     //     const selectedType = vehicleTypes.find(type => type.transportName === e.target.value); // Lấy đối tượng loại xe đã chọn
     //     setVehicleType(selectedType); // Cập nhật loại xe đã chọn
     // };
+
 
     // const isAirAvailable = () => {
     //     const pickUpLocation = form.getFieldValue('pickUpLocation');
@@ -155,7 +193,7 @@ function PlaceOrderPage() {
     const handleDropOffSelect = (value, option) => {
         const lat = parseFloat(option.lat);
         const lng = parseFloat(option.lon);
-        
+
         if (!isNaN(lat) && !isNaN(lng)) {
             setDropOffLocation({
                 lat: lat,
@@ -182,7 +220,7 @@ function PlaceOrderPage() {
         return provincesWithAirport.some(province => {
             const normalizedProvince = normalizeLocationName(province.name);
             return normalizedLocation.includes(normalizedProvince) ||
-                   normalizedProvince.includes(normalizedLocation);
+                normalizedProvince.includes(normalizedLocation);
         });
     };
 
@@ -299,7 +337,7 @@ function PlaceOrderPage() {
         <div>
             <Row className="placeorder-page">
                 {/* Left Section: Route and Vehicle Selection */}
-                <Navbar2/>
+                <Navbar2 />
                 <Col span={8} className="left-section">
                     <h2 className="section-title">Location</h2>
                     <Form
@@ -307,7 +345,7 @@ function PlaceOrderPage() {
                         className="route-form"
                         onFinish={handleSubmit}
                         form={form}
-                        // Theo dõi sự thay đổi của form
+                    // Theo dõi sự thay đổi của form
                     >
                         <Form.Item label="Pick-up location" name="pickUpLocation" rules={[{ required: true, message: 'Please select pick-up location' }]}>
                             <AutoComplete
@@ -340,6 +378,9 @@ function PlaceOrderPage() {
                             <Input type="text" onChange={(e) => handleProvinceChange('dropOffProvince', e.target.value)} />
                         </Form.Item>
                         <h2 className="section-title">Transport Services</h2>
+
+                       
+
                         {fetchedServices && (
                             <Form.Item name="vehicleType" rules={[{ required: true, message: 'Please select a transport service' }]}>
                                 <Radio.Group onChange={handleServiceSelect}>
@@ -366,13 +407,21 @@ function PlaceOrderPage() {
                         >
                             <Input />
                         </Form.Item>
+
+
+                       
+
                        
                         {price !== null && (
+
                             <div className="distance-display">
                                 Provisional Price: {price.toLocaleString()} VNĐ
                             </div>
                         )}
                         <Form.Item>
+
+                       
+
                             <Button 
                                 className="submit-btn" 
                                 type="primary" 
@@ -382,21 +431,21 @@ function PlaceOrderPage() {
                                 Continue
                             </Button>
                         </Form.Item>
-                        
+
                     </Form>
 
                 </Col>
                 <Col span={16}>
-                <DeliveryMap 
-                   suggestion={{
-                       form: pickUpLocation ? [pickUpLocation.lat, pickUpLocation.lng] : defaultPosition,
-                       to: dropOffLocation ? [dropOffLocation.lat, dropOffLocation.lng] : defaultPosition
-                   }}
-                   autoSetDistance={setDistance}
-                />
-                </Col>            
+                    <DeliveryMap
+                        suggestion={{
+                            form: pickUpLocation ? [pickUpLocation.lat, pickUpLocation.lng] : defaultPosition,
+                            to: dropOffLocation ? [dropOffLocation.lat, dropOffLocation.lng] : defaultPosition
+                        }}
+                        autoSetDistance={setDistance}
+                    />
+                </Col>
                 {/* Right Section: Google Map */}
-                 {/* <Col span={16} className="map-section">
+                {/* <Col span={16} className="map-section">
                     <LoadScriptNext googleMapsApiKey="AIzaSyDJO2B-_FLwk1R1pje5gKEAB9h2qUDb-FU">
                         <GoogleMap
                             mapContainerStyle={mapContainerStyle}
@@ -405,9 +454,9 @@ function PlaceOrderPage() {
                         />
                     </LoadScriptNext>
                 </Col>  */}
-                 
+
             </Row>
-            <Footer/>
+            <Footer />
         </div>
     );
 };

@@ -1,0 +1,106 @@
+/* Fish Orders Section */
+.fish-orders-section {
+  margin-top: 20px; /* Space above the section */
+  padding: 20px; /* Padding for inner spacing */
+  background-color: rgb(249, 249, 249); /* Background color */
+  border-radius: 10px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+/* Scrollable container for Fish Orders */
+.fish-orders-scroll-container {
+  max-height: 300px; /* Set a maximum height */
+  overflow-y: auto; /* Enable vertical scrolling */
+  margin-top: 10px; /* Space above the container */
+  border: 1px solid #ddd; /* Border around the container */
+  border-radius: 8px; /* Rounded corners */
+  background-color: rgb(249, 249, 249); /* Background color */
+}
+/* Title for Fish Orders */
+.fish-orders-title {
+  font-size: 24px; /* Font size */
+  margin-bottom: 16px; /* Space below the title */
+  font-weight: bold; /* Bold text */
+  text-align: left; /* Align text to the left */
+}
+
+/* Table styling */
+.fixed-table {
+  width: 100%; /* Full width */
+  border-collapse: collapse; /* Merge borders */
+}
+
+/* Table Header */
+.fixed-table thead {
+  background-color: #ff7700; /* Header background color */
+  color: white; /* Header text color */
+}
+
+.fixed-table th {
+  padding: 10px; /* Padding for header cells */
+  text-align: left; /* Align text to the left */
+}
+
+/* Table Body */
+.fixed-table tbody tr {
+  background-color: #ffffff; /* Row background color */
+  transition: background-color 0.3s; /* Smooth transition on hover */
+}
+
+.fixed-table tbody tr:hover {
+  background-color: #ff770070; /* Light hover background */
+}
+
+/* Table Data Cells */
+.fixed-table td {
+  padding: 10px; /* Padding for data cells */
+  border-bottom: 1px solid #ddd; /* Bottom border for rows */
+}
+
+/* Input Fields */
+.custom-input {
+  width: 100%; /* Full width of the table cell */
+    padding: 8px; /* Padding for a comfortable touch */
+    border: 1px solid #ddd; /* Light border */
+    border-radius: 4px; /* Slightly rounded corners */
+    margin-top: 5px; /* Space above the input */
+    font-size: 14px; /* Font size for readability */
+    transition: border-color 0.3s; /* Smooth transition for border color */
+}
+/* Input Focus State */
+.custom-input:focus {
+  border-color: #ff7700; /* Change border color on focus */
+  outline: none; /* Remove default outline */
+  box-shadow: 0 0 5px rgba(255, 119, 0, 0.4); /* Add subtle shadow */
+}
+
+/* Add Fish Button */
+.add-button {
+  margin-top: 20px; /* Space above the button */
+  padding: 10px 15px; /* Padding for button */
+  background-color: #ff7700; /* Button background color */
+  color: white; /* Button text color */
+  border: none; /* No border */
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor */
+  transition: background-color 0.3s; /* Smooth transition */
+}
+
+.add-button:hover {
+  background-color: orangered; /* Change background on hover */
+}
+
+/* Delete Button */
+.delete-button {
+  padding: 5px 10px; /* Padding for button */
+  background-color: #ff4d4d; /* Button background color */
+  color: white; /* Button text color */
+  border: none; /* No border */
+  border-radius: 5px; /* Rounded corners */
+  cursor: pointer; /* Pointer cursor */
+  transition: background-color 0.3s; /* Smooth transition */
+}
+
+.delete-button:hover {
+  background-color: #ff1a1a; /* Change background on hover */
+}

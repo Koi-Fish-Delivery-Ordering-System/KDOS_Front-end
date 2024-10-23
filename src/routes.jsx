@@ -11,6 +11,7 @@ import DeliveryPage from './components/common/delivery/deliverypickup';
 import DeliveryDetail from './components/common/delivery/deliverydetail';
 import AccountManagement from './components/common/AccountManagement';
 import TransportService from './components/common/transportservice';
+import OrderConfirmation from './components/common/orderconfirmation';
 import Delivery from './components/common/delivery/delivery';
 import HealChecker from './components/common/healchecker/healchecker';
 export const router = createBrowserRouter([
@@ -31,11 +32,11 @@ export const router = createBrowserRouter([
     path: "profile",
     element: <ProfilePage />,
   },
-   {
+  {
     path: "records",
     element: <Records />,
   },
-   {
+  {
     path: "trackorder",
     element: <TrackOrderPage />,
   },
@@ -60,6 +61,12 @@ export const router = createBrowserRouter([
     element: <TransportService />,
   },
   {
+
+    path: "order-confirmation",
+    element: <OrderConfirmation />,
+  }
+
+
     path: "delivery",
     element: <Delivery />,
   },
@@ -69,4 +76,5 @@ export const router = createBrowserRouter([
   } 
   
     
+
 ]);
