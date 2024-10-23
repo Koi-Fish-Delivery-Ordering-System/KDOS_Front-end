@@ -25,15 +25,9 @@ const OrderConfirmation = () => {
     navigate('a'); // Redirect to a confirmation page
   };
   // Fish orders state
-  const [fishOrders, setFishOrders] = useState([]);
-
-  // Sample koi fish types (replace with your actual data)
-  const koifish = [
-    { koiFishId: 1, fishType: 'Koi Type 1' },
-    { koiFishId: 2, fishType: 'Koi Type 2' },
-    { koiFishId: 3, fishType: 'Koi Type 3' },
-    // Add more fish types as needed
-  ];
+  const [fishOrders, setFishOrders] = useState([
+    { name: '', weight: 0, price: 0 } // Default fish order
+  ]);
 
   // Function to add a new row
   const addRow = () => {
