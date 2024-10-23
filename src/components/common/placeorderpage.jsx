@@ -29,14 +29,7 @@ function PlaceOrderPage() {
         lng: 106.6297,   // Set the longitude for the center of the map
     };
 
-    const handleSubmit = async (info) => {
-
-
-        console.log(info); // Kiểm tra dữ liệu gửi đi
-
-        // Tiến hành gửi dữ liệu đến server hoặc xử lý tiếp
-        // ...
-    }; const handleContinue = async () => {
+    const handleContinue = async () => {
         try {
             // Get the form values
             const formData = form.getFieldsValue();
@@ -60,34 +53,43 @@ function PlaceOrderPage() {
         } catch (error) {
             console.error('Error during submission:', error);
 
-//     const handleSubmit = async (values) => {
-//         try {
-//             // Prepare the data to be sent
-//             const orderData = {
-//                 fromAddress: values.pickUpLocation,
-//                 toAddress: values.dropOffLocation,
-//                 transportServiceId: values.vehicleType,
-//                 totalPrice: values.price,
 
-//             };
-//             console.log(orderData);
-//             // Send the data to the API
-//             const response = await axios.post('http://26.61.210.173:3001/api/orders/create-order', orderData);
-
-//             // Check if the request was successful
-//             if (response.status === 200 || response.status === 201) {
-//                 message.success('Order placed successfully!');
-//             } else {
-//                 message.error('Failed to place order. Please try again.');
-//             }
-//         } catch (error) {
-//             console.error('Error submitting order:', error);
-//             message.error('An error occurred while placing the order. Please try again.');
 
         }
     };
+    const handleSubmit = async (values) => {
+        try {
+            // Prepare the data to be sent
+            const orderData = {
+                fromAddress: values.pickUpLocation,
+                toAddress: values.dropOffLocation,
+                transportServiceId: values.vehicleType,
+                totalPrice: values.price,
+            };
+            console.log(orderData);
 
+            // Get the token from localStorage
+            const token = localStorage.getItem("token");
 
+            // Send the data to the API with the token in the headers
+            const response = await axios.post('http://26.61.210.173:3001/api/orders/create-order', orderData, {
+                headers: {
+                    // 'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50SWQiOiIxODIzN2FmOC1hYzY5LTQzNWUtOGJmZS05OGVhYjczODEyMzYiLCJhY2NvdW50Um9sZXMiOltdLCJ0eXBlIjoiQWNjZXNzIiwiaWF0IjoxNzI5NzAxNDg3fQ.blWkdUp14-vy22oZ5h-FPIcO0fogTkVyY0QjGTKteB8`
+                }
+            });
+
+            // Check if the request was successful
+            if (response.status === 200 || response.status === 201) {
+                message.success('Order placed successfully!');
+            } else {
+                message.error('Failed to place order. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error submitting order:', error);
+            message.error('An error occurred while placing the order. Please try again.');
+        }            
+    };
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (!token) {
@@ -398,8 +400,8 @@ function PlaceOrderPage() {
                                 className="submit-btn" 
                                 type="primary" 
                                 htmlType="submit"
-                                onClick={handleContinue}
-                                // disabled={!selectedService}
+                                onClick={handleSubmit}
+                                disabled={!selectedService}
                             >
                                 Continue
                             </Button>
