@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button, Input, Form, Card, Row, Col, Select, Radio, AutoComplete, message } from 'antd';
 import { useNavigate } from 'react-router-dom';
-// import { LoadScript, GoogleMap, LoadScriptNext } from '@react-google-maps/api';
 import '../../css/placeorderpage.css';
 import Footer from './footer';
 import Navbar2 from './navbar2';
-import axios from 'axios'; // Thêm import axios
+import axios from 'axios';
 import DeliveryMap from './Map';
 
 // Add this near the top of your file, with other constant declarations
@@ -91,29 +90,28 @@ function PlaceOrderPage() {
     }, [form], [navigate]);
 
     
-    const handleVehicleChange = (e) => {
-        const selectedType = vehicleTypes.find(type => type.transportName === e.target.value); // Lấy đối tượng loại xe đã chọn
-        setVehicleType(selectedType); // Cập nhật loại xe đã chọn
-    };
+    // const handleVehicleChange = (e) => {
+    //     const selectedType = vehicleTypes.find(type => type.transportName === e.target.value); // Lấy đối tượng loại xe đã chọn
+    //     setVehicleType(selectedType); // Cập nhật loại xe đã chọn
+    // };
 
-    const isAirAvailable = () => {
-        const pickUpLocation = form.getFieldValue('pickUpLocation');
-        const dropOffLocation = form.getFieldValue('dropOffLocation');
+    // const isAirAvailable = () => {
+    //     const pickUpLocation = form.getFieldValue('pickUpLocation');
+    //     const dropOffLocation = form.getFieldValue('dropOffLocation');
 
-        const pickUp = provinces.find(province => province.provinceName === pickUpLocation);
-        const dropOff = provinces.find(province => province.provinceName === dropOffLocation);
+    //     const pickUp = provinces.find(province => province.provinceName === pickUpLocation);
+    //     const dropOff = provinces.find(province => province.provinceName === dropOffLocation);
 
-        // Kiểm tra xem cả hai địa điểm có isPlane = true và không trùng nhau
-        return pickUp?.isPlane && dropOff?.isPlane && pickUpLocation !== dropOffLocation;
-    };
+    //     // Kiểm tra xem cả hai địa điểm có isPlane = true và không trùng nhau
+    //     return pickUp?.isPlane && dropOff?.isPlane && pickUpLocation !== dropOffLocation;
+    // };
 
     useEffect(() => {
-        // Update the hidden price whenever distance or vehicleType changes
-        if (vehicleType && distance !== null) {
-            const price = Math.round(distance * vehicleType.pricePerKm); // Calculate price
+        if (selectedService && distance !== null) {
+            const price = Math.round(distance * selectedService.pricePerKm); // Calculate price
             form.setFieldsValue({ price: price }); // Set the hidden price
         }
-    }, [distance, vehicleType]); // Dependencies: distance and vehicleType
+    }, [vehicleType, distance, form]); // Thêm selectedService vào dependencies
 
     const [pickUpLocation, setPickUpLocation] = useState(null);
     const [dropOffLocation, setDropOffLocation] = useState(null);
@@ -210,6 +208,93 @@ function PlaceOrderPage() {
         }
     }, [form.getFieldValue('pickUpLocation'), form.getFieldValue('dropOffLocation'), provincesWithAirport]);
 
+    const [pickUpProvince, setPickUpProvince] = useState('');
+    const [dropOffProvince, setDropOffProvince] = useState('');
+    const [fetchedServices, setFetchedServices] = useState(null);
+    const [selectedService, setSelectedService] = useState(() => null);
+    const [price, setPrice] = useState(null);
+
+    const calculatePrice = useCallback(() => {
+        if (selectedService && distance !== null) {
+            const calculatedPrice = Math.round(distance * selectedService.pricePerKm);
+            setPrice(calculatedPrice);
+            form.setFieldsValue({ price: calculatedPrice });
+        }
+    }, [selectedService, distance, form]);
+
+    useEffect(() => {
+        calculatePrice();
+    }, [calculatePrice]);
+
+    const fetchTransportServices = async () => {
+        if (!pickUpProvince || !dropOffProvince) return;
+
+        const query = `
+            query FindManySuitableTransportService($data: FindManySuitableTransportServiceInputData!) {
+                findManySuitableTransportService(data: $data) {
+                    name
+                    transportServiceId
+                    pricePerKm
+                }
+            }
+        `;
+
+        const variables = {
+            data: {
+                fromProvince: pickUpProvince,
+                toProvince: dropOffProvince
+            }
+        };
+
+        try {
+            const response = await axios.post('http://26.61.210.173:3001/graphql', {
+                query,
+                variables
+            });
+
+            if (response.data && response.data.data && response.data.data.findManySuitableTransportService) {
+                const services = response.data.data.findManySuitableTransportService;
+                setVehicleTypes(services);
+                setFetchedServices(services);
+                console.log('Fetched transport services:', services);
+                message.success(`Found ${services.length} suitable transport services`);
+            } else {
+                console.log('No transport services found or unexpected response structure');
+                message.info('No suitable transport services found for the selected provinces');
+                setFetchedServices(null);
+            }
+        } catch (error) {
+            console.error('Error fetching transport services:', error);
+            message.error('Failed to fetch transport services. Please try again.');
+            setFetchedServices(null);
+        }
+    };
+
+    useEffect(() => {
+        if (pickUpProvince && dropOffProvince) {
+            fetchTransportServices();
+        }
+    }, [pickUpProvince, dropOffProvince]);
+
+    const handleProvinceChange = (field, value) => {
+        if (field === 'pickUpProvince') {
+            setPickUpProvince(value);
+            form.setFieldsValue({ pickUpProvince: value });
+        } else {
+            setDropOffProvince(value);
+            form.setFieldsValue({ dropOffProvince: value });
+        }
+    };
+
+    const handleServiceSelect = useCallback((e) => {
+        const selectedServiceId = e.target.value;
+        const service = fetchedServices.find(s => s.transportServiceId === selectedServiceId);
+        if (service) {
+            setSelectedService(service);
+            form.setFieldsValue({ vehicleType: selectedServiceId });
+        }
+    }, [fetchedServices, form]);
+
     return (
         <div>
             <Row className="placeorder-page">
@@ -248,31 +333,33 @@ function PlaceOrderPage() {
                                 placeholder="Select Drop-off location"
                             />
                         </Form.Item>
+                        <Form.Item label="Pick-up Province" name="pickUpProvince">
+                            <Input type="text" onChange={(e) => handleProvinceChange('pickUpProvince', e.target.value)} />
+                        </Form.Item>
+                        <Form.Item label="Drop-off Province" name="dropOffProvince">
+                            <Input type="text" onChange={(e) => handleProvinceChange('dropOffProvince', e.target.value)} />
+                        </Form.Item>
                         <h2 className="section-title">Transport Services</h2>
-                        {showVehicleTypes && (
-                            <>                               
-                                <Form.Item
-                                    name="vehicleType"
-                                    rules={[{ required: true, message: 'Please select a vehicle type' }]}
-                                >
-                                    <div className="vehicle-scroll-container" style={{ border: 'none' }}>
-                                        <Radio.Group className="vehicle-radio-group" onChange={handleVehicleChange}>
-                                            {vehicleTypes.map((type) => {
-                                                if (type.transportName === "Air" && !isAirVisible) {
-                                                    return null; // Không hiển thị "Air"
-                                                }
-                                                return (
-                                                    <Radio key={type.id} value={type.transportName}>
-                                                        <img src={type.image} />
-                                                        <div>{type.transportName}</div>
-                                                    </Radio>
-                                                );
-                                            })}
-                                        </Radio.Group>
-                                    </div>
-                                </Form.Item>
-                            </>
+                        {fetchedServices && (
+                            <Form.Item name="vehicleType" rules={[{ required: true, message: 'Please select a transport service' }]}>
+                                <Radio.Group onChange={handleServiceSelect}>
+                                    {fetchedServices.map(service => (
+                                        <Radio key={service.transportServiceId} value={service.transportServiceId}>
+                                            {service.name}
+                                            
+                                        </Radio>
+                                    ))}
+                                </Radio.Group>
+                            </Form.Item>
                         )}
+
+                        {selectedService && (
+                            <div>
+                                <h3>Selected Service:</h3>
+                                <p>{selectedService.name}</p>
+                            </div>
+                        )}
+
                         <Form.Item
                             name="price"
                             style={{ display: 'none' }}
@@ -280,22 +367,20 @@ function PlaceOrderPage() {
                             <Input />
                         </Form.Item>
                        
-                        {distance !== null && distance > 0 && vehicleType && ( 
+                        {price !== null && (
                             <div className="distance-display">
-                                Provisional Price: {Math.round(distance * vehicleType.pricePerKm).toLocaleString()} VNĐ
+                                Provisional Price: {price.toLocaleString()} VNĐ
                             </div>
                         )}
                         <Form.Item>
-                            {form.getFieldValue('pickUpLocation') && form.getFieldValue('dropOffLocation') && vehicleType && (
-                                <Button 
-                                    className="submit-btn" 
-                                    type="primary" 
-                                    htmlType="submit"
-                                    onClick={handleSubmit}
-                                >
-                                    Continue
-                                </Button>
-                            )}
+                            <Button 
+                                className="submit-btn" 
+                                type="primary" 
+                                htmlType="submit"
+                                disabled={!selectedService}
+                            >
+                                Continue
+                            </Button>
                         </Form.Item>
                         
                     </Form>
