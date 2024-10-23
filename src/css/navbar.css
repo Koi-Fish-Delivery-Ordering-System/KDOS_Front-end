@@ -78,14 +78,29 @@
   /* Service name over the image */
   .service-name {
     position: absolute;
-    bottom: 25%;
+    bottom: 50%;
     left: 1%;
     color: white;
-    font-size: 5rem;
+    font-size: 4rem;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
     font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
   }
-
+    .create-order-button {
+      position: absolute;
+      bottom: 40%;
+      left: 10%;
+      background-color: #FF8C00;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 18px;
+      font-weight: bold;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+ 
   .nav-item a {
     color: black;
   }
