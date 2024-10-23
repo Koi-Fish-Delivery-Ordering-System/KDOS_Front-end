@@ -383,24 +383,19 @@ function PlaceOrderPage() {
 
                         {fetchedServices && (
                             <Form.Item name="vehicleType" rules={[{ required: true, message: 'Please select a transport service' }]}>
-                                <Radio.Group onChange={handleServiceSelect}>
-                                    {fetchedServices.map(service => (
-                                        <Radio key={service.transportServiceId} value={service.transportServiceId}>
-                                            {service.name}
-                                            
-                                        </Radio>
-                                    ))}
-                                </Radio.Group>
+                                <div className="vehicle-scroll-container" style={{border: 'none'}}>
+                                    <Radio.Group className="vehicle-radio-group" onChange={handleServiceSelect}>
+                                        {fetchedServices.map(service => (
+                                            <Radio key={service.transportServiceId} value={service.transportServiceId}>
+                                            {service.name === "Road" && <img src='src/images/truck.png' alt="Road" />}
+                                            {service.name === "Air" && <img src='src/images/plane.png' alt="Air" />}
+                                            <div>{service.name}</div>
+                                            </Radio>
+                                        ))}
+                                    </Radio.Group>
+                                </div>
                             </Form.Item>
                         )}
-
-                        {selectedService && (
-                            <div>
-                                <h3>Selected Service:</h3>
-                                <p>{selectedService.name}</p>
-                            </div>
-                        )}
-
                         <Form.Item
                             name="price"
                             style={{ display: 'none' }}
