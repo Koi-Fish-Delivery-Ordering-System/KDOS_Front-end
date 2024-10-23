@@ -223,29 +223,6 @@ function PlaceOrderPage() {
                 normalizedProvince.includes(normalizedLocation);
         });
     };
-
-    const [showVehicleTypes, setShowVehicleTypes] = useState(false);
-
-    useEffect(() => {
-        const pickUpLocation = form.getFieldValue('pickUpLocation');
-        const dropOffLocation = form.getFieldValue('dropOffLocation');
-
-        setShowVehicleTypes(!!pickUpLocation && !!dropOffLocation);
-
-        // Existing logic for isAirVisible
-        if (pickUpLocation && dropOffLocation) {
-            const pickUpHasAirport = checkAirportAvailability(pickUpLocation);
-            const dropOffHasAirport = checkAirportAvailability(dropOffLocation);
-
-            console.log('Pick-up location:', pickUpLocation, 'Has airport:', pickUpHasAirport);
-            console.log('Drop-off location:', dropOffLocation, 'Has airport:', dropOffHasAirport);
-
-            setIsAirVisible(pickUpHasAirport && dropOffHasAirport && pickUpLocation !== dropOffLocation);
-        } else {
-            setIsAirVisible(false);
-        }
-    }, [form.getFieldValue('pickUpLocation'), form.getFieldValue('dropOffLocation'), provincesWithAirport]);
-
     const [pickUpProvince, setPickUpProvince] = useState('');
     const [dropOffProvince, setDropOffProvince] = useState('');
     const [fetchedServices, setFetchedServices] = useState(null);
@@ -421,7 +398,8 @@ function PlaceOrderPage() {
                                 className="submit-btn" 
                                 type="primary" 
                                 htmlType="submit"
-                                disabled={!selectedService}
+                                onClick={handleContinue}
+                                // disabled={!selectedService}
                             >
                                 Continue
                             </Button>
