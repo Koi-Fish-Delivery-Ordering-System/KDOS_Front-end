@@ -24,25 +24,49 @@ function PlaceOrderPage() {
         height: "100%", // Set the desired height
         width: "100%",   // Set the desired width
     };
-    
+
     const center = {
         lat: 10.8231,    // Set the latitude for the center of the map
         lng: 106.6297,   // Set the longitude for the center of the map
     };
     const handleSubmit = async (info) => {
-    
-        
+
+
         console.log(info); // Kiểm tra dữ liệu gửi đi
 
         // Tiến hành gửi dữ liệu đến server hoặc xử lý tiếp
         // ...
+    }; const handleContinue = async () => {
+        try {
+            // Get the form values
+            const formData = form.getFieldsValue();
+
+            console.log(formData); // Check the data being sent
+
+            // Proceed to the sender info page
+            navigate('/order-confirmation', {
+                state: {
+                    pickUpLocation: {
+                        lat: pickUpLocation.lat,
+                        lng: pickUpLocation.lng,
+                    },
+                    dropOffLocation: {
+                        lat: dropOffLocation.lat,
+                        lng: dropOffLocation.lng,
+                    },
+                    vehicleType: vehicleType
+                }
+            });
+        } catch (error) {
+            console.error('Error during submission:', error);
+        }
     };
-    
-    
+
+
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (!token) {
-          navigate('/login');
+            navigate('/login');
         }
         const fetchVehicleTypes = async () => {
             try {
@@ -73,7 +97,7 @@ function PlaceOrderPage() {
         fetchProvincesWithAirport();
     }, [form], [navigate]);
 
-    
+
     const handleVehicleChange = (e) => {
         const selectedType = vehicleTypes.find(type => type.transportName === e.target.value); // Lấy đối tượng loại xe đã chọn
         setVehicleType(selectedType); // Cập nhật loại xe đã chọn
@@ -140,7 +164,7 @@ function PlaceOrderPage() {
     const handleDropOffSelect = (value, option) => {
         const lat = parseFloat(option.lat);
         const lng = parseFloat(option.lon);
-        
+
         if (!isNaN(lat) && !isNaN(lng)) {
             setDropOffLocation({
                 lat: lat,
@@ -167,7 +191,7 @@ function PlaceOrderPage() {
         return provincesWithAirport.some(province => {
             const normalizedProvince = normalizeLocationName(province.name);
             return normalizedLocation.includes(normalizedProvince) ||
-                   normalizedProvince.includes(normalizedLocation);
+                normalizedProvince.includes(normalizedLocation);
         });
     };
 
@@ -197,7 +221,7 @@ function PlaceOrderPage() {
         <div>
             <Row className="placeorder-page">
                 {/* Left Section: Route and Vehicle Selection */}
-                <Navbar2/>
+                <Navbar2 />
                 <Col span={8} className="left-section">
                     <h2 className="section-title">Location</h2>
                     <Form
@@ -205,7 +229,7 @@ function PlaceOrderPage() {
                         className="route-form"
                         onFinish={handleSubmit}
                         form={form}
-                        // Theo dõi sự thay đổi của form
+                    // Theo dõi sự thay đổi của form
                     >
                         <Form.Item label="Pick-up location" name="pickUpLocation" rules={[{ required: true, message: 'Please select pick-up location' }]}>
                             <AutoComplete
@@ -233,7 +257,7 @@ function PlaceOrderPage() {
                         </Form.Item>
                         <h2 className="section-title">Transport Services</h2>
                         {showVehicleTypes && (
-                            <>                               
+                            <>
                                 <Form.Item
                                     name="vehicleType"
                                     rules={[{ required: true, message: 'Please select a vehicle type' }]}
@@ -262,38 +286,38 @@ function PlaceOrderPage() {
                         >
                             <Input />
                         </Form.Item>
-                       
-                        {distance !== null && distance > 0 && vehicleType && ( 
+
+                        {distance !== null && distance > 0 && vehicleType && (
                             <div className="distance-display">
                                 Provisional Price: {Math.round(distance * vehicleType.pricePerKm).toLocaleString()} VNĐ
                             </div>
                         )}
                         <Form.Item>
                             {form.getFieldValue('pickUpLocation') && form.getFieldValue('dropOffLocation') && vehicleType && (
-                                <Button 
-                                    className="submit-btn" 
-                                    type="primary" 
-                                    htmlType="submit"
+                                <Button
+                                    className="submit-btn"
+                                    type="primary"
+                                    onClick={handleContinue}
                                 >
                                     Continue
                                 </Button>
                             )}
                         </Form.Item>
-                        
+
                     </Form>
 
                 </Col>
                 <Col span={16}>
-                <DeliveryMap 
-                   suggestion={{
-                       form: pickUpLocation ? [pickUpLocation.lat, pickUpLocation.lng] : defaultPosition,
-                       to: dropOffLocation ? [dropOffLocation.lat, dropOffLocation.lng] : defaultPosition
-                   }}
-                   autoSetDistance={setDistance}
-                />
-                </Col>            
+                    <DeliveryMap
+                        suggestion={{
+                            form: pickUpLocation ? [pickUpLocation.lat, pickUpLocation.lng] : defaultPosition,
+                            to: dropOffLocation ? [dropOffLocation.lat, dropOffLocation.lng] : defaultPosition
+                        }}
+                        autoSetDistance={setDistance}
+                    />
+                </Col>
                 {/* Right Section: Google Map */}
-                 {/* <Col span={16} className="map-section">
+                {/* <Col span={16} className="map-section">
                     <LoadScriptNext googleMapsApiKey="AIzaSyDJO2B-_FLwk1R1pje5gKEAB9h2qUDb-FU">
                         <GoogleMap
                             mapContainerStyle={mapContainerStyle}
@@ -302,9 +326,9 @@ function PlaceOrderPage() {
                         />
                     </LoadScriptNext>
                 </Col>  */}
-                 
+
             </Row>
-            <Footer/>
+            <Footer />
         </div>
     );
 };

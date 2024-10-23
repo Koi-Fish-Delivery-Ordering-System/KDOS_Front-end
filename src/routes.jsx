@@ -15,6 +15,7 @@ import DeliveryPage from './components/common/deliverypage';
 import DeliveryDetail from './components/common/deliverydetail';
 import AccountManagement from './components/common/AccountManagement';
 import TransportService from './components/common/transportservice';
+import OrderConfirmation from './components/common/orderconfirmation';
 export const router = createBrowserRouter([
 
   {
@@ -49,11 +50,11 @@ export const router = createBrowserRouter([
     path: "profile",
     element: <ProfilePage />,
   },
-   {
+  {
     path: "records",
     element: <Records />,
   },
-   {
+  {
     path: "trackorder",
     element: <TrackOrderPage />,
   },
@@ -76,6 +77,10 @@ export const router = createBrowserRouter([
   {
     path: "transport-service",
     element: <TransportService />,
+  },
+  {
+    path: "order-confirmation",
+    element: <OrderConfirmation />,
   }
-    
+
 ]);
