@@ -3,6 +3,7 @@ import ProfilePage from './profilepage';
 import Orders from './records'; 
 import Navbar from './navbar2'; // Import the Navbar component
 import '../../css/accountManagement.css';
+import Navbar2 from './navbar2';
 
 const AccountManagement = () => {
   const [activeComponent, setActiveComponent] = useState('profile');
@@ -25,7 +26,7 @@ const AccountManagement = () => {
 
   return (
     <div>
-      <Navbar />
+      <Navbar2 />
       <div className="account-management">
         <div className="sidebar">
           <h3>Account Management</h3>
