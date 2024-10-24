@@ -4,23 +4,89 @@ import { Button, Form, Input } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../config/axios";
 import { toast } from "react-toastify";
+import axios from "axios";
 
 function LoginPage() {
   const navigate = useNavigate();
 
   const handleLogin = async (values) => {
     try {
-      const response = await api.post("https://6711071d4eca2acdb5f3478a.mockapi.io/Login", values);
-      const { token, avatar, username, userId, role } = response.data; // Assume role is returned
-      localStorage.setItem("token", token);
-      localStorage.setItem("avatar", avatar);
-      localStorage.setItem("username", username);
-      localStorage.setItem("userId", userId);
-      localStorage.setItem("role", role); // Store role
+      const loginResponse = await api.post("http://26.61.210.173:3001/api/auth/sign-in", values);
+      console.log("Login response:", loginResponse);
 
-      navigate("/"); // Redirect to homepage after login
+      if (loginResponse && loginResponse.data && loginResponse.data.tokens) {
+        const { accessToken } = loginResponse.data.tokens;
+        localStorage.setItem("accessToken", accessToken);
+        console.log("Đăng nhập thành công. Access Token:", accessToken);
+
+        const query = `
+          query Init {
+            init {
+              accountId
+              roles {
+                name
+              }
+            }
+          }
+        `;
+        
+        try {
+          const initResponse = await axios.post('http://26.61.210.173:3001/graphql', 
+            { query },
+            { 
+              headers: {
+                "Authorization": `Bearer ${accessToken}`,
+                "Content-Type": "application/json"
+              }
+            }
+          );
+          console.log("Full Init response:", initResponse);
+
+          if (initResponse.data && initResponse.data.data && initResponse.data.data.init) {
+            const { accountId, roles } = initResponse.data.data.init;
+            console.log("Account ID:", accountId);
+            console.log("Roles:", roles);
+            
+            if (roles && Array.isArray(roles) && roles.length > 0) {
+              const userRole = roles[0].name.toLowerCase(); // Lấy vai trò đầu tiên
+              console.log("User role:", userRole);
+              
+              // Chuyển hướng dựa trên vai trò
+              switch(userRole) {
+                case 'user':
+                  navigate('/');
+                  break;
+                case 'shipper':
+                  navigate('/delivery');
+                  break;
+                case 'healchecker':
+                  navigate('/healchecker');
+                  break;
+                default:
+                  console.error("Unknown role:", userRole);
+                  toast.error("Unknown user role");
+                  navigate('/');
+              }
+            } else {
+              console.error("No roles found for user");
+              toast.error("No roles assigned to user");
+              navigate('/');
+            }
+          } else {
+            console.error("Unexpected init response structure:", initResponse.data);
+            toast.error("Unexpected response from server");
+          }
+        } catch (initError) {
+          console.error("Init query error:", initError);
+          toast.error("Error initializing user data");
+        }
+      } else {
+        console.error("Unexpected login response structure:", loginResponse);
+        toast.error("Unexpected response from server");
+      }
     } catch (err) {
-      toast.error(err.response.data.message || "Login failed");
+      console.error("Login error:", err);
+      toast.error(err.response?.data?.message || "Login failed");
     }
   };
 
