@@ -25,15 +25,9 @@ const OrderConfirmation = () => {
     navigate('a'); // Redirect to a confirmation page
   };
   // Fish orders state
-  const [fishOrders, setFishOrders] = useState([]);
-
-  // Sample koi fish types (replace with your actual data)
-  const koifish = [
-    { koiFishId: 1, fishType: 'Koi Type 1' },
-    { koiFishId: 2, fishType: 'Koi Type 2' },
-    { koiFishId: 3, fishType: 'Koi Type 3' },
-    // Add more fish types as needed
-  ];
+  const [fishOrders, setFishOrders] = useState([
+    { name: '', weight: 0, price: 0 } // Default fish order
+  ]);
 
   // Function to add a new row
   const addRow = () => {
@@ -60,17 +54,28 @@ const OrderConfirmation = () => {
         <Col span={8} className="left-section">
           <h2 className="section-title">Order Confirmation</h2>
           <Form form={form} layout="vertical" onFinish={handleSubmit}>
-            <Form.Item label="Sender Name" name="senderName" rules={[{ required: true, message: 'Please enter your name' }]}>
+            <h2 className="fish-orders-title">Sender Information</h2>
+            <Form.Item label="Sender Name" name="senderName" rules={[{ required: true, message: 'Please enter your sender name' }]}>
               <Input placeholder="Enter your name" />
             </Form.Item>
-            <Form.Item label="Sender Phone" name="senderPhone" rules={[{ required: true, message: 'Please enter your phone number' }]}>
+            <Form.Item label="Sender Phone" name="senderPhone" rules={[{ required: true, message: 'Please enter your sender phone number' }]}>
               <Input placeholder="Enter your phone number" />
             </Form.Item>
-            <Form.Item label="Sender Address" name="senderAddress" rules={[{ required: true, message: 'Please enter your address' }]}>
+            <Form.Item label="Sender Address" name="senderAddress" rules={[{ required: true, message: 'Please enter your sender address' }]}>
               <Input placeholder="Enter your address" />
             </Form.Item>
-            <Form.Item label="Sender Notes" name="senderNote" >
+            {/* <Form.Item label="Sender Notes" name="senderNote" >
               <Input placeholder="Enter your notes" />
+            </Form.Item> */}
+            <h2 className="fish-orders-title">Recipient Information</h2>
+            <Form.Item label="Recipient Name" name="recipientName" rules={[{ required: true, message: 'Please enter your recipient name' }]}>
+              <Input placeholder="Enter your name" />
+            </Form.Item>
+            <Form.Item label="Recipient Phone" name="recipientPhone" rules={[{ required: true, message: 'Please enter your recipient phone' }]}>
+              <Input placeholder="Enter your name" />
+            </Form.Item>
+            <Form.Item label="Recipient Address" name="recipientAddress" rules={[{ required: true, message: 'Please enter your recipient address' }]}>
+              <Input placeholder="Enter your name" />
             </Form.Item>
             {/* Fish Orders Table */}
             <h2 className="fish-orders-title">Fish Orders</h2>
@@ -120,6 +125,7 @@ const OrderConfirmation = () => {
                       </td>
                       <td>
                         <button
+                          type="button"
                           onClick={() => deleteRow(index)}
                           className="delete-button"
                         >
@@ -131,7 +137,7 @@ const OrderConfirmation = () => {
                 </tbody>
               </table>
             </div>
-            <button onClick={addRow} className="add-button">
+            <button type="button" onClick={addRow} className="add-button">
               Add Fish
             </button>
             <Form.Item>
