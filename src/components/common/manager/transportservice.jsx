@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import '../../../css/transportservice.css';
 
-
 function TransportService() {
   const [data, setData] = useState([]);
   const [showForm, setShowForm] = useState(false);
@@ -13,6 +12,9 @@ function TransportService() {
     priceKg: ''
   });
   const [isUpdate, setIsUpdate] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+  const [disabledItems, setDisabledItems] = useState(new Set());
 
   useEffect(() => {
     const fetchData = async () => {
@@ -50,7 +52,7 @@ function TransportService() {
   const handleUpdate = (id) => {
     const item = data.find(d => d.id === id);
     setFormData({
-      id: item.id, // Ensure the ID is included for updating
+      id: item.id,
       name: item.name || '',
       description: item.description || '',
       priceKM: item.priceKM || '',
@@ -65,7 +67,7 @@ function TransportService() {
   const handleChange = (e) => {
     const { name, value } = e.target;
     if (['priceKM', 'priceKg', 'deliveryPrice', 'priceFish'].includes(name) && value < 0) {
-      return; // Prevent negative values
+      return;
     }
     setFormData({
       ...formData,
@@ -75,9 +77,8 @@ function TransportService() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const updatedDate = new Date().toLocaleDateString(); // Get current date
+    const updatedDate = new Date().toLocaleDateString();
     if (isUpdate) {
-      // Update logic here
       const updatedData = data.map(item =>
         item.id === formData.id ? { ...formData, updatedDate } : item
       );
@@ -85,14 +86,35 @@ function TransportService() {
       console.log('Update Data:', formData);
     } else {
       const newEntry = {
-        id: data.length + 1, // Simple ID generation
+        id: data.length + 1,
         ...formData,
-        updatedDate // Add current date
+        updatedDate
       };
       setData([...data, newEntry]);
     }
     setShowForm(false);
   };
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
+  const handleToggleDisable = (id) => {
+    setDisabledItems(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(id)) {
+        newSet.delete(id);
+      } else {
+        newSet.add(id);
+      }
+      return newSet;
+    });
+  };
+
+  const totalPages = Math.ceil(data.length / itemsPerPage);
+  const paginatedData = data.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   return (
     <div>
@@ -102,27 +124,58 @@ function TransportService() {
           <tr>
             <th>No</th>
             <th>Name</th>
-            <th>Description</th>
+            <th>Type</th>
             <th>Updated Date</th>
             <th>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {data.map((item) => (
-            <tr key={item.id}>
+          {paginatedData.map((item) => (
+            <tr key={item.id} className={disabledItems.has(item.id) ? 'disabled-row' : ''}>
               <td>{item.id}</td>
               <td>{item.name}</td>
               <td>{item.description || 'N/A'}</td>
               <td>{item.updatedDate || 'N/A'}</td>
               <td>
                 <button className="transport-button" onClick={() => handleUpdate(item.id)}>Update</button>
-                <button className="transport-button" onClick={() => console.log(`Disable item with id: ${item.id}`)}>Disable</button>
+                <button
+                  className={`transport-button ${disabledItems.has(item.id) ? 'enable-button' : ''}`}
+                  onClick={() => handleToggleDisable(item.id)}
+                >
+                  {disabledItems.has(item.id) ? 'Enable' : 'Disable'}
+                </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-      <button className = "transport-button" onClick={handleCreate}>Create Transport Service</button>
+      <div className="pagination">
+        <button className="arrow-button" onClick={() => handlePageChange(1)} disabled={currentPage === 1}>&laquo;</button>
+        <button className="arrow-button" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>&lsaquo;</button>
+        {Array.from({ length: totalPages }, (_, index) => (
+          <button
+            key={index}
+            className={`page-button ${currentPage === index + 1 ? 'active' : ''}`}
+            onClick={() => handlePageChange(index + 1)}
+          >
+            {index + 1}
+          </button>
+        ))}
+        <button className="arrow-button" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>&rsaquo;</button>
+        <button className="arrow-button" onClick={() => handlePageChange(totalPages)} disabled={currentPage === totalPages}>&raquo;</button>
+        <select
+          value={currentPage}
+          onChange={(e) => handlePageChange(Number(e.target.value))}
+          className="page-select"
+        >
+          {Array.from({ length: totalPages }, (_, index) => (
+            <option key={index} value={index + 1}>
+              Page {index + 1}
+            </option>
+          ))}
+        </select>
+      </div>
+      <button className="transport-button" onClick={handleCreate}>Create Transport Service</button>
 
       {showForm && (
         <div className="modal">
