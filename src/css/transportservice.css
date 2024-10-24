@@ -1,19 +1,23 @@
-.grid-table {
+.transport-table {
   width: 100%;
   border-collapse: collapse;
 }
 
-.grid-table th, .grid-table td {
-  border: 1px solid #ddd;
-  padding: 8px;
+.transport-table th,
+.transport-table td {
+  padding: 15px;
   text-align: left;
+  border-bottom: 1px solid #ddd;
 }
 
-.grid-table th {
-  background-color: #f4f4f4;
+.transport-table th {
+  background-color: #ff7700;
+  color: white;
+  font-weight: bold;
+  text-transform: uppercase;
 }
 
-.grid-table tr:hover {
+.transport-table tr:hover {
   background-color: #f1f1f1;
 }
 
@@ -67,6 +71,29 @@
 }
 
 .form-actions button {
-  margin-left: 10px;
+  color: white;
+  border-radius: 5px;
+  background-color: #ff7700;
   padding: 8px 12px;
+  font-weight: bold;
+  text-decoration: none;
+  display: inline-block;
+  transition: background-color 0.3s ease;
+  text-decoration: none;
+  cursor: pointer;
+  border-width: 0px;
+}
+
+.transport-button {
+    color: white;
+    border-radius: 5px;
+    background-color: #ff7700;
+    padding: 8px 12px;
+    font-weight: bold;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+  text-decoration: none;
+  cursor: pointer;
+  border-width: 0px;
 }

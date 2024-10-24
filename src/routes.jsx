@@ -10,12 +10,13 @@ import PlaceOrderPage from './components/common/placeorderpage';
 import DeliveryPage from './components/common/delivery/deliverypickup';
 import DeliveryDetail from './components/common/delivery/deliverydetail';
 import AccountManagement from './components/common/AccountManagement';
-import TransportService from './components/common/transportservice';
+import TransportService from './components/common/manager/transportservice';
 import OrderConfirmation from './components/common/orderconfirmation';
 import Delivery from './components/common/delivery/delivery';
 import HealChecker from './components/common/healchecker/healchecker';
-export const router = createBrowserRouter([
+import Manager from './components/common/manager/manager'; // Ensure this import is correct
 
+export const router = createBrowserRouter([
   {
     path: '/',
     element: <Homepage />,
@@ -61,7 +62,6 @@ export const router = createBrowserRouter([
     element: <TransportService />,
   },
   {
-
     path: "order-confirmation",
     element: <OrderConfirmation />,
   },
@@ -72,8 +72,9 @@ export const router = createBrowserRouter([
   {
     path: "healchecker",
     element: <HealChecker />,
-  } 
-  
-    
-
+  },
+  {
+    path: "manager",
+    element: <Manager />, // Ensure this path is correct
+  }
 ]);

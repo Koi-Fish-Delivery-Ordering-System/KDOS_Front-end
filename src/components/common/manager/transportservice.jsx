@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import '../../css/transportservice.css'; // Import the CSS file
+import '../../../css/transportservice.css';
+
 
 function TransportService() {
   const [data, setData] = useState([]);
@@ -86,8 +87,7 @@ function TransportService() {
 
   return (
     <div>
-      <h1>Transport Service</h1>
-      <table className="grid-table">
+      <table className="transport-table">
         <thead>
           <tr>
             <th>No </th>
@@ -105,14 +105,14 @@ function TransportService() {
               <td>{item.description || 'N/A'}</td>
               <td>{item.updatedDate || 'N/A'}</td>
               <td>
-                <button onClick={() => handleUpdate(item.id)}>Update</button>
-                <button onClick={() => console.log(`Disable item with id: ${item.id}`)}>Disable</button>
+                <button className="transport-button" onClick={() => handleUpdate(item.id)}>Update</button>
+                <button className="transport-button" onClick={() => console.log(`Disable item with id: ${item.id}`)}>Disable</button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
-      <button onClick={handleCreate}>Create Transport Service</button>
+      <button className="transport-button" onClick={handleCreate}>Create Transport Service</button>
 
       {showForm && (
         <div className="modal">
