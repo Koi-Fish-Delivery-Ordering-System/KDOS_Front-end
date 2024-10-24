@@ -23,6 +23,9 @@ function LoginPage() {
           query Init {
             init {
               accountId
+              username
+              email
+              password
               roles {
                 name
               }
@@ -43,7 +46,16 @@ function LoginPage() {
           console.log("Full Init response:", initResponse);
 
           if (initResponse.data && initResponse.data.data && initResponse.data.data.init) {
-            const { accountId, roles } = initResponse.data.data.init;
+            const { accountId, roles, username, email, password } = initResponse.data.data.init;
+            localStorage.setItem("accountId", accountId);
+            localStorage.setItem("username", username);
+            localStorage.setItem("email", email);
+            // localStorage.setItem("address", address);
+            localStorage.setItem("password", password);
+            console.log("Email:", email);
+            // console.log("Address:", address);
+            console.log("Password:", password);
+            console.log("Username:", username);
             console.log("Account ID:", accountId);
             console.log("Roles:", roles);
             
