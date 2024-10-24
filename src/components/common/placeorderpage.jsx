@@ -29,14 +29,7 @@ function PlaceOrderPage() {
         lng: 106.6297,   // Set the longitude for the center of the map
     };
 
-    const handleSubmit = async (info) => {
-
-
-        console.log(info); // Kiểm tra dữ liệu gửi đi
-
-        // Tiến hành gửi dữ liệu đến server hoặc xử lý tiếp
-        // ...
-    }; const handleContinue = async () => {
+    const handleContinue = async () => {
         try {
             // Get the form values
             const formData = form.getFieldsValue();
@@ -60,39 +53,48 @@ function PlaceOrderPage() {
         } catch (error) {
             console.error('Error during submission:', error);
 
-//     const handleSubmit = async (values) => {
-//         try {
-//             // Prepare the data to be sent
-//             const orderData = {
-//                 fromAddress: values.pickUpLocation,
-//                 toAddress: values.dropOffLocation,
-//                 transportServiceId: values.vehicleType,
-//                 totalPrice: values.price,
 
-//             };
-//             console.log(orderData);
-//             // Send the data to the API
-//             const response = await axios.post('http://26.61.210.173:3001/api/orders/create-order', orderData);
-
-//             // Check if the request was successful
-//             if (response.status === 200 || response.status === 201) {
-//                 message.success('Order placed successfully!');
-//             } else {
-//                 message.error('Failed to place order. Please try again.');
-//             }
-//         } catch (error) {
-//             console.error('Error submitting order:', error);
-//             message.error('An error occurred while placing the order. Please try again.');
 
         }
     };
+    const handleSubmit = async (values) => {
+        try {
+            // Prepare the data to be sent
+            const orderData = {
+                fromAddress: values.pickUpLocation,
+                toAddress: values.dropOffLocation,
+                transportServiceId: values.vehicleType,
+                totalPrice: values.price,
+            };
+            console.log(orderData);
 
+            // Get the token from localStorage
+            const token = localStorage.getItem("token");
 
+            // Send the data to the API with the token in the headers
+            const response = await axios.post('http://26.61.210.173:3001/api/orders/create-order', orderData, {
+                headers: {
+                    // 'Authorization': `Bearer ${token}`
+                    'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50SWQiOiIxODIzN2FmOC1hYzY5LTQzNWUtOGJmZS05OGVhYjczODEyMzYiLCJhY2NvdW50Um9sZXMiOltdLCJ0eXBlIjoiQWNjZXNzIiwiaWF0IjoxNzI5NzAxNDg3fQ.blWkdUp14-vy22oZ5h-FPIcO0fogTkVyY0QjGTKteB8`
+                }
+            });
+
+            // Check if the request was successful
+            if (response.status === 200 || response.status === 201) {
+                message.success('Order placed successfully!');
+            } else {
+                message.error('Failed to place order. Please try again.');
+            }
+        } catch (error) {
+            console.error('Error submitting order:', error);
+            message.error('An error occurred while placing the order. Please try again.');
+        }            
+    };
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            navigate('/login');
-        }
+        // const token = localStorage.getItem("token");
+        // if (!token) {
+        //     navigate('/login');
+        // }
         const fetchVehicleTypes = async () => {
             try {
                 const response = await axios.get('https://670e78b03e7151861654ae2d.mockapi.io/transport'); // Thay thế 'API_URL_HERE' bằng URL của API
@@ -223,29 +225,6 @@ function PlaceOrderPage() {
                 normalizedProvince.includes(normalizedLocation);
         });
     };
-
-    const [showVehicleTypes, setShowVehicleTypes] = useState(false);
-
-    useEffect(() => {
-        const pickUpLocation = form.getFieldValue('pickUpLocation');
-        const dropOffLocation = form.getFieldValue('dropOffLocation');
-
-        setShowVehicleTypes(!!pickUpLocation && !!dropOffLocation);
-
-        // Existing logic for isAirVisible
-        if (pickUpLocation && dropOffLocation) {
-            const pickUpHasAirport = checkAirportAvailability(pickUpLocation);
-            const dropOffHasAirport = checkAirportAvailability(dropOffLocation);
-
-            console.log('Pick-up location:', pickUpLocation, 'Has airport:', pickUpHasAirport);
-            console.log('Drop-off location:', dropOffLocation, 'Has airport:', dropOffHasAirport);
-
-            setIsAirVisible(pickUpHasAirport && dropOffHasAirport && pickUpLocation !== dropOffLocation);
-        } else {
-            setIsAirVisible(false);
-        }
-    }, [form.getFieldValue('pickUpLocation'), form.getFieldValue('dropOffLocation'), provincesWithAirport]);
-
     const [pickUpProvince, setPickUpProvince] = useState('');
     const [dropOffProvince, setDropOffProvince] = useState('');
     const [fetchedServices, setFetchedServices] = useState(null);
@@ -333,6 +312,24 @@ function PlaceOrderPage() {
         }
     }, [fetchedServices, form]);
 
+    const [formIsComplete, setFormIsComplete] = useState(false);
+
+    // Add this useEffect to check form completeness
+    useEffect(() => {
+        const checkFormCompleteness = () => {
+            const values = form.getFieldsValue();
+            const isComplete = values.pickUpProvince && 
+                               values.pickUpLocation && 
+                               values.dropOffProvince && 
+                               values.dropOffLocation && 
+                               values.vehicleType &&
+                               price !== null;
+            setFormIsComplete(isComplete);
+        };
+
+        form.validateFields({ validateOnly: true }).then(checkFormCompleteness);
+    }, [form, price]);
+
     return (
         <div>
             <Row className="placeorder-page">
@@ -345,62 +342,94 @@ function PlaceOrderPage() {
                         className="route-form"
                         onFinish={handleSubmit}
                         form={form}
+                        onValuesChange={() => {
+                            form.validateFields({ validateOnly: true }).then(() => {
+                                const values = form.getFieldsValue();
+                                const isComplete = values.pickUpProvince && 
+                                                   values.pickUpLocation && 
+                                                   values.dropOffProvince && 
+                                                   values.dropOffLocation && 
+                                                   values.vehicleType &&
+                                                   price !== null;
+                                setFormIsComplete(isComplete);
+                            });
+                        }}
                     // Theo dõi sự thay đổi của form
                     >
-                        <Form.Item label="Pick-up location" name="pickUpLocation" rules={[{ required: true, message: 'Please select pick-up location' }]}>
-                            <AutoComplete
-                                options={pickUpSuggestions.map(suggestion => ({
-                                    value: suggestion.display_name,
-                                    lat: suggestion.lat,
-                                    lon: suggestion.lon,
-                                }))}
-                                onSearch={handlePickUpSearch}
-                                onSelect={handlePickUpSelect}
-                                placeholder="Select pick-up location"
-                            />
-                        </Form.Item>
-                        <Form.Item label="Drop-off location" name="dropOffLocation" rules={[{ required: true, message: 'Please select drop-off location' }]}>
-                            <AutoComplete
-                                options={dropOffSuggestions.map(suggestion => ({
-                                    value: suggestion.display_name,
-                                    lat: suggestion.lat,
-                                    lon: suggestion.lon,
-                                }))}
-                                onSearch={handleDropOffSearch}
-                                onSelect={handleDropOffSelect}
-                                placeholder="Select Drop-off location"
-                            />
-                        </Form.Item>
-                        <Form.Item label="Pick-up Province" name="pickUpProvince">
-                            <Input type="text" onChange={(e) => handleProvinceChange('pickUpProvince', e.target.value)} />
-                        </Form.Item>
-                        <Form.Item label="Drop-off Province" name="dropOffProvince">
-                            <Input type="text" onChange={(e) => handleProvinceChange('dropOffProvince', e.target.value)} />
-                        </Form.Item>
+                        <h3>Pick-up location</h3>
+                        <Row gutter={0} style={{ display: 'flex', alignItems: 'center' }}>
+                            <Col>
+                                <Form.Item name="pickUpProvince" style={{ marginBottom: 0, marginRight: 8 }}>
+                                    <Input
+                                        style={{ width: '150px' }}
+                                        type="text"
+                                        onChange={(e) => handleProvinceChange('pickUpProvince', e.target.value)}
+                                        placeholder='Pick-up Province'
+                                    />
+                                </Form.Item>
+                            </Col>
+                            <Col flex="auto">
+                                <Form.Item name="pickUpLocation" style={{ marginBottom: 0 }} rules={[{ required: true, message: 'Please select pick-up location' }]}>
+                                    <AutoComplete
+                                        options={pickUpSuggestions.map(suggestion => ({
+                                            value: suggestion.display_name,
+                                            lat: suggestion.lat,
+                                            lon: suggestion.lon,
+                                        }))}
+                                        onSearch={handlePickUpSearch}
+                                        onSelect={handlePickUpSelect}
+                                        placeholder="Select pick-up location"
+                                    />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+
+                        <h3>Drop-off location</h3>
+                        <Row gutter={0} style={{ display: 'flex', alignItems: 'center' }}>
+                            <Col>
+                                <Form.Item name="dropOffProvince" style={{ marginBottom: 0, marginRight: 8 }}>
+                                    <Input
+                                        style={{ width: '150px' }}
+                                        type="text"
+                                        onChange={(e) => handleProvinceChange('dropOffProvince', e.target.value)}
+                                        placeholder='Drop-off Province'
+                                    />
+                                </Form.Item>
+                            </Col>
+                            <Col flex="auto">
+                                <Form.Item name="dropOffLocation" style={{ marginBottom: 0 }} rules={[{ required: true, message: 'Please select drop-off location' }]}>
+                                    <AutoComplete
+                                        options={dropOffSuggestions.map(suggestion => ({
+                                            value: suggestion.display_name,
+                                            lat: suggestion.lat,
+                                            lon: suggestion.lon,
+                                        }))}
+                                        onSearch={handleDropOffSearch}
+                                        onSelect={handleDropOffSelect}
+                                        placeholder="Select Drop-off location"
+                                    />
+                                </Form.Item>
+                            </Col>
+                        </Row>
                         <h2 className="section-title">Transport Services</h2>
 
                        
 
                         {fetchedServices && (
                             <Form.Item name="vehicleType" rules={[{ required: true, message: 'Please select a transport service' }]}>
-                                <Radio.Group onChange={handleServiceSelect}>
-                                    {fetchedServices.map(service => (
-                                        <Radio key={service.transportServiceId} value={service.transportServiceId}>
-                                            {service.name}
-                                            
-                                        </Radio>
-                                    ))}
-                                </Radio.Group>
+                                <div className="vehicle-scroll-container" style={{border: 'none'}}>
+                                    <Radio.Group className="vehicle-radio-group" onChange={handleServiceSelect}>
+                                        {fetchedServices.map(service => (
+                                            <Radio key={service.transportServiceId} value={service.transportServiceId}>
+                                            {service.name === "Road" && <img src='src/images/truck.png' alt="Road" />}
+                                            {service.name === "Air" && <img src='src/images/plane.png' alt="Air" />}
+                                            <div>{service.name}</div>
+                                            </Radio>
+                                        ))}
+                                    </Radio.Group>
+                                </div>
                             </Form.Item>
                         )}
-
-                        {selectedService && (
-                            <div>
-                                <h3>Selected Service:</h3>
-                                <p>{selectedService.name}</p>
-                            </div>
-                        )}
-
                         <Form.Item
                             name="price"
                             style={{ display: 'none' }}
@@ -419,17 +448,16 @@ function PlaceOrderPage() {
                             </div>
                         )}
                         <Form.Item>
-
-                       
-
-                            <Button 
-                                className="submit-btn" 
-                                type="primary" 
-                                htmlType="submit"
-                                disabled={!selectedService}
-                            >
-                                Continue
-                            </Button>
+                            {formIsComplete && (
+                                <Button 
+                                    className="submit-btn" 
+                                    type="primary" 
+                                    htmlType="submit"
+                                    onClick={handleSubmit}                                
+                                >
+                                    Continue
+                                </Button>
+                            )}
                         </Form.Item>
 
                     </Form>

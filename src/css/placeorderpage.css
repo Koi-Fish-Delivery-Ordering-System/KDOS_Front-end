@@ -5,7 +5,7 @@
   } */
   .placeorder-page {
 
-    height: 100vh; /* Chiều cao toàn bộ viewport */
+    height: 105vh; /* Chiều cao toàn bộ viewport */
 
 }
   /* Left Section: Form and Vehicle Selection */
@@ -70,16 +70,19 @@
     justify-content: space-around;
     
   }
+
+  .vehicle-radio-group .ant-radio-inner {
+   display: none; /* Ẩn vòng tròn tick */   
+  }
   .vehicle-radio-group div {
     text-align: center;
     margin-right: 10px;
   }
-
   .vehicle-radio-group .ant-radio-wrapper {
     display: flex;
     align-items: center;
-    border: 2px solid ; /* border color */
-    padding: 10px;
+    border: 1px solid ; /* border color */
+    padding: 30px;
     border-radius: 8px;
     margin-right: 15px; /* space between items */
     cursor: pointer;

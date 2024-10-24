@@ -27,7 +27,7 @@ function RoutingMachine({ suggestion, autoSetDistance }) {
           L.latLng(suggestion.to),
         ],
         lineOptions: {
-          styles: [{ color: "#0a850f", weight: 4 }],
+          styles: [{ color: "none", weight: 4 }],
         },
         addWaypoints: false,
         draggableWaypoints: false,
@@ -70,7 +70,7 @@ export default function DeliveryMap({ suggestion, autoSetDistance }) {
         center={suggestion?.form ? suggestion.form : defaultPosition}
         zoom={16}
         style={{
-          height: "90vh",
+          height: "95vh",
           width: "100%",
         }}
       >
