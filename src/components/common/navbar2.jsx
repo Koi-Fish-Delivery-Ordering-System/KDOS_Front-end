@@ -18,9 +18,8 @@ export default function Navbar2() {
   }, []);
 
   const handleLogout = () => {
+    localStorage.clear();
     localStorage.removeItem("accessToken");
-    localStorage.removeItem("accountId");
-    localStorage.removeItem("username");
     setUserInfo({});
     navigate('/login');
   };
@@ -66,7 +65,7 @@ export default function Navbar2() {
                     className="avatar-image" 
                     style={{ width: '30px', height: '30px', borderRadius: '50%', marginRight: '8px' }}
                   />
-                  {userInfo.username}
+                  
                 </a>
               </Dropdown>
             </div>
