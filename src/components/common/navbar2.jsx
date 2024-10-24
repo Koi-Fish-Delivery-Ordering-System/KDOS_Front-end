@@ -3,27 +3,23 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Dropdown, Menu } from 'antd';
 import "../../css/navbar.css"; // Ensure the path is correct
 
-export default function Navbar() {
+export default function Navbar2() {
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState({});
 
   useEffect(() => {
-    const storedAvatar = localStorage.getItem("avatar");
     const storedUsername = localStorage.getItem("username");
-    const storedRole = localStorage.getItem("role");
 
-    if (storedAvatar && storedUsername && storedRole) {
+    if (  storedUsername ) {
       setUserInfo({
-        avatar: storedAvatar,
         username: storedUsername,
-        role: storedRole,
       });
     }
   }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("avatar");
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("accountId");
     localStorage.removeItem("username");
     setUserInfo({});
     navigate('/login');
@@ -43,16 +39,16 @@ export default function Navbar() {
   const menu_user = (
     <Menu>
       <Menu.Item>
-        <a href="#" onClick={handleAccountManagement}>Quản lý tài khoản</a>
+        <a href="#" onClick={handleAccountManagement}>Account Management</a>
       </Menu.Item>
       <Menu.Item>
-        <a href="#" onClick={handleLogout}>Đăng Xuất</a>
+        <a href="#" onClick={handleLogout}>Logout</a>
       </Menu.Item>
     </Menu>
   );
 
   return (
-    <header className="header-container" style={{height: "0vh"}}>
+    <header className="header-container" style={{ height: '0px' }}>
       <nav className="navbar">
         <div className="nav-left">
           <ul className="nav-list">
@@ -65,12 +61,12 @@ export default function Navbar() {
               <Dropdown overlay={menu_user} trigger={["hover"]}>
                 <a className="dropdown-link">
                   <img 
-                    src={userInfo.avatar} 
-                    alt={userInfo.username} 
+                    src="src/images/avatar.jpg" 
+                    alt="AVT"
                     className="avatar-image" 
                     style={{ width: '30px', height: '30px', borderRadius: '50%', marginRight: '8px' }}
                   />
-                  {userInfo.username} ({userInfo.role}) {/* Display role */}
+                  {userInfo.username}
                 </a>
               </Dropdown>
             </div>
