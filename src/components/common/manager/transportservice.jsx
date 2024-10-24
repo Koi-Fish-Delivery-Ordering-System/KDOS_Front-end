@@ -50,9 +50,13 @@ function TransportService() {
   const handleUpdate = (id) => {
     const item = data.find(d => d.id === id);
     setFormData({
+      id: item.id, // Ensure the ID is included for updating
+      name: item.name || '',
+      description: item.description || '',
+      priceKM: item.priceKM || '',
+      priceKg: item.priceKg || '',
       deliveryPrice: item.deliveryPrice || '',
       priceFish: item.priceFish || '',
-      priceKg: item.priceKg || ''
     });
     setIsUpdate(true);
     setShowForm(true);
@@ -71,14 +75,19 @@ function TransportService() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const updatedDate = new Date().toLocaleDateString(); // Get current date
     if (isUpdate) {
       // Update logic here
+      const updatedData = data.map(item =>
+        item.id === formData.id ? { ...formData, updatedDate } : item
+      );
+      setData(updatedData);
       console.log('Update Data:', formData);
     } else {
       const newEntry = {
         id: data.length + 1, // Simple ID generation
         ...formData,
-        updatedDate: new Date().toLocaleDateString() // Add current date
+        updatedDate // Add current date
       };
       setData([...data, newEntry]);
     }
@@ -87,10 +96,11 @@ function TransportService() {
 
   return (
     <div>
+      <h1>Transport Service</h1>
       <table className="transport-table">
         <thead>
           <tr>
-            <th>No </th>
+            <th>No</th>
             <th>Name</th>
             <th>Description</th>
             <th>Updated Date</th>
@@ -112,7 +122,7 @@ function TransportService() {
           ))}
         </tbody>
       </table>
-      <button className="transport-button" onClick={handleCreate}>Create Transport Service</button>
+      <button className = "transport-button" onClick={handleCreate}>Create Transport Service</button>
 
       {showForm && (
         <div className="modal">
