@@ -1,8 +1,9 @@
 import React, { useState, useEffect, createContext, useContext } from "react";
 import { Button, Form, Input, Modal } from "antd";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from 'react-toastify';
 import axios from "axios";
 import "../../css/profile.css";
+import 'react-toastify/dist/ReactToastify.css';
 
 // Create UserContext
 const UserContext = createContext();
@@ -33,6 +34,11 @@ function ProfilePage() {
   };
 
   const handleOk = async () => {
+    if (currentField === 'phone' && !/^\d{10}$/.test(newValue)) {
+      toast.error("Please enter a phone number.");
+      return;
+    }
+
     try {
       // Gửi dữ liệu đến API
       const accessToken = localStorage.getItem("accessToken");
@@ -59,7 +65,7 @@ function ProfilePage() {
       <div className="profile-item">
         <div className="profile-label">Username</div>
         <div className="profile-value">{username}</div>
-        <a href="#" className="profile-action" onClick={() => showModal('username')}>Change</a>
+        {/* <a href="#" className="profile-action" onClick={() => showModal('username')}>Change</a> */}
       </div>
   
       <div className="profile-item">
@@ -74,7 +80,7 @@ function ProfilePage() {
       </div>
       <div className="profile-item">
         <div className="profile-label">Address</div>
-        <div className="profile-value">{address}</div>
+        <div className="profile-value">{address === "null" ? "Chưa cập nhật" : address}</div>
         <a href="#" className="profile-action" onClick={() => showModal('address')}>Change</a>
       </div>
       <div className="profile-item">
@@ -91,8 +97,9 @@ function ProfilePage() {
         visible={isModalVisible}
         onOk={handleOk}
         onCancel={handleCancel}
-        okText="Continue"
+        okText="Submit"
         cancelText="Cancel"
+        okButtonProps={{ style: { backgroundColor: '#ff7700' } }}
       >
         <Form>
           <Form.Item label={currentField}>
@@ -103,6 +110,7 @@ function ProfilePage() {
           </Form.Item>
         </Form>
       </Modal>
+      <ToastContainer />
     </div>
   );
 }
