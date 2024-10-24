@@ -91,10 +91,10 @@ function PlaceOrderPage() {
         }            
     };
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token) {
-            navigate('/login');
-        }
+        // const token = localStorage.getItem("token");
+        // if (!token) {
+        //     navigate('/login');
+        // }
         const fetchVehicleTypes = async () => {
             try {
                 const response = await axios.get('https://670e78b03e7151861654ae2d.mockapi.io/transport'); // Thay thế 'API_URL_HERE' bằng URL của API
@@ -312,6 +312,24 @@ function PlaceOrderPage() {
         }
     }, [fetchedServices, form]);
 
+    const [formIsComplete, setFormIsComplete] = useState(false);
+
+    // Add this useEffect to check form completeness
+    useEffect(() => {
+        const checkFormCompleteness = () => {
+            const values = form.getFieldsValue();
+            const isComplete = values.pickUpProvince && 
+                               values.pickUpLocation && 
+                               values.dropOffProvince && 
+                               values.dropOffLocation && 
+                               values.vehicleType &&
+                               price !== null;
+            setFormIsComplete(isComplete);
+        };
+
+        form.validateFields({ validateOnly: true }).then(checkFormCompleteness);
+    }, [form, price]);
+
     return (
         <div>
             <Row className="placeorder-page">
@@ -324,38 +342,75 @@ function PlaceOrderPage() {
                         className="route-form"
                         onFinish={handleSubmit}
                         form={form}
+                        onValuesChange={() => {
+                            form.validateFields({ validateOnly: true }).then(() => {
+                                const values = form.getFieldsValue();
+                                const isComplete = values.pickUpProvince && 
+                                                   values.pickUpLocation && 
+                                                   values.dropOffProvince && 
+                                                   values.dropOffLocation && 
+                                                   values.vehicleType &&
+                                                   price !== null;
+                                setFormIsComplete(isComplete);
+                            });
+                        }}
                     // Theo dõi sự thay đổi của form
                     >
-                        <Form.Item label="Pick-up location" name="pickUpLocation" rules={[{ required: true, message: 'Please select pick-up location' }]}>
-                            <AutoComplete
-                                options={pickUpSuggestions.map(suggestion => ({
-                                    value: suggestion.display_name,
-                                    lat: suggestion.lat,
-                                    lon: suggestion.lon,
-                                }))}
-                                onSearch={handlePickUpSearch}
-                                onSelect={handlePickUpSelect}
-                                placeholder="Select pick-up location"
-                            />
-                        </Form.Item>
-                        <Form.Item label="Drop-off location" name="dropOffLocation" rules={[{ required: true, message: 'Please select drop-off location' }]}>
-                            <AutoComplete
-                                options={dropOffSuggestions.map(suggestion => ({
-                                    value: suggestion.display_name,
-                                    lat: suggestion.lat,
-                                    lon: suggestion.lon,
-                                }))}
-                                onSearch={handleDropOffSearch}
-                                onSelect={handleDropOffSelect}
-                                placeholder="Select Drop-off location"
-                            />
-                        </Form.Item>
-                        <Form.Item label="Pick-up Province" name="pickUpProvince">
-                            <Input type="text" onChange={(e) => handleProvinceChange('pickUpProvince', e.target.value)} />
-                        </Form.Item>
-                        <Form.Item label="Drop-off Province" name="dropOffProvince">
-                            <Input type="text" onChange={(e) => handleProvinceChange('dropOffProvince', e.target.value)} />
-                        </Form.Item>
+                        <h3>Pick-up location</h3>
+                        <Row gutter={0} style={{ display: 'flex', alignItems: 'center' }}>
+                            <Col>
+                                <Form.Item name="pickUpProvince" style={{ marginBottom: 0, marginRight: 8 }}>
+                                    <Input
+                                        style={{ width: '150px' }}
+                                        type="text"
+                                        onChange={(e) => handleProvinceChange('pickUpProvince', e.target.value)}
+                                        placeholder='Pick-up Province'
+                                    />
+                                </Form.Item>
+                            </Col>
+                            <Col flex="auto">
+                                <Form.Item name="pickUpLocation" style={{ marginBottom: 0 }} rules={[{ required: true, message: 'Please select pick-up location' }]}>
+                                    <AutoComplete
+                                        options={pickUpSuggestions.map(suggestion => ({
+                                            value: suggestion.display_name,
+                                            lat: suggestion.lat,
+                                            lon: suggestion.lon,
+                                        }))}
+                                        onSearch={handlePickUpSearch}
+                                        onSelect={handlePickUpSelect}
+                                        placeholder="Select pick-up location"
+                                    />
+                                </Form.Item>
+                            </Col>
+                        </Row>
+
+                        <h3>Drop-off location</h3>
+                        <Row gutter={0} style={{ display: 'flex', alignItems: 'center' }}>
+                            <Col>
+                                <Form.Item name="dropOffProvince" style={{ marginBottom: 0, marginRight: 8 }}>
+                                    <Input
+                                        style={{ width: '150px' }}
+                                        type="text"
+                                        onChange={(e) => handleProvinceChange('dropOffProvince', e.target.value)}
+                                        placeholder='Drop-off Province'
+                                    />
+                                </Form.Item>
+                            </Col>
+                            <Col flex="auto">
+                                <Form.Item name="dropOffLocation" style={{ marginBottom: 0 }} rules={[{ required: true, message: 'Please select drop-off location' }]}>
+                                    <AutoComplete
+                                        options={dropOffSuggestions.map(suggestion => ({
+                                            value: suggestion.display_name,
+                                            lat: suggestion.lat,
+                                            lon: suggestion.lon,
+                                        }))}
+                                        onSearch={handleDropOffSearch}
+                                        onSelect={handleDropOffSelect}
+                                        placeholder="Select Drop-off location"
+                                    />
+                                </Form.Item>
+                            </Col>
+                        </Row>
                         <h2 className="section-title">Transport Services</h2>
 
                        
@@ -393,18 +448,16 @@ function PlaceOrderPage() {
                             </div>
                         )}
                         <Form.Item>
-
-                       
-
-                            <Button 
-                                className="submit-btn" 
-                                type="primary" 
-                                htmlType="submit"
-                                onClick={handleSubmit}
-                                disabled={!selectedService}
-                            >
-                                Continue
-                            </Button>
+                            {formIsComplete && (
+                                <Button 
+                                    className="submit-btn" 
+                                    type="primary" 
+                                    htmlType="submit"
+                                    onClick={handleSubmit}                                
+                                >
+                                    Continue
+                                </Button>
+                            )}
                         </Form.Item>
 
                     </Form>
