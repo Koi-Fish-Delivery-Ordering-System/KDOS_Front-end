@@ -1,8 +1,9 @@
 import React, { useState, useEffect, createContext, useContext } from "react";
 import { Button, Form, Input, Modal } from "antd";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from 'react-toastify';
 import axios from "axios";
 import "../../css/profile.css";
+import 'react-toastify/dist/ReactToastify.css';
 
 // Create UserContext
 const UserContext = createContext();
@@ -18,138 +19,98 @@ const UserProvider = ({ children }) => {
 };
 
 function ProfilePage() {
-  const { userId } = useContext(UserContext);
-  const [profile, setProfile] = useState({
-    firstName: '',
-    lastName: '',
-    phone: '',
-    email: '',
-  });
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [currentField, setCurrentField] = useState('');
+  const [newValue, setNewValue] = useState('');
+  const username = localStorage.getItem("username");
+  const email = localStorage.getItem("email");
+  const address = localStorage.getItem("address");
+  const phone = localStorage.getItem("phone");
 
-  const [editField, setEditField] = useState(null);
-  const [tempValue, setTempValue] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [isPasswordModalVisible, setIsPasswordModalVisible] = useState(false);
+  const showModal = (field) => {
+    setCurrentField(field);
+    setNewValue(localStorage.getItem(field));
+    setIsModalVisible(true);
+  };
 
-  useEffect(() => {
-    if (userId) {
-      axios.get(`https://66f3691871c84d8058789db4.mockapi.io/apiorders/${userId}`)
-        .then(response => {
-          const { firstName, lastName, phone, email } = response.data;
-          setProfile({ firstName, lastName, phone, email });
-        })
-        .catch(error => {
-          console.error('API Error:', error);
-          toast.error('Failed to load profile data');
-        });
+  const handleOk = async () => {
+    if (currentField === 'phone' && !/^\d{10}$/.test(newValue)) {
+      toast.error("Please enter a phone number.");
+      return;
     }
-  }, [userId]);
 
-  const handleChangeClick = (field) => {
-    setEditField(field);
-    setTempValue(profile[field]);
+    try {
+      // Gửi dữ liệu đến API
+      const accessToken = localStorage.getItem("accessToken");
+      await axios.patch('http://26.61.210.173:3001/api/accounts/update-profile', { [currentField]: newValue }, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+      toast.success("Profile updated successfully!");
+      localStorage.setItem(currentField, newValue);
+      setIsModalVisible(false);
+    } catch (error) {
+      toast.error("Failed to update profile.");
+    }
   };
 
   const handleCancel = () => {
-    setEditField(null);
-  };
-
-  const handleContinue = () => {
-    setProfile({ ...profile, [editField]: tempValue });
-    setEditField(null);
-    toast.success(`${editField} updated successfully`);
-  };
-
-  const handlePasswordChange = async () => {
-    if (password !== confirmPassword) {
-      toast.error('Passwords do not match');
-      return;
-    }
-    try {
-      await axios.put(`https://66f3691871c84d8058789db4.mockapi.io/apiorders/${userId}`, { password });
-      toast.success('Password updated successfully');
-      setPassword('');
-      setConfirmPassword('');
-      setIsPasswordModalVisible(false);
-    } catch (error) {
-      console.error('API Error:', error);
-      toast.error('Failed to update password');
-    }
-  };
-
-  const showPasswordModal = () => {
-    Modal.confirm({
-      title: 'Change Password',
-      content: 'Are you sure you want to change your password?',
-      onOk: () => setIsPasswordModalVisible(true),
-    });
+    setIsModalVisible(false);
   };
 
   return (
     <div className="profile-container">
-      <h1 className="profile-title">Profile</h1>
-      <Form className="profile-form">
-        {['firstName', 'lastName', 'phone', 'email'].map(field => (
-          <Form.Item key={field} label={field.replace(/^\w/, c => c.toUpperCase())}>
-            <div className="field-container">
-              {editField === field ? (
-                <div className="edit-mode">
-                  <Input value={tempValue} onChange={e => setTempValue(e.target.value)} />
-                  <Button type="link" onClick={handleCancel}>Cancel</Button>
-                  <Button type="link" onClick={handleContinue}>Save</Button>
-                </div>
-              ) : (
-                <div className="view-mode">
-                  <span>{profile[field]}</span>
-                  <Button type="link" onClick={() => handleChangeClick(field)}>Change</Button>
-                </div>
-              )}
-            </div>
-          </Form.Item>
-        ))}
-        <Form.Item label="Password">
-          <Button type="link" onClick={showPasswordModal}>Change Password</Button>
-        </Form.Item>
-        <Form.Item label="Account">
-          <Button type="link" onClick={() => handleChangeClick('Account')}>Delete Account</Button>
-        </Form.Item>
-      </Form>
+      <div className="profile-header">Profile</div>
+      <div className="profile-item">
+        <div className="profile-label">Username</div>
+        <div className="profile-value">{username}</div>
+        {/* <a href="#" className="profile-action" onClick={() => showModal('username')}>Change</a> */}
+      </div>
+  
+      <div className="profile-item">
+        <div className="profile-label">Phone</div>
+        <div className="profile-value">{phone}</div>
+        <a href="#" className="profile-action" onClick={() => showModal('phone')}>Change</a>
+      </div>
+      <div className="profile-item">
+        <div className="profile-label"> Email</div>
+        <div className="profile-value">{email}</div>
+        <a href="#" className="profile-action" onClick={() => showModal('email')}>Change</a>
+      </div>
+      <div className="profile-item">
+        <div className="profile-label">Address</div>
+        <div className="profile-value">{address === "null" ? "Chưa cập nhật" : address}</div>
+        <a href="#" className="profile-action" onClick={() => showModal('address')}>Change</a>
+      </div>
+      <div className="profile-item">
+        <div className="profile-label">Password</div>
+        <a href="#" className="profile-action">Change Password</a>
+      </div>
+      <div className="profile-item">
+        <div className="profile-label">Account</div>
+        <a href="#" className="profile-action">Disable Account</a>
+      </div>
 
       <Modal
-        title="Change Password"
-        visible={isPasswordModalVisible}
-        onCancel={() => setIsPasswordModalVisible(false)}
-        footer={[
-          <Button key="cancel" onClick={() => setIsPasswordModalVisible(false)}>
-            Cancel
-          </Button>,
-          <Button key="submit" type="primary" onClick={handlePasswordChange}>
-            Change Password
-          </Button>,
-        ]}
+        title={`Edit ${currentField}`}
+        visible={isModalVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        okText="Submit"
+        cancelText="Cancel"
+        okButtonProps={{ style: { backgroundColor: '#ff7700' } }}
       >
         <Form>
-          <Form.Item label="New Password">
-            <Input.Password
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              placeholder="Enter new password"
-            />
-          </Form.Item>
-          <Form.Item
-            label="Re-enter Password"
-            validateStatus={password !== confirmPassword ? 'error' : ''}
-            help={password !== confirmPassword ? 'Passwords do not match' : ''}
-          >
-            <Input.Password
-              value={confirmPassword}
-              onChange={e => setConfirmPassword(e.target.value)}
-              placeholder="Re-enter new password"
+          <Form.Item label={currentField}>
+            <Input
+              value={newValue}
+              onChange={(e) => setNewValue(e.target.value)}
             />
           </Form.Item>
         </Form>
       </Modal>
+      <ToastContainer />
     </div>
   );
 }

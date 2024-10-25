@@ -1,82 +1,35 @@
-/* .profile-container {
-  max-width: 670px;
-  padding: 0px;
-  border: 0px;
-  margin: 32px;
+.profile-container {
+  font-family: Arial, sans-serif;
 }
 
-.profile-form {
-  width: 100%;
-}
-
-.profile-title {
-  margin: 0.67em 0px;
-  padding-bottom: 10px;
-}
-
-.field-container {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.view-mode {
-  display: flex;
-  align-items: center;
-  flex-grow: 1;
-}
-
-.edit-mode {
-  display: flex;
-  align-items: center;
-  flex-grow: 1;
-}
-
-.ant-btn-link {
-  color: #FF7E36;
-  margin-left: 8px;
-}
-
-.ant-form-item-label {
+.profile-header {
+  font-size: 24px;
   font-weight: bold;
-  text-transform: uppercase;
-  color: #666;
-  width: 150px;
+  margin-bottom: 20px;
 }
 
-.ant-form-item-control-input-content {
+.profile-item {
   display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  width: 100%;
+  margin-bottom: 10px;
 }
 
-.ant-form-item-control-input-content .ant-input {
-  flex-grow: 1;
-  margin-right: 8px;
-}
-
-.ant-form-item-control-input-content .ant-btn {
-  width: auto;
-}
-
-.ant-form-item {
-  margin-bottom: 16px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.ant-modal-content {
-  border-radius: 8px;
-}
-
-.ant-modal-footer {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.ant-modal-title {
+.profile-label {
+  width: 120px; /* Fixed width for labels */
   font-weight: bold;
-} */
+}
+
+.profile-value {
+  flex: 0.2;
+  margin-left: 10px; /* Small margin for separation from label */
+}
+
+.profile-action {
+  color: #ff4500;
+  cursor: pointer;
+  text-decoration: none;
+  margin-left: 5px; /* Reduced margin to bring action closer to value */
+}
+
+.profile-action:hover {
+  text-decoration: underline;
+}

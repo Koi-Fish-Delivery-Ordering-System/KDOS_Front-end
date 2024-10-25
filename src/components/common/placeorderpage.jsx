@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import '../../css/placeorderpage.css';
 import Footer from './footer';
 import Navbar2 from './navbar2';
+import Navbar from './navbar';
 import axios from 'axios';
 import DeliveryMap from './Map';
 
@@ -71,7 +72,7 @@ function PlaceOrderPage() {
             console.log(orderData);
 
             // Get the token from localStorage
-            const token = localStorage.getItem("token");
+            const accessToken    = localStorage.getItem("accessToken");
 
             // Send the data to the API with the token in the headers
             const response = await axios.post('http://26.61.210.173:3001/api/orders/create-order', orderData, {
@@ -438,12 +439,8 @@ function PlaceOrderPage() {
                         >
                             <Input />
                         </Form.Item>
-
-
-
-
-
-                        {price !== null && (
+                       
+                        {price !== null && distance !== null && distance > 0 && (
 
                             <div className="distance-display">
                                 Provisional Price: {price.toLocaleString()} VNĐ
@@ -455,7 +452,7 @@ function PlaceOrderPage() {
                                     className="submit-btn"
                                     type="primary"
                                     htmlType="submit"
-                                    onClick={handleSubmit}
+                                    onClick={handleContinue}                                
                                 >
                                     Continue
                                 </Button>

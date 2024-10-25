@@ -5,12 +5,17 @@ import { Link, useNavigate } from "react-router-dom";
 import api from "../../config/axios";
 import { toast } from "react-toastify";
 import axios from "axios";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function LoginPage() {
   const navigate = useNavigate();
 
   const handleLogin = async (values) => {
     try {
+      console.log("Username:", values.username);
+      console.log("Pass:", values.password);
+
       const loginResponse = await api.post("http://26.61.210.173:3001/api/auth/sign-in", values);
       console.log("Login response:", loginResponse);
 
@@ -23,6 +28,11 @@ function LoginPage() {
           query Init {
             init {
               accountId
+              username
+              email
+              password
+              phone
+              address
               roles {
                 name
               }
@@ -43,7 +53,18 @@ function LoginPage() {
           console.log("Full Init response:", initResponse);
 
           if (initResponse.data && initResponse.data.data && initResponse.data.data.init) {
-            const { accountId, roles } = initResponse.data.data.init;
+            const { accountId, roles, username, email, password, phone, address } = initResponse.data.data.init;
+            localStorage.setItem("accountId", accountId);
+            localStorage.setItem("username", username);
+            localStorage.setItem("email", email);
+            localStorage.setItem("phone", phone);
+            localStorage.setItem("address", address);
+            localStorage.setItem("password", password);
+            console.log("Email:", email);
+            console.log("Address:", address);
+            console.log("Phone:", phone);
+            console.log("Password:", password);
+            console.log("Username:", username);
             console.log("Account ID:", accountId);
             console.log("Roles:", roles);
             
@@ -82,17 +103,19 @@ function LoginPage() {
         }
       } else {
         console.error("Unexpected login response structure:", loginResponse);
-        toast.error("Unexpected response from server");
+        toast.error("Login failed: Unexpected response from server");
       }
     } catch (err) {
       console.error("Login error:", err);
-      toast.error(err.response?.data?.message || "Login failed");
+      toast.error( "Login failed: Please check your username and password");
     }
   };
 
   return (
-    <AuthenTemplate>
-      <h2 style={{ marginBottom: '24px', textAlign: 'center' }}>Log in</h2>
+    <div>
+      <ToastContainer />
+      <AuthenTemplate>
+        <h2 style={{ marginBottom: '24px', textAlign: 'center' }}>Log in</h2>
       <Form
         labelCol={{
           span: 24,
@@ -100,12 +123,12 @@ function LoginPage() {
         onFinish={handleLogin}
       >
         <Form.Item
-          label="Phone or Email"
-          name="phone"
+          label="Username"
+          name="username"
           rules={[
             {
               required: true,
-              message: "Please input your phone or email!",
+              message: "Please input your username!",
             },
           ]}
         >
@@ -133,8 +156,9 @@ function LoginPage() {
           </Button>
         </Form.Item>
 
-      </Form>
-    </AuthenTemplate>
+        </Form>
+      </AuthenTemplate>
+    </div>
   );
 }
 

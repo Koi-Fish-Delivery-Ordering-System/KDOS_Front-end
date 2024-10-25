@@ -3,28 +3,30 @@ import AuthenTemplate from "./validationlogin";
 import { Button, Form, Input } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../config/axios";
-import { toast } from "react-toastify";
-
+import { toast, ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 function RegisterPage() {
   const navigate = useNavigate();
 
   const handleRegister = async (values) => {
-    console.log(values);
-    // submit xuống backend
+    // Exclude confirmPassword from the values sent to the API
+    const { confirmPassword, ...dataToSend } = values;
+
     try {
-      values.role = "CUSTOMER";
-      const response = await api.post("register", values);
-      toast.success("Successfully register new account!");
-      navigate("/login");
-    } catch (err) {
-      // console.log
-      toast.error(err.response.data);
+      const response = await api.post('http://26.61.210.173:3001/api/auth/sign-up', dataToSend);
+      toast.success("Registration successful!");
+      navigate('/login');
+    } catch (error) {
+      console.error("Registration error:", error);
+      toast.error("Registration failed: Please check your information");
     }
   };
 
   return (
-    <AuthenTemplate>
-      <h2 style={{ marginBottom: '24px', textAlign: 'center' }}>Register</h2>
+    <div>
+      <ToastContainer />
+      <AuthenTemplate>
+        <h2 style={{ marginBottom: '24px', textAlign: 'center' }}>Register</h2>
       <Form
         labelCol={{
           span: 24,
@@ -50,7 +52,6 @@ function RegisterPage() {
         >
           <Input.Password />
         </Form.Item>
-
         <Form.Item
           label="Confirm Password"
           name="confirmPassword"
@@ -73,13 +74,7 @@ function RegisterPage() {
           <Input.Password />
         </Form.Item>
 
-        <Form.Item
-          label="Fullname"
-          name="fullname"
-          rules={[{ required: true, message: "Please input your full name!" }]}
-        >
-          <Input />
-        </Form.Item>
+        
 
         <Form.Item
           label="Phone"
@@ -88,7 +83,7 @@ function RegisterPage() {
             { required: true, message: "Please input your phone number!" },
             {
               pattern: /^((\+84)|0)([1-9]{1}[0-9]{8})$/,
-              message: "Please enter a valid Vietnamese phone number!",
+              message: "Please enter a valid phone number!",
             },
           ]}
         >
@@ -116,6 +111,7 @@ function RegisterPage() {
         </Button>
       </Form>
     </AuthenTemplate>
+    </div>
   );
 }
 
