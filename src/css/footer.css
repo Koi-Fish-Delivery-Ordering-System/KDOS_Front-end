@@ -43,6 +43,7 @@
     color: #fff;
   }
   
+  
   /* Responsive - In case Small Screen */
   @media (max-width: 768px) {
     .footer-container {
@@ -53,4 +54,5 @@
       margin: 20px 0; 
     }
   }
+
   
