@@ -13,9 +13,6 @@ function LoginPage() {
 
   const handleLogin = async (values) => {
     try {
-      console.log("Username:", values.username);
-      console.log("Pass:", values.password);
-
       const loginResponse = await api.post("http://26.61.210.173:3001/api/auth/sign-in", values);
       console.log("Login response:", loginResponse);
 
@@ -23,7 +20,7 @@ function LoginPage() {
         const { accessToken } = loginResponse.data.tokens;
         localStorage.setItem("accessToken", accessToken);
         console.log("Đăng nhập thành công. Access Token:", accessToken);
-
+        
         const query = `
           query Init {
             init {

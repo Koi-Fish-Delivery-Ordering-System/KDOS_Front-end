@@ -92,10 +92,10 @@ function PlaceOrderPage() {
         }            
     };
     useEffect(() => {
-        // const token = localStorage.getItem("token");
-        // if (!token) {
-        //     navigate('/login');
-        // }
+        const token = localStorage.getItem("token");
+        if (!token) {
+            navigate('/login');
+        }
         const fetchVehicleTypes = async () => {
             try {
                 const response = await axios.get('https://670e78b03e7151861654ae2d.mockapi.io/transport'); // Thay thế 'API_URL_HERE' bằng URL của API
@@ -124,28 +124,6 @@ function PlaceOrderPage() {
         };
         fetchProvincesWithAirport();
     }, [form], [navigate]);
-
-
-
-   
-
-    
-    // const handleVehicleChange = (e) => {
-    //     const selectedType = vehicleTypes.find(type => type.transportName === e.target.value); // Lấy đối tượng loại xe đã chọn
-    //     setVehicleType(selectedType); // Cập nhật loại xe đã chọn
-    // };
-
-
-    // const isAirAvailable = () => {
-    //     const pickUpLocation = form.getFieldValue('pickUpLocation');
-    //     const dropOffLocation = form.getFieldValue('dropOffLocation');
-
-    //     const pickUp = provinces.find(province => province.provinceName === pickUpLocation);
-    //     const dropOff = provinces.find(province => province.provinceName === dropOffLocation);
-
-    //     // Kiểm tra xem cả hai địa điểm có isPlane = true và không trùng nhau
-    //     return pickUp?.isPlane && dropOff?.isPlane && pickUpLocation !== dropOffLocation;
-    // };
 
     useEffect(() => {
         if (selectedService && distance !== null) {
@@ -209,23 +187,23 @@ function PlaceOrderPage() {
         setDropOffSuggestions([]);
     };
 
-    const normalizeLocationName = (name) => {
-        return name.toLowerCase()
-            .replace(/thành phố|tp\.|tỉnh/g, '')
-            .replace(/\(.*?\)/g, '') // Remove content within parentheses
-            .replace(/,.*$/, '') // Remove everything after the first comma
-            .replace(/\s+/g, ' ')
-            .trim();
-    };
+    // const normalizeLocationName = (name) => {
+    //     return name.toLowerCase()
+    //         .replace(/thành phố|tp\.|tỉnh/g, '')
+    //         .replace(/\(.*?\)/g, '') // Remove content within parentheses
+    //         .replace(/,.*$/, '') // Remove everything after the first comma
+    //         .replace(/\s+/g, ' ')
+    //         .trim();
+    // };
 
-    const checkAirportAvailability = (location) => {
-        const normalizedLocation = normalizeLocationName(location);
-        return provincesWithAirport.some(province => {
-            const normalizedProvince = normalizeLocationName(province.name);
-            return normalizedLocation.includes(normalizedProvince) ||
-                normalizedProvince.includes(normalizedLocation);
-        });
-    };
+    // const checkAirportAvailability = (location) => {
+    //     const normalizedLocation = normalizeLocationName(location);
+    //     return provincesWithAirport.some(province => {
+    //         const normalizedProvince = normalizeLocationName(province.name);
+    //         return normalizedLocation.includes(normalizedProvince) ||
+    //             normalizedProvince.includes(normalizedLocation);
+    //     });
+    // };
     const [pickUpProvince, setPickUpProvince] = useState('');
     const [dropOffProvince, setDropOffProvince] = useState('');
     const [fetchedServices, setFetchedServices] = useState(null);
