@@ -22,14 +22,14 @@ function ProfilePage() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentField, setCurrentField] = useState('');
   const [newValue, setNewValue] = useState('');
-  const username = localStorage.getItem("username");
-  const email = localStorage.getItem("email");
-  const address = localStorage.getItem("address");
-  const phone = localStorage.getItem("phone");
+  const username = sessionStorage.getItem("username");
+  const email = sessionStorage.getItem("email");
+  const address = sessionStorage.getItem("address");
+  const phone = sessionStorage.getItem("phone");
 
   const showModal = (field) => {
     setCurrentField(field);
-    setNewValue(localStorage.getItem(field));
+    setNewValue(sessionStorage.getItem(field));
     setIsModalVisible(true);
   };
 
@@ -41,14 +41,14 @@ function ProfilePage() {
 
     try {
       // Gửi dữ liệu đến API
-      const accessToken = localStorage.getItem("accessToken");
+      const accessToken = sessionStorage.getItem("accessToken");
       await axios.patch('http://26.61.210.173:3001/api/accounts/update-profile', { [currentField]: newValue }, {
         headers: {
           'Authorization': `Bearer ${accessToken}`
         }
       });
       toast.success("Profile updated successfully!");
-      localStorage.setItem(currentField, newValue);
+      sessionStorage.setItem(currentField, newValue);
       setIsModalVisible(false);
     } catch (error) {
       toast.error("Failed to update profile.");

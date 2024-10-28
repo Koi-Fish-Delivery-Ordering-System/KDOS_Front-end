@@ -36,10 +36,13 @@ function PlaceOrderPage() {
             const formData = form.getFieldsValue();
 
             console.log(formData); // Check the data being sent
-
+            console.log(price);
+            console.log();
             // Proceed to the sender info page
             navigate('/order-confirmation', {
                 state: {
+                    pickUpLocationName: formData.pickUpLocation,
+                    dropOffLocationName: formData.dropOffLocation,
                     pickUpLocation: {
                         lat: pickUpLocation.lat,
                         lng: pickUpLocation.lng,
@@ -66,11 +69,11 @@ function PlaceOrderPage() {
                 toAddress: values.dropOffLocation,
                 transportServiceId: values.vehicleType,
                 totalPrice: values.price,
-            };
+            };      
             console.log(orderData);
 
             // Get the token from localStorage
-            const accessToken    = localStorage.getItem("accessToken");
+            const accessToken    = sessionStorage.getItem("accessToken");
 
             // Send the data to the API with the token in the headers
             const response = await axios.post('http://26.61.210.173:3001/api/orders/create-order', orderData, {
@@ -92,8 +95,8 @@ function PlaceOrderPage() {
         }            
     };
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token) {
+        const accessToken = sessionStorage.getItem("accessToken");
+        if (!accessToken) {
             navigate('/login');
         }
         const fetchVehicleTypes = async () => {
@@ -288,7 +291,9 @@ function PlaceOrderPage() {
         if (service) {
             setSelectedService(service);
             form.setFieldsValue({ vehicleType: selectedServiceId });
+            setVehicleType(selectedServiceId);
         }
+
     }, [fetchedServices, form]);
 
     const [formIsComplete, setFormIsComplete] = useState(false);
@@ -363,34 +368,34 @@ function PlaceOrderPage() {
                             </Col>
                         </Row>
 
-                        <h3>Drop-off location</h3>
-                        <Row gutter={0} style={{ display: 'flex', alignItems: 'center' }}>
-                            <Col>
-                                <Form.Item name="dropOffProvince" style={{ marginBottom: 0, marginRight: 8 }}>
-                                    <Input
-                                        style={{ width: '150px' }}
-                                        type="text"
-                                        onChange={(e) => handleProvinceChange('dropOffProvince', e.target.value)}
-                                        placeholder='Drop-off Province'
-                                    />
-                                </Form.Item>
-                            </Col>
-                            <Col flex="auto">
-                                <Form.Item name="dropOffLocation" style={{ marginBottom: 0 }} rules={[{ required: true, message: 'Please select drop-off location' }]}>
-                                    <AutoComplete
-                                        options={dropOffSuggestions.map(suggestion => ({
-                                            value: suggestion.display_name,
-                                            lat: suggestion.lat,
-                                            lon: suggestion.lon,
-                                        }))}
-                                        onSearch={handleDropOffSearch}
-                                        onSelect={handleDropOffSelect}
-                                        placeholder="Select Drop-off location"
-                                    />
-                                </Form.Item>
-                            </Col>
-                        </Row>
-                        <h2 className="section-title">Transport Services</h2>
+                                <h3>Drop-off location</h3>
+                                <Row gutter={0} style={{ display: 'flex', alignItems: 'center' }}>
+                                    <Col>
+                                        <Form.Item name="dropOffProvince" style={{ marginBottom: 0, marginRight: 8 }}>
+                                            <Input
+                                                style={{ width: '150px' }}
+                                                type="text"
+                                                onChange={(e) => handleProvinceChange('dropOffProvince', e.target.value)}
+                                                placeholder='Drop-off Province'
+                                            />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col flex="auto">
+                                        <Form.Item name="dropOffLocation" style={{ marginBottom: 0 }} rules={[{ required: true, message: 'Please select drop-off location' }]}>
+                                            <AutoComplete
+                                                options={dropOffSuggestions.map(suggestion => ({
+                                                    value: suggestion.display_name,
+                                                    lat: suggestion.lat,
+                                                    lon: suggestion.lon,
+                                                }))}
+                                                onSearch={handleDropOffSearch}
+                                                onSelect={handleDropOffSelect}
+                                                placeholder="Select Drop-off location"
+                                            />
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+                                <h2 className="section-title">Transport Services</h2>
 
                        
 

@@ -18,7 +18,7 @@ function LoginPage() {
 
       if (loginResponse && loginResponse.data && loginResponse.data.tokens) {
         const { accessToken } = loginResponse.data.tokens;
-        localStorage.setItem("accessToken", accessToken);
+        sessionStorage.setItem("accessToken", accessToken);
         console.log("Đăng nhập thành công. Access Token:", accessToken);
         
         const query = `
@@ -51,12 +51,12 @@ function LoginPage() {
 
           if (initResponse.data && initResponse.data.data && initResponse.data.data.init) {
             const { accountId, roles, username, email, password, phone, address } = initResponse.data.data.init;
-            localStorage.setItem("accountId", accountId);
-            localStorage.setItem("username", username);
-            localStorage.setItem("email", email);
-            localStorage.setItem("phone", phone);
-            localStorage.setItem("address", address);
-            localStorage.setItem("password", password);
+            sessionStorage.setItem("accountId", accountId);
+            sessionStorage.setItem("username", username);
+            sessionStorage.setItem("email", email);
+            sessionStorage.setItem("phone", phone);
+            sessionStorage.setItem("address", address);
+            sessionStorage.setItem("password", password);
             console.log("Email:", email);
             console.log("Address:", address);
             console.log("Phone:", phone);

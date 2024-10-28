@@ -8,7 +8,7 @@ export default function Navbar() {
   const [userInfo, setUserInfo] = useState({});
 
   useEffect(() => {
-    const storedUsername = localStorage.getItem("username");
+    const storedUsername = sessionStorage.getItem("username");
 
     if (  storedUsername ) {
       setUserInfo({
@@ -18,14 +18,14 @@ export default function Navbar() {
   }, []);
 
   const handleLogout = () => {
-    localStorage.clear();
-    localStorage.removeItem("accessToken");
+    sessionStorage.clear();
+    sessionStorage.removeItem("accessToken");
     setUserInfo({});
     navigate('/login');
   };
 
   const handleAccountManagement = () => {
-    const role = localStorage.getItem("role");
+    const role = sessionStorage.getItem("role");
     const rolePathMap = {
       // shipper: '/shipper-account-management',
       customer: '/account-management',
