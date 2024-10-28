@@ -30,7 +30,7 @@ function PlaceOrderPage() {
         lng: 106.6297,   // Set the longitude for the center of the map
     };
 
-    const handleContinue = async () => {
+    const handleContinue = async (values) => {
         try {
             // Get the form values
             const formData = form.getFieldsValue();
@@ -51,7 +51,9 @@ function PlaceOrderPage() {
                         lat: dropOffLocation.lat,
                         lng: dropOffLocation.lng,
                     },
-                    vehicleType: vehicleType
+                    vehicleType: values.vehicleType,
+                    totalPrice: values.price,
+                    distance: distance,
                 }
             });
         } catch (error) {
@@ -92,7 +94,7 @@ function PlaceOrderPage() {
         } catch (error) {
             console.error('Error submitting order:', error);
             message.error('An error occurred while placing the order. Please try again.');
-        }            
+        }
     };
     useEffect(() => {
         const accessToken = sessionStorage.getItem("accessToken");
@@ -127,6 +129,7 @@ function PlaceOrderPage() {
         };
         fetchProvincesWithAirport();
     }, [form], [navigate]);
+
 
     useEffect(() => {
         if (selectedService && distance !== null) {
@@ -302,12 +305,12 @@ function PlaceOrderPage() {
     useEffect(() => {
         const checkFormCompleteness = () => {
             const values = form.getFieldsValue();
-            const isComplete = values.pickUpProvince && 
-                               values.pickUpLocation && 
-                               values.dropOffProvince && 
-                               values.dropOffLocation && 
-                               values.vehicleType &&
-                               price !== null;
+            const isComplete = values.pickUpProvince &&
+                values.pickUpLocation &&
+                values.dropOffProvince &&
+                values.dropOffLocation &&
+                values.vehicleType &&
+                price !== null;
             setFormIsComplete(isComplete);
         };
 
@@ -324,17 +327,17 @@ function PlaceOrderPage() {
                     <Form
                         layout="vertical"
                         className="route-form"
-                        onFinish={handleSubmit}
+                        onFinish={handleContinue}
                         form={form}
                         onValuesChange={() => {
                             form.validateFields({ validateOnly: true }).then(() => {
                                 const values = form.getFieldsValue();
-                                const isComplete = values.pickUpProvince && 
-                                                   values.pickUpLocation && 
-                                                   values.dropOffProvince && 
-                                                   values.dropOffLocation && 
-                                                   values.vehicleType &&
-                                                   price !== null;
+                                const isComplete = values.pickUpProvince &&
+                                    values.pickUpLocation &&
+                                    values.dropOffProvince &&
+                                    values.dropOffLocation &&
+                                    values.vehicleType &&
+                                    price !== null;
                                 setFormIsComplete(isComplete);
                             });
                         }}
@@ -397,17 +400,17 @@ function PlaceOrderPage() {
                                 </Row>
                                 <h2 className="section-title">Transport Services</h2>
 
-                       
+
 
                         {fetchedServices && (
                             <Form.Item name="vehicleType" rules={[{ required: true, message: 'Please select a transport service' }]}>
-                                <div className="vehicle-scroll-container" style={{border: 'none'}}>
+                                <div className="vehicle-scroll-container" style={{ border: 'none' }}>
                                     <Radio.Group className="vehicle-radio-group" onChange={handleServiceSelect}>
                                         {fetchedServices.map(service => (
                                             <Radio key={service.transportServiceId} value={service.transportServiceId}>
-                                            {service.name === "Road" && <img src='src/images/truck.png' alt="Road" />}
-                                            {service.name === "Air" && <img src='src/images/plane.png' alt="Air" />}
-                                            <div>{service.name}</div>
+                                                {service.name === "Road" && <img src='src/images/truck.png' alt="Road" />}
+                                                {service.name === "Air" && <img src='src/images/plane.png' alt="Air" />}
+                                                <div>{service.name}</div>
                                             </Radio>
                                         ))}
                                     </Radio.Group>
@@ -420,10 +423,6 @@ function PlaceOrderPage() {
                         >
                             <Input />
                         </Form.Item>
-
-
-                       
-
                        
                         {price !== null && distance !== null && distance > 0 && (
 
@@ -433,9 +432,9 @@ function PlaceOrderPage() {
                         )}
                         <Form.Item>
                             {formIsComplete && (
-                                <Button 
-                                    className="submit-btn" 
-                                    type="primary" 
+                                <Button
+                                    className="submit-btn"
+                                    type="primary"
                                     htmlType="submit"
                                     onClick={handleContinue}                                
                                 >

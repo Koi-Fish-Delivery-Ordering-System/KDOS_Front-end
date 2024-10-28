@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
+
 import { Form, Input, Button, Row, Col, message, Select, Modal, Upload, Checkbox } from 'antd';
+
 import { UploadOutlined } from '@ant-design/icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import DeliveryMap from './Map';
 import Navbar2 from './navbar2';
-import '../../css/placeorderpage.css';
 import '../../css/addfishorder.css';
 import Footer from './footer';
+import axios from 'axios';
 
 
 
 
+const { Option } = Select; // Destructure Option from Select
 const OrderConfirmation = () => {
   const defaultPosition = [10.8231, 106.6297]; // Default coordinates for Ho Chi Minh City
 
@@ -18,6 +21,7 @@ const OrderConfirmation = () => {
   const location = useLocation();
   const [form] = Form.useForm();
   const [modalForm] = Form.useForm(); // Thêm form instance cho modal
+
 
   const { pickUpLocation, dropOffLocation, vehicleType, totalPrice, pickUpLocationName, dropOffLocationName } = location.state || {};
   const [qualificationsImage, setQualificationsImage] = useState([]);
@@ -98,6 +102,11 @@ const OrderConfirmation = () => {
     }));
   };
 
+
+  const handleUploadChange = ({ fileList }) => {
+    setQualificationsImage(fileList); // Store the file list in state
+    console.log(fileList); // Log for debugging
+  };
   const handleSubmit = async (values) => {
     try {
       // Map fishOrders to the format required by the API
@@ -105,6 +114,7 @@ const OrderConfirmation = () => {
         name: order.name,
         gender: order.gender,
         species: order.species,
+
         ageInMonth: order.age,
         weight: order.weight,
         length: order.length,
@@ -161,10 +171,11 @@ const OrderConfirmation = () => {
         }
       );
 
+
       // Check if the request was successful
       if (response.status === 200 || response.status === 201) {
         message.success('Order placed successfully!');
-        // navigate('/orders'); // hoặc trang bạn muốn chuyển đến sau khi đặt hàng thành công
+
       } else {
         message.error('Failed to place order. Please try again.');
       }
@@ -172,6 +183,7 @@ const OrderConfirmation = () => {
       console.error('Error submitting order:', error);
       message.error('An error occurred while placing the order. Please try again.');
     }
+
   };
 
   // State for fish orders and modal visibility
@@ -212,6 +224,7 @@ const OrderConfirmation = () => {
     });
     setQualificationsImage([]);
     setEditingIndex(null);
+
     setModalVisible(true);
   };
 
@@ -225,6 +238,7 @@ const OrderConfirmation = () => {
   // Function to handle modal cancel button
   const handleCancel = () => {
     setModalVisible(false);
+
     // Reset form khi đóng modal
     setNewFish({
       name: '',
@@ -243,7 +257,15 @@ const OrderConfirmation = () => {
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewFish((prev) => ({ ...prev, [name]: value }));
+
   };
+
+  // Function to handle input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewFish((prev) => ({ ...prev, [name]: value }));
+  };
+
 
   // Function to delete a row
   const deleteRow = (index) => {
@@ -252,6 +274,7 @@ const OrderConfirmation = () => {
   };
 
   //HandleOK
+
   const handleModalOk = async () => {
     try {
       // Kiểm tra các trường bắt buộc
@@ -291,6 +314,7 @@ const OrderConfirmation = () => {
     } catch (error) {
       console.error('Error:', error);
       message.error('Failed to save fish information');
+
     }
   };
   return (
@@ -300,16 +324,6 @@ const OrderConfirmation = () => {
         <Col span={8} className="left-section">
           
           <Form form={form} layout="vertical" onFinish={handleSubmit}>
-            <h2 className="fish-orders-title">Sender Information</h2>
-            <Form.Item label="Sender Name" name="senderName" rules={[{ required: true, message: 'Please enter your sender name' }]}>
-              <Input placeholder="Enter your name" />
-            </Form.Item>
-            <Form.Item label="Sender Phone" name="senderPhone" rules={[{ required: true, message: 'Please enter your sender phone number' }]}>
-              <Input placeholder="Enter your phone number" />
-            </Form.Item>
-            <Form.Item label="Sender Address" name="senderAddress" rules={[{ required: true, message: 'Please enter your sender address' }]}>
-              <Input placeholder="Enter your address" />
-            </Form.Item>
             {/* <Form.Item label="Sender Notes" name="senderNote" >
               <Input placeholder="Enter your notes" />
             </Form.Item> */}
@@ -335,63 +349,49 @@ const OrderConfirmation = () => {
               <table className="fixed-table">
                 <thead>
                   <tr>
-                    <th className="label-table">Index</th>
+                    <th className="label-table">No</th>
                     <th className="label-table">Fish Type</th>
-                    <th className="label-table">Weight (kg)</th>
-                    <th className="label-table">Price (VND/Kg)</th>
+                    <th className="label-table">Gender</th>
+                    <th className="label-table">Species</th>
                     <th className="label-table">Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {fishOrders.map((order, index) => (
-                    <tr key={index}>
-                      <td>{index + 1}</td>
-                      <td>
-                        <input
-                          type="text"
-                          value={order.name}
-                          onChange={(e) => updateRow(index, "name", e.target.value)}
-                          placeholder="Enter fish type"
-                          className="custom-input"
-                        />
-                      </td>
-                      <td>
-                        <input
-                          type="number"
-                          value={order.weight}
-                          onChange={(e) => updateRow(index, "weight", e.target.value)}
-                          placeholder="Weight"
-                          className="custom-input"
-
-                        />
-                      </td>
-                      <td>
-                        <input
-                          type="number"
-                          value={order.price}
-                          onChange={(e) => updateRow(index, "price", e.target.value)}
-                          placeholder="Price"
-                          className="custom-input"
-
-                        />
-                      </td>
-                      <td>
-                        <button
-                          type="button"
-                          onClick={() => deleteRow(index)}
-                          className="delete-button"
-                        >
-                          Delete
-                        </button>
+                  {fishOrders.length === 0 ? (
+                    <tr>
+                      <td colSpan="5" style={{ textAlign: 'center' }}>
+                        There is no fish, need to add more
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    fishOrders.map((order, index) => (
+                      <tr key={index} onClick={() => editFish(index)} style={{ cursor: 'pointer' }}>
+                        <td>{index + 1}</td>
+                        <td>{order.name}</td>
+                        <td>{order.gender}</td>
+                        <td>{order.species}</td>
+                        <td>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent row click from triggering edit
+                              deleteRow(index);
+                            }}
+                            className="delete-button"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
-            <button type="button" onClick={addRow} className="add-button">
+            <button type="button" onClick={showModal} className="add-button">
               Add Fish
             </button>
+
 
             {/* Additional Services Section */}
             <h2 className="section-title">Additional Services</h2>
@@ -415,12 +415,14 @@ const OrderConfirmation = () => {
               </Checkbox.Group>
             </Form.Item> */}
 
+
             {/* Modal for Adding Fish */}
             <Modal
               title={editingIndex !== null ? "Edit Fish Information" : "Add Fish Information"}
               open={modalVisible}
               onOk={handleModalOk}
               onCancel={handleCancel}
+
               okText={editingIndex !== null ? "Update" : "Add"}
             >
               <Form
@@ -444,6 +446,7 @@ const OrderConfirmation = () => {
                 >
                   <Input
                     onChange={(e) => handleInputChange({ target: { name: 'name', value: e.target.value } })}
+
                     placeholder="Enter fish name"
                   />
                 </Form.Item>
@@ -509,7 +512,9 @@ const OrderConfirmation = () => {
                     placeholder="Enter length(cm)"
                   />
                 </Form.Item>
+
                 <h2 className="section-title">Additional Information</h2>
+
                 <Form.Item
                   name="descriptions"
                   rules={[{ required: true, message: 'Please enter fish description' }]} // Required validation
@@ -524,6 +529,7 @@ const OrderConfirmation = () => {
                 <Form.Item
                   label="Qualifications"
                   name="qualifications"
+
                 >
                   <Upload
                     listType="picture-card"
@@ -553,13 +559,16 @@ const OrderConfirmation = () => {
                 </Form.Item>
               </Form>
             </Modal>
+
             <h2 className="section-title">Payment Method</h2>
+
             <Form.Item
               label="Select Payment Method"
               name="paymentMethod"
               rules={[{ required: true, message: 'Please select a payment method' }]}
             >
               <Select placeholder="Choose a payment method">
+
                 <Option value="banking">Bank Transfer</Option>
                 <Option value="cash">Cash</Option>
               </Select>
@@ -569,6 +578,7 @@ const OrderConfirmation = () => {
             </div>
             <Form.Item >
               <Button type="primary" htmlType="submit" className="submit-btn">
+
                 Submit
               </Button>
             </Form.Item>
