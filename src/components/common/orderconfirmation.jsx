@@ -101,12 +101,6 @@ const OrderConfirmation = () => {
       qualifications: compressedFileList
     }));
   };
-
-
-  const handleUploadChange = ({ fileList }) => {
-    setQualificationsImage(fileList); // Store the file list in state
-    console.log(fileList); // Log for debugging
-  };
   const handleSubmit = async (values) => {
     try {
       // Map fishOrders to the format required by the API
@@ -258,12 +252,6 @@ const OrderConfirmation = () => {
     const { name, value } = e.target;
     setNewFish((prev) => ({ ...prev, [name]: value }));
 
-  };
-
-  // Function to handle input changes
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setNewFish((prev) => ({ ...prev, [name]: value }));
   };
 
 
