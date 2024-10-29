@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { Form, Input, Button, Row, Col, message, Select, Modal, Upload, Checkbox } from 'antd';
 
@@ -14,6 +14,7 @@ import axios from 'axios';
 
 
 const { Option } = Select; // Destructure Option from Select
+const { TextArea } = Input;
 const OrderConfirmation = () => {
   const defaultPosition = [10.8231, 106.6297]; // Default coordinates for Ho Chi Minh City
 
@@ -23,7 +24,7 @@ const OrderConfirmation = () => {
   const [modalForm] = Form.useForm(); // Thêm form instance cho modal
 
 
-  const { pickUpLocation, dropOffLocation, vehicleType, totalPrice, pickUpLocationName, dropOffLocationName } = location.state || {};
+  const { pickUpLocation, dropOffLocation, vehicleType, totalPrice, pickUpLocationName, dropOffLocationName, selectedService, servicePricingType, pricePerAmount, pricePerKg } = location.state || {};
   const [qualificationsImage, setQualificationsImage] = useState([]);
 
   // Thêm hàm compress image
@@ -101,7 +102,6 @@ const OrderConfirmation = () => {
       qualifications: compressedFileList
     }));
   };
-
   const handleSubmit = async (values) => {
     try {
       // Map fishOrders to the format required by the API
@@ -122,7 +122,8 @@ const OrderConfirmation = () => {
       
       // Thêm data vào FormData
       const orderData = {
-        notes: '',
+        servicePricingType: servicePricingType,
+        notes: values.notes,
         totalPrice: totalPrice,
         fishes: fishes,
         transportServiceId: vehicleType,
@@ -131,7 +132,7 @@ const OrderConfirmation = () => {
         receiverName: values.recipientName,
         receiverPhone: values.recipientPhone,
         paymentMethod: values.paymentMethod,
-        additionalServiceIds: [],
+        additionalServiceIds: selectedAdditionalServices,
       };
 
       formData.append('data', JSON.stringify(orderData));
@@ -169,6 +170,7 @@ const OrderConfirmation = () => {
 
       // Check if the request was successful
       if (response.status === 200 || response.status === 201) {
+        navigate('/');
         message.success('Order placed successfully!');
 
       } else {
@@ -191,12 +193,7 @@ const OrderConfirmation = () => {
   const [selectedServices, setSelectedServices] = useState([]);
 
   // Thêm data mẫu cho services (có thể chuyển thành API call sau)
-  const additionalServices = [
-    { id: 1, name: 'Express Delivery', price: 50000 },
-    { id: 2, name: 'Insurance', price: 100000 },
-    { id: 3, name: 'Temperature Control', price: 75000 },
-    { id: 4, name: 'Special Packaging', price: 60000 },
-  ];
+  
 
   // Thêm handler cho việc thay đổi services
   const handleServiceChange = (checkedValues) => {
@@ -306,6 +303,84 @@ const OrderConfirmation = () => {
 
     }
   };
+
+  // Add new state for additional services
+  const [additionalServices, setAdditionalServices] = useState([]);
+  const [selectedAdditionalServices, setSelectedAdditionalServices] = useState([]);
+
+  // Update the fetchAdditionalServices function to store the results
+  const fetchAdditionalServices = async () => {
+    const query = `
+      query FindManySuitableAdditionalService($data: FindManySuitableAdditionalServiceInputData!) {
+        findManySuitableAdditionalService(data: $data) {
+          additionalServiceId
+          name
+          price
+        }
+      }
+    `;
+    const accessToken = sessionStorage.getItem("accessToken");
+    
+    try {
+      const additionalServiceResponse = await axios.post('http://26.61.210.173:3001/graphql', 
+        { query, variables: { data: { transportType: selectedService } } },
+        { 
+          headers: {
+            "Authorization": `Bearer ${accessToken}`,
+            "Content-Type": "application/json"
+          }
+        }
+      );
+      
+      if (additionalServiceResponse.data?.data?.findManySuitableAdditionalService) {
+        setAdditionalServices(additionalServiceResponse.data.data.findManySuitableAdditionalService);
+      }
+    } catch (error) {
+      console.error('Error fetching additional services:', error);
+      message.error('Failed to load additional services');
+    }
+  };
+
+  // Add handler for checkbox changes
+  const handleAdditionalServiceChange = (checkedValues) => {
+    setSelectedAdditionalServices(checkedValues);
+  };
+
+  // Update useEffect to fetch services when component mounts
+  useEffect(() => {
+    fetchAdditionalServices();
+  }, [selectedService]); // Re-fetch when selectedService changes
+
+  // Add new state for calculated final price
+  const [calculatedFinalPrice, setCalculatedFinalPrice] = useState(totalPrice);
+
+  // Add function to calculate total price
+  const calculateTotalPrice = () => {
+    let finalPrice = totalPrice;
+
+    // Add additional services prices
+    const additionalServicesTotal = selectedAdditionalServices.reduce((sum, serviceId) => {
+      const service = additionalServices.find(s => s.additionalServiceId === serviceId);
+      return sum + (service ? service.price : 0);
+    }, 0);
+    finalPrice += additionalServicesTotal;
+
+    // Calculate based on pricing type
+    if (servicePricingType === 'volume') {
+      const totalWeight = fishOrders.reduce((sum, fish) => sum + Number(fish.weight), 0);
+      finalPrice += totalWeight * pricePerKg;
+    } else if (servicePricingType === 'quantity') {
+      finalPrice += fishOrders.length * pricePerAmount;
+    }
+
+    setCalculatedFinalPrice(finalPrice);
+  };
+
+  // Update useEffect to recalculate price when relevant values change
+  useEffect(() => {
+    calculateTotalPrice();
+  }, [fishOrders, selectedAdditionalServices, servicePricingType]);
+
   return (
     <div>
       <Row className="placeorder-page">
@@ -329,11 +404,12 @@ const OrderConfirmation = () => {
                 </Form.Item>
               </Col>
             </Row>
-            <Form.Item label="Recipient Address" name="recipientAddress" rules={[{ required: true, message: 'Please enter recipient address' }]}>
-              <Input placeholder="Enter recipient address" />
-            </Form.Item>
+            
             {/* Fish Orders Table */}
-            <h2 className="section-title">Fish Orders</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h2 className="section-title" style={{ margin: 0 }}>Fish Orders</h2>
+              <a onClick={showModal} style={{ color: '#ff7700', cursor: 'pointer' }}>+ Add Fish</a>
+            </div>
             <div className="fish-orders-scroll-container">
               <table className="fixed-table">
                 <thead>
@@ -377,33 +453,33 @@ const OrderConfirmation = () => {
                 </tbody>
               </table>
             </div>
-            <button type="button" onClick={showModal} className="add-button">
-              Add Fish
-            </button>
 
 
             {/* Additional Services Section */}
-            <h2 className="section-title">Additional Services</h2>
-            {/* <Form.Item name="additionalServices">
-              <Checkbox.Group 
-                style={{ width: '100%' }} 
-                onChange={handleServiceChange}
-              >
-                <Row>
-                  {additionalServices.map(service => (
-                    <Col span={12} key={service.id} style={{ marginBottom: '8px' }}>
-                      <Checkbox value={service.id}>
-                        <span>{service.name}</span>
-                        <span style={{ marginLeft: '8px', color: '#1890ff' }}>
-                          (+{service.price.toLocaleString()} VNĐ)
-                        </span>
-                      </Checkbox>
-                    </Col>
-                  ))}
-                </Row>
-              </Checkbox.Group>
-            </Form.Item> */}
-
+            {additionalServices.length > 0 && (
+              <>
+                <h2 className="section-title">Additional Services</h2>
+                <Form.Item name="additionalServices">
+                  <Checkbox.Group 
+                    style={{ width: '100%' }} 
+                    onChange={handleAdditionalServiceChange}
+                  >
+                    <Row gutter={[16, 16]}>
+                      {additionalServices.map(service => (
+                        <Col span={24} key={service.additionalServiceId}>
+                          <Checkbox value={service.additionalServiceId}>
+                            <span>{service.name}</span>
+                            <span style={{ marginLeft: '8px', color: '#1890ff' }}>
+                              (+{service.price.toLocaleString()} VNĐ)
+                            </span>
+                          </Checkbox>
+                        </Col>
+                      ))}
+                    </Row>
+                  </Checkbox.Group>
+                </Form.Item>
+              </>
+            )}
 
             {/* Modal for Adding Fish */}
             <Modal
@@ -428,8 +504,9 @@ const OrderConfirmation = () => {
                   qualifications: []
                 }}
               >
+                <h2 className="section-title">Fish Information</h2>
                 <Form.Item
-                  label="Fish Name"
+                  
                   name="name"
                   rules={[{ required: true, message: 'Please enter fish name' }]}
                 >
@@ -476,7 +553,7 @@ const OrderConfirmation = () => {
                     placeholder="Enter fish age"
                   />
                 </Form.Item>
-                <h2 >Appearance</h2>
+                <h2 className="section-title">Appearance</h2>
                 <Form.Item
                   name="weight"
                   rules={[{ required: true, message: 'Please enter fish weight(kg)' }]} // Required validation
@@ -503,6 +580,7 @@ const OrderConfirmation = () => {
                 </Form.Item>
 
                 <h2 className="section-title">Additional Information</h2>
+
 
                 <Form.Item
                   name="descriptions"
@@ -548,7 +626,13 @@ const OrderConfirmation = () => {
                 </Form.Item>
               </Form>
             </Modal>
-
+            <h2 className="section-title">Note</h2>
+            <Form.Item
+              name="notes"
+              rules={[{ required: true, message: 'Please enter your notes' }]}
+            >
+              <TextArea placeholder="Enter your notes" />
+            </Form.Item>
             <h2 className="section-title">Payment Method</h2>
 
             <Form.Item
@@ -563,7 +647,7 @@ const OrderConfirmation = () => {
               </Select>
             </Form.Item>
             <div className="distance-display">
-              Provisional Price: {totalPrice.toLocaleString()} VNĐ
+              Final Price: {calculatedFinalPrice.toLocaleString()} VNĐ
             </div>
             <Form.Item >
               <Button type="primary" htmlType="submit" className="submit-btn">
@@ -578,8 +662,9 @@ const OrderConfirmation = () => {
           <DeliveryMap
             suggestion={{
               form: pickUpLocation ? [pickUpLocation.lat, pickUpLocation.lng] : defaultPosition,
-              to: dropOffLocation ? [dropOffLocation.lat, dropOffLocation.lng] : defaultPosition
+              to: dropOffLocation ? [dropOffLocation.lat, dropOffLocation.lng] : defaultPosition            
             }}
+            
           />
         </Col>
       </Row>

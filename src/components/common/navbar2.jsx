@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Dropdown, Menu } from 'antd';
+import { HomeOutlined } from '@ant-design/icons';
 import "../../css/navbar.css"; // Ensure the path is correct
 
 export default function Navbar2() {
@@ -51,7 +52,11 @@ export default function Navbar2() {
       <nav className="navbar">
         <div className="nav-left">
           <ul className="nav-list">
-            <li className="nav-item"><Link to="/">HOME</Link></li>
+            <li className="nav-item">
+              <Link to="/">
+                <HomeOutlined style={{ fontSize: '24px' }} />
+              </Link>
+            </li>
           </ul>
         </div>
         <div className="nav-right">
@@ -59,6 +64,7 @@ export default function Navbar2() {
             <div className="dropdown">
               <Dropdown overlay={menu_user} trigger={["hover"]}>
                 <a className="dropdown-link">
+                <span className='username'>Welcome, {userInfo.username}</span>
                   <img 
                     src="src/images/avatar.jpg" 
                     alt="AVT"

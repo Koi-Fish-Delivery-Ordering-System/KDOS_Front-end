@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ProfilePage from './profilepage'; 
-import Orders from './records'; 
+import Orders from './orderhistory'; 
 import Navbar from './navbar2'; // Import the Navbar component
 import '../../css/accountManagement.css';
 import Navbar2 from './navbar2';

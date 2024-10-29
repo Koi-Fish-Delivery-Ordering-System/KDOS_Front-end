@@ -1,9 +1,12 @@
 import React, { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from './navbar'
+import Navbar2 from './navbar2'
 import "../../css/homepage.css"
 import Footer from "./footer";
 import Blogcarousel from "./blogcarousel";
+import { faTruck, faClock, faShieldAlt } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export default function Homepage() {
   const navigate = useNavigate();
@@ -58,24 +61,58 @@ export default function Homepage() {
   return (
     <>
       <div>
-        <Navbar />
+        <Navbar2 />
+        
+        {/* Hero Section */}
+        <section className="hero-section">
+          <div className="hero-content">
+            <h1>Koi Fish Transportation Experts</h1>
+            <p>Safe - Professional - On Time</p>
+            <div className="hero-buttons">
+              <button className="primary-button" onClick={() => navigate('/placeorder')}>
+                Book Shipping Now
+              </button>
+              <button className="secondary-button" onClick={() => navigate('/tracking')}>
+                Track Your Order
+              </button>
+            </div>
+          </div>
+        </section>
 
+        {/* Shipping Features */}
+        <section className="shipping-features">
+          <div className="feature-card">
+            <FontAwesomeIcon icon={faTruck} />
+            <h3>Nationwide Delivery</h3>
+            <p>Serving all provinces across the country</p>
+          </div>
+          <div className="feature-card">
+            <FontAwesomeIcon icon={faClock} />
+            <h3>Real-Time Tracking</h3>
+            <p>Continuous order status updates</p>
+          </div>
+          <div className="feature-card">
+            <FontAwesomeIcon icon={faShieldAlt} />
+            <h3>Safety Guaranteed</h3>
+            <p>Ensuring healthy fish upon delivery</p>
+          </div>
+        </section>
+
+        {/* Content Section */}
         <section className="content-section">
-          
-          <div className="divider" />
           <div className="row" ref={(el) => (rowsRef.current[0] = el)}>
-            <img
-              src={imageList[0]}
-              alt="Feature 1"
-              className="content-image"
-            />
+            <img src={imageList[0]} alt="Shipping Service" className="content-image" />
             <div className="content-text">
-              <h2>Our Services</h2>
+              <h2>Professional Transportation Service</h2>
               <p>
-                With a carefully curated selection of high-quality koi, we ensure each delivery meets the highest standards in terms of health, vitality, and aesthetic appeal. Whether you're a first-time pond owner or an experienced enthusiast, our koi fish delivery service allows you to enjoy these magnificent creatures without the hassle of visiting a physical store. Experience the convenience of having your dream koi delivered safely and professionally.
+                We provide professional Koi fish transportation services with modern 
+                transport tanks featuring temperature and oxygen control systems. 
+                Our experienced team ensures your fish receive the best care throughout 
+                their journey.
               </p>
             </div>
           </div>
+          
           <div className="divider" />
           <div className="row reverse" ref={(el) => (rowsRef.current[1] = el)}>
             <img
@@ -116,10 +153,10 @@ export default function Homepage() {
             <div className="item item8"><img src={fishImageList[1]}></img></div>
           </div>
           <div className="divider" />
+          
         </section>
       </div>
       <Footer />
     </>
-
   )
 }
