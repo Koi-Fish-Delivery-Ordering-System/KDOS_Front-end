@@ -4,7 +4,7 @@ import Homepage from './components/common/Homepage';
 import LoginPage from './components/common/loginpage';
 import RegisterPage from './components/common/registerpage';
 import ProfilePage from './components/common/profilepage';
-import Records from './components/common/records';
+import Records from './components/common/orderhistory';
 import TrackOrderPage from './components/common/trackorder';
 import PlaceOrderPage from './components/common/placeorderpage';
 import DeliveryPage from './components/common/delivery/deliverypickup';

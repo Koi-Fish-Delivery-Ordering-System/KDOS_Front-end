@@ -12,6 +12,9 @@
   "dependencies": {
     "@ant-design/icons": "^5.5.1",
     "@apollo/client": "^3.11.8",
+    "@fortawesome/fontawesome-svg-core": "^6.6.0",
+    "@fortawesome/free-solid-svg-icons": "^6.6.0",
+    "@fortawesome/react-fontawesome": "^0.2.2",
     "@react-google-maps/api": "^2.20.3",
     "antd": "^5.21.2",
     "axios": "^1.7.7",

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button, Input, Form, Card, Row, Col, Select, Radio, AutoComplete, message } from 'antd';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import '../../css/placeorderpage.css';
 import Footer from './footer';
 import Navbar2 from './navbar2';
@@ -13,13 +13,14 @@ const defaultPosition = [10.8231, 106.6297]; // Default coordinates for Ho Chi M
 
 function PlaceOrderPage() {
     const navigate = useNavigate();
+    const location = useLocation();
+    const formData = location.state || {};
     const [form] = Form.useForm(); // Thêm dòng này để sử dụng form
     const [vehicleTypes, setVehicleTypes] = useState([]); // Thêm state để lưu trữ loại xe
     const [vehicleType, setVehicleType] = useState(null); // Thêm state để lưu trữ loại xe đã chọn
     const [distance, setDistance] = useState(null); // Thêm state để lưu trữ distance
     const [provinces, setProvinces] = useState([]); // State để lưu trữ danh sách tỉnh
     const [provincesWithAirport, setProvincesWithAirport] = useState([]);
-    const [isAirVisible, setIsAirVisible] = useState(false); // State để kiểm soát hiển thị "Air"
     const mapContainerStyle = {
         height: "100%", // Set the desired height
         width: "100%",   // Set the desired width
@@ -30,71 +31,31 @@ function PlaceOrderPage() {
         lng: 106.6297,   // Set the longitude for the center of the map
     };
 
-    const handleContinue = async (values) => {
-        try {
-            // Get the form values
-            const formData = form.getFieldsValue();
-
-            console.log(formData); // Check the data being sent
-            console.log(price);
-            console.log();
-            // Proceed to the sender info page
-            navigate('/order-confirmation', {
-                state: {
-                    pickUpLocationName: formData.pickUpLocation,
-                    dropOffLocationName: formData.dropOffLocation,
-                    pickUpLocation: {
-                        lat: pickUpLocation.lat,
-                        lng: pickUpLocation.lng,
-                    },
-                    dropOffLocation: {
-                        lat: dropOffLocation.lat,
-                        lng: dropOffLocation.lng,
-                    },
-                    vehicleType: values.vehicleType,
-                    totalPrice: values.price,
-                    distance: distance,
-                }
-            });
-        } catch (error) {
-            console.error('Error during submission:', error);
-
-
-
-        }
-    };
-    const handleSubmit = async (values) => {
-        try {
-            // Prepare the data to be sent
-            const orderData = {
-                fromAddress: values.pickUpLocation,
-                toAddress: values.dropOffLocation,
-                transportServiceId: values.vehicleType,
-                totalPrice: values.price,
-            };      
-            console.log(orderData);
-
-            // Get the token from localStorage
-            const accessToken    = sessionStorage.getItem("accessToken");
-
-            // Send the data to the API with the token in the headers
-            const response = await axios.post('http://26.61.210.173:3001/api/orders/create-order', orderData, {
-                headers: {
-                    // 'Authorization': `Bearer ${token}`
-                    'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2NvdW50SWQiOiIxODIzN2FmOC1hYzY5LTQzNWUtOGJmZS05OGVhYjczODEyMzYiLCJhY2NvdW50Um9sZXMiOltdLCJ0eXBlIjoiQWNjZXNzIiwiaWF0IjoxNzI5NzAxNDg3fQ.blWkdUp14-vy22oZ5h-FPIcO0fogTkVyY0QjGTKteB8`
-                }
-            });
-
-            // Check if the request was successful
-            if (response.status === 200 || response.status === 201) {
-                message.success('Order placed successfully!');
-            } else {
-                message.error('Failed to place order. Please try again.');
+    const handleContinue = (values) => {
+        const formData = form.getFieldsValue();
+        console.log(formData.servicePricing);
+        console.log(vehicleType);
+        navigate('/order-confirmation', {
+            state: {
+                pricePerAmount: selectedService.pricePerAmount,
+                pricePerKg: selectedService.pricePerKg,
+                servicePricingType: formData.servicePricing,
+                selectedService: selectedService.name,
+                pickUpLocationName: formData.pickUpLocation,
+                dropOffLocationName: formData.dropOffLocation,
+                pickUpLocation: {
+                    lat: pickUpLocation?.lat || 0,
+                    lng: pickUpLocation?.lng || 0,
+                },
+                dropOffLocation: {
+                    lat: dropOffLocation?.lat || 0,
+                    lng: dropOffLocation?.lng || 0,
+                },
+                vehicleType: vehicleType,
+                totalPrice: price || 0,
+                distance: distance || 0,
             }
-        } catch (error) {
-            console.error('Error submitting order:', error);
-            message.error('An error occurred while placing the order. Please try again.');
-        }
+        });
     };
     useEffect(() => {
         const accessToken = sessionStorage.getItem("accessToken");
@@ -215,7 +176,7 @@ function PlaceOrderPage() {
     const [fetchedServices, setFetchedServices] = useState(null);
     const [selectedService, setSelectedService] = useState(() => null);
     const [price, setPrice] = useState(null);
-
+    const [servicePricing, setServicePricing] = useState(null);
     const calculatePrice = useCallback(() => {
         if (selectedService && distance !== null) {
             const calculatedPrice = Math.round(distance * selectedService.pricePerKm);
@@ -237,6 +198,8 @@ function PlaceOrderPage() {
                     name
                     transportServiceId
                     pricePerKm
+                    pricePerAmount
+                    pricePerKg
                 }
             }
         `;
@@ -259,10 +222,10 @@ function PlaceOrderPage() {
                 setVehicleTypes(services);
                 setFetchedServices(services);
                 console.log('Fetched transport services:', services);
-                message.success(`Found ${services.length} suitable transport services`);
+                
             } else {
                 console.log('No transport services found or unexpected response structure');
-                message.info('No suitable transport services found for the selected provinces');
+                
                 setFetchedServices(null);
             }
         } catch (error) {
@@ -310,12 +273,19 @@ function PlaceOrderPage() {
                 values.dropOffProvince &&
                 values.dropOffLocation &&
                 values.vehicleType &&
-                price !== null;
+                price !== null &&
+                values.servicePricing;
             setFormIsComplete(isComplete);
         };
 
         form.validateFields({ validateOnly: true }).then(checkFormCompleteness);
     }, [form, price]);
+
+    useEffect(() => {
+        if (formData) {
+            form.setFieldsValue(formData); // Đặt lại giá trị form
+        }
+    }, [formData, form]);
 
     return (
         <div>
@@ -323,6 +293,7 @@ function PlaceOrderPage() {
                 {/* Left Section: Route and Vehicle Selection */}
                 <Navbar2 />
                 <Col span={8} className="left-section">
+                    
                     <h2 className="section-title">Location</h2>
                     <Form
                         layout="vertical"
@@ -330,16 +301,15 @@ function PlaceOrderPage() {
                         onFinish={handleContinue}
                         form={form}
                         onValuesChange={() => {
-                            form.validateFields({ validateOnly: true }).then(() => {
-                                const values = form.getFieldsValue();
-                                const isComplete = values.pickUpProvince &&
-                                    values.pickUpLocation &&
-                                    values.dropOffProvince &&
-                                    values.dropOffLocation &&
-                                    values.vehicleType &&
-                                    price !== null;
-                                setFormIsComplete(isComplete);
-                            });
+                            const values = form.getFieldsValue();
+                            const isComplete = values.pickUpProvince &&
+                                values.pickUpLocation &&
+                                values.dropOffProvince &&
+                                values.dropOffLocation &&
+                                values.vehicleType &&
+                                price !== null &&
+                                values.servicePricing;
+                            setFormIsComplete(isComplete);
                         }}
                     // Theo dõi sự thay đổi của form
                     >
@@ -398,12 +368,13 @@ function PlaceOrderPage() {
                                         </Form.Item>
                                     </Col>
                                 </Row>
-                                <h2 className="section-title">Transport Services</h2>
+                                
 
 
 
                         {fetchedServices && (
                             <Form.Item name="vehicleType" rules={[{ required: true, message: 'Please select a transport service' }]}>
+                                <h2 className="section-title">Transport Services</h2>
                                 <div className="vehicle-scroll-container" style={{ border: 'none' }}>
                                     <Radio.Group className="vehicle-radio-group" onChange={handleServiceSelect}>
                                         {fetchedServices.map(service => (
@@ -417,34 +388,57 @@ function PlaceOrderPage() {
                                 </div>
                             </Form.Item>
                         )}
+
+                        {/* Only show Service Pricing after a service is selected */}
+                        {selectedService && (
+                            <>
+                                <h2 className="section-title">Service Pricing</h2>
+                                <Form.Item
+                                    name="servicePricing"
+                                    rules={[{ required: true, message: 'Please choose a service pricing' }]}
+                                >
+                                    <Select
+                                        placeholder="Service Pricing"
+                                        style={{ width: '180px' }}
+                                        onChange={(value) => {
+                                            setServicePricing(value);
+                                            form.setFieldsValue({ servicePricing: value });
+                                        }}
+                                    >
+                                        <Option value="volume">Volume (Kilograms)</Option>
+                                        <Option value="amount">Quantity (Fish)</Option>
+                                    </Select>
+                                </Form.Item>
+                            </>
+                        )}
+
                         <Form.Item
                             name="price"
                             style={{ display: 'none' }}
                         >
                             <Input />
                         </Form.Item>
-                       
-                        {price !== null && distance !== null && distance > 0 && (
+                    </Form>
+                    <div style={{marginTop: '170px'}}>
+                    {price !== null && distance !== null && distance > 0 && (
 
                             <div className="distance-display">
-                                Provisional Price: {price.toLocaleString()} VNĐ
-                            </div>
-                        )}
-                        <Form.Item>
-                            {formIsComplete && (
-                                <Button
-                                    className="submit-btn"
-                                    type="primary"
-                                    htmlType="submit"
-                                    onClick={handleContinue}                                
-                                >
-                                    Continue
-                                </Button>
-                            )}
-                        </Form.Item>
-
-                    </Form>
-
+                            Provisional Price: {price?.toLocaleString() || '0'} VNĐ
+                        </div>
+                    )}
+                    <Form.Item>
+                        {formIsComplete && (
+                    <Button
+                         className="submit-btn"
+                        type="primary"
+                        htmlType="submit"
+                        onClick={handleContinue}                                
+                    >
+                            Continue
+                    </Button>
+                    )}
+                </Form.Item>
+                    </div>
                 </Col>
                 <Col span={16}>
                     <DeliveryMap

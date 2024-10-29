@@ -13,31 +13,34 @@
     top: 0;
     width: 100vw;
     padding: 15px 0px;
-    background-color: rgba(0, 0, 0, 0.5); /* Transparent background */
+    background-color: #333; /* Transparent background */
     transition: all 0.3s ease-in-out;
-    opacity: 50%;
+    height: 10vh;
     z-index: 1000; /* Ensure it stays above other elements */
   }
-  .navbar:hover{
-    opacity: 1;
-  }
-
+  
 .nav-list {
   list-style-type: none;
   display: flex;
-  gap: 40px;
-  padding-left: 1vw;
+  align-items: center;
+  height: 100%;
+  margin-left: 30px;
+  padding: 0;
 }
 /* Left side navigation list */
 .nav-left {
     display: flex;
-  }
+    align-items: center;
+}
 .nav-item { 
   color: white;
   cursor: pointer;
   transition: all 0.3s ease-in-out;
   font-size: 21px;
-  font-family: 'Times New Roman';
+  text-align: center;
+  justify-content: center;
+  display: flex;
+  align-items: center;
 }
 
 /* Right side login item */
@@ -160,4 +163,22 @@
 .dropdown-menu li a:hover {
   background-color: #f1f1f1;
 }
+
+.dropdown-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    
+}
+
+.username {
+    color: #f1f1f1;
+    font-weight: 600;
+    font-size: 16px;
+    margin-right: 8px;
+}
+
+/* Optional hover effect */
+
 
