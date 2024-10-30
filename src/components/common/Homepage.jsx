@@ -72,7 +72,7 @@ export default function Homepage() {
               <button className="primary-button" onClick={() => navigate('/placeorder')}>
                 Book Shipping Now
               </button>
-              <button className="secondary-button" onClick={() => navigate('/tracking')}>
+              <button className="secondary-button" onClick={() => navigate('/account-management', {state:{activeComponent: 'orders'}})}>
                 Track Your Order
               </button>
             </div>

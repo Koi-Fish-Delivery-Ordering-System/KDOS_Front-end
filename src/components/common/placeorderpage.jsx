@@ -1,15 +1,18 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button, Input, Form, Card, Row, Col, Select, Radio, AutoComplete, message } from 'antd';
+import { Button, Input, Form, Card, Row, Col, Select, Radio, AutoComplete, message, Modal } from 'antd';
 import { useNavigate, useLocation } from 'react-router-dom';
 import '../../css/placeorderpage.css';
 import Footer from './footer';
 import Navbar2 from './navbar2';
 import Navbar from './navbar';
 import axios from 'axios';
-import DeliveryMap from './Map';
-
+import { LoadScriptNext, GoogleMap, Marker, Autocomplete } from '@react-google-maps/api';
+import { Tooltip } from 'antd';
+import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 // Add this near the top of your file, with other constant declarations
 const defaultPosition = [10.8231, 106.6297]; // Default coordinates for Ho Chi Minh City
+const libraries = ["places"];
 
 function PlaceOrderPage() {
     const navigate = useNavigate();
@@ -43,14 +46,8 @@ function PlaceOrderPage() {
                 selectedService: selectedService.name,
                 pickUpLocationName: formData.pickUpLocation,
                 dropOffLocationName: formData.dropOffLocation,
-                pickUpLocation: {
-                    lat: pickUpLocation?.lat || 0,
-                    lng: pickUpLocation?.lng || 0,
-                },
-                dropOffLocation: {
-                    lat: dropOffLocation?.lat || 0,
-                    lng: dropOffLocation?.lng || 0,
-                },
+                pickUpLocation: pickUpLocation,
+                dropOffLocation: dropOffLocation,
                 vehicleType: vehicleType,
                 totalPrice: price || 0,
                 distance: distance || 0,
@@ -101,76 +98,118 @@ function PlaceOrderPage() {
 
     const [pickUpLocation, setPickUpLocation] = useState(null);
     const [dropOffLocation, setDropOffLocation] = useState(null);
-    const [pickUpSuggestions, setPickUpSuggestions] = useState([]);
-    const [dropOffSuggestions, setDropOffSuggestions] = useState([]);
+    const [pickUpAutocomplete, setPickUpAutocomplete] = useState(null);
+    const [dropOffAutocomplete, setDropOffAutocomplete] = useState(null);
 
-    const handlePickUpSearch = async (value) => {
-        if (!value) {
-            setPickUpSuggestions([]);
-            return;
-        }
+    const onPickUpLoad = (autocomplete) => {
+        setPickUpAutocomplete(autocomplete);
+    };
+
+    const onDropOffLoad = (autocomplete) => {
+        setDropOffAutocomplete(autocomplete);
+    };
+
+    // Add this function to calculate distance
+    const calculateDistance = useCallback(async (origin, destination) => {
+        if (!origin || !destination) return;
+
+        const service = new window.google.maps.DistanceMatrixService();
+        
         try {
-            const response = await axios.get(`https://us1.locationiq.com/v1/autocomplete.php?key=pk.9a971e44ed5d6f06d7c3ffef3501b8ce&q=${encodeURIComponent(value)}&countrycodes=VN&format=json`);
-            setPickUpSuggestions(response.data);
-        } catch (error) {
-            console.error('Error fetching pick-up suggestions:', error);
-        }
-    };
-
-    const handleDropOffSearch = async (value) => {
-        if (!value) {
-            setDropOffSuggestions([]);
-            return;
-        }
-        try {
-            const response = await axios.get(`https://us1.locationiq.com/v1/autocomplete.php?key=pk.9a971e44ed5d6f06d7c3ffef3501b8ce&q=${encodeURIComponent(value)}&countrycodes=VN&format=json`);
-            setDropOffSuggestions(response.data);
-        } catch (error) {
-            console.error('Error fetching drop-off suggestions:', error);
-        }
-    };
-
-    const handlePickUpSelect = (value, option) => {
-        setPickUpLocation({
-            lat: parseFloat(option.lat),
-            lng: parseFloat(option.lon),
-        });
-        setPickUpSuggestions([]);
-    };
-
-    const handleDropOffSelect = (value, option) => {
-        const lat = parseFloat(option.lat);
-        const lng = parseFloat(option.lon);
-
-        if (!isNaN(lat) && !isNaN(lng)) {
-            setDropOffLocation({
-                lat: lat,
-                lng: lng,
+            const response = await service.getDistanceMatrix({
+                origins: [{ lat: origin.lat, lng: origin.lng }],
+                destinations: [{ lat: destination.lat, lng: destination.lng }],
+                travelMode: window.google.maps.TravelMode.DRIVING,
+                unitSystem: window.google.maps.UnitSystem.METRIC
             });
-        } else {
-            console.error('Invalid coordinates:', option);
-            // Có thể thêm xử lý lỗi ở đây, ví dụ hiển thị thông báo cho người dùng
+
+            if (response.rows[0].elements[0].status === "OK") {
+                const distanceInMeters = response.rows[0].elements[0].distance.value;
+                const distanceInKm = distanceInMeters / 1000;
+                setDistance(distanceInKm);
+                console.log(`Distance: ${distanceInKm} km`);
+            } else {
+                console.error("Error calculating distance:", response);
+            }
+        } catch (error) {
+            console.error("Error in distance calculation:", error);
         }
-        setDropOffSuggestions([]);
+    }, []);
+
+    // Update the place select handlers to calculate distance when both locations are set
+    const handlePickUpPlaceSelect = () => {
+        if (pickUpAutocomplete) {
+            const place = pickUpAutocomplete.getPlace();
+            if (!place.geometry) return;
+
+            const newPickUpLocation = {
+                lat: place.geometry.location.lat(),
+                lng: place.geometry.location.lng()
+            };
+            
+            setPickUpLocation(newPickUpLocation);
+            
+            // Lấy tỉnh/thành phố từ address_components
+            const province = place.address_components?.find(
+                component => 
+                    component.types.includes('administrative_area_level_1') ||
+                    component.types.includes('locality')
+            )?.long_name || '';
+
+            setPickUpInputValue(place.formatted_address);
+            form.setFieldsValue({ 
+                pickUpLocation: place.formatted_address,
+                pickUpProvince: province
+            });
+
+            // Gọi API nếu đã có dropOffProvince
+            const dropOffProvince = form.getFieldValue('dropOffProvince');
+            if (dropOffProvince) {
+                fetchTransportServices(province, dropOffProvince);
+            }
+
+            if (dropOffLocation) {
+                calculateDistance(newPickUpLocation, dropOffLocation);
+            }
+        }
     };
 
-    // const normalizeLocationName = (name) => {
-    //     return name.toLowerCase()
-    //         .replace(/thành phố|tp\.|tỉnh/g, '')
-    //         .replace(/\(.*?\)/g, '') // Remove content within parentheses
-    //         .replace(/,.*$/, '') // Remove everything after the first comma
-    //         .replace(/\s+/g, ' ')
-    //         .trim();
-    // };
+    const handleDropOffPlaceSelect = () => {
+        if (dropOffAutocomplete) {
+            const place = dropOffAutocomplete.getPlace();
+            if (!place.geometry) return;
 
-    // const checkAirportAvailability = (location) => {
-    //     const normalizedLocation = normalizeLocationName(location);
-    //     return provincesWithAirport.some(province => {
-    //         const normalizedProvince = normalizeLocationName(province.name);
-    //         return normalizedLocation.includes(normalizedProvince) ||
-    //             normalizedProvince.includes(normalizedLocation);
-    //     });
-    // };
+            const newDropOffLocation = {
+                lat: place.geometry.location.lat(),
+                lng: place.geometry.location.lng()
+            };
+
+            setDropOffLocation(newDropOffLocation);
+            
+            const province = place.address_components?.find(
+                component => 
+                    component.types.includes('administrative_area_level_1') ||
+                    component.types.includes('locality')
+            )?.long_name || '';
+
+            setDropOffInputValue(place.formatted_address);
+            form.setFieldsValue({ 
+                dropOffLocation: place.formatted_address,
+                dropOffProvince: province
+            });
+
+            // Gọi API nếu đã có pickUpProvince
+            const pickUpProvince = form.getFieldValue('pickUpProvince');
+            if (pickUpProvince) {
+                fetchTransportServices(pickUpProvince, province);
+            }
+
+            if (pickUpLocation) {
+                calculateDistance(pickUpLocation, newDropOffLocation);
+            }
+        }
+    };
+
     const [pickUpProvince, setPickUpProvince] = useState('');
     const [dropOffProvince, setDropOffProvince] = useState('');
     const [fetchedServices, setFetchedServices] = useState(null);
@@ -189,9 +228,7 @@ function PlaceOrderPage() {
         calculatePrice();
     }, [calculatePrice]);
 
-    const fetchTransportServices = async () => {
-        if (!pickUpProvince || !dropOffProvince) return;
-
+    const fetchTransportServices = async (fromProvince, toProvince) => {
         const query = `
             query FindManySuitableTransportService($data: FindManySuitableTransportServiceInputData!) {
                 findManySuitableTransportService(data: $data) {
@@ -200,14 +237,15 @@ function PlaceOrderPage() {
                     pricePerKm
                     pricePerAmount
                     pricePerKg
+                    description
                 }
             }
         `;
 
         const variables = {
             data: {
-                fromProvince: pickUpProvince,
-                toProvince: dropOffProvince
+                fromProvince: fromProvince,
+                toProvince: toProvince
             }
         };
 
@@ -287,64 +325,164 @@ function PlaceOrderPage() {
         }
     }, [formData, form]);
 
+    // Add useEffect to update price when distance changes
+    useEffect(() => {
+        if (selectedService && distance !== null) {
+            const calculatedPrice = Math.round(distance * selectedService.pricePerKm);
+            setPrice(calculatedPrice);
+            form.setFieldsValue({ price: calculatedPrice });
+        }
+    }, [selectedService, distance, form]);
+
+    // Thêm state để quản lý giá trị input
+    const [pickUpInputValue, setPickUpInputValue] = useState('');
+    const [dropOffInputValue, setDropOffInputValue] = useState('');
+
+    // Thêm state để theo dõi việc map đã load chưa
+    const [mapLoaded, setMapLoaded] = useState(false);
+
+    // Thêm handler khi map load xong
+    const onMapLoad = useCallback((map) => {
+        setMapLoaded(true);
+        setMap(map);
+    }, []);
+
+    const [directions, setDirections] = useState(null);
+
+    // Thêm hàm để tính và hiển thị route
+    const calculateRoute = useCallback(() => {
+        if (!pickUpLocation || !dropOffLocation) return;
+
+        const directionsService = new window.google.maps.DirectionsService();
+
+        directionsService.route(
+            {
+                origin: pickUpLocation,
+                destination: dropOffLocation,
+                travelMode: window.google.maps.TravelMode.DRIVING,
+            },
+            (result, status) => {
+                if (status === window.google.maps.DirectionsStatus.OK) {
+                    setDirections(result);
+                    // Cập nhật khoảng cách từ directions result
+                    const route = result.routes[0];
+                    if (route && route.legs[0]) {
+                        const distanceInMeters = route.legs[0].distance.value;
+                        const distanceInKm = distanceInMeters / 1000;
+                        setDistance(distanceInKm);
+                    }
+                } else {
+                    console.error('Error calculating route:', status);
+                }
+            }
+        );
+    }, [pickUpLocation, dropOffLocation]);
+
+    // Gọi calculateRoute khi có cả 2 địa điểm
+    useEffect(() => {
+        if (pickUpLocation && dropOffLocation) {
+            calculateRoute();
+        }
+    }, [pickUpLocation, dropOffLocation, calculateRoute]);
+
+    const [map, setMap] = useState(null);
+
+    // Hàm để fit bounds khi có 2 markers
+    const fitBounds = useCallback(() => {
+        if (map && pickUpLocation && dropOffLocation) {
+            const bounds = new window.google.maps.LatLngBounds();
+            bounds.extend(pickUpLocation);
+            bounds.extend(dropOffLocation);
+            map.fitBounds(bounds);
+
+            // Thêm padding để markers không bị sát mép
+            const padding = { top: 50, right: 50, bottom: 50, left: 50 };
+            map.fitBounds(bounds, padding);
+        }
+    }, [map, pickUpLocation, dropOffLocation]);
+
+    // Gọi fitBounds khi có cả 2 địa điểm
+    useEffect(() => {
+        fitBounds();
+    }, [pickUpLocation, dropOffLocation, fitBounds]);
+
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [selectedServiceDetails, setSelectedServiceDetails] = useState(null);
+
+    const showModal = (service) => {
+        setSelectedServiceDetails(service);
+        setIsModalVisible(true);
+    };
+
+    const handleModalClose = () => {
+        setIsModalVisible(false);
+    };
+
     return (
-        <div>
-            <Row className="placeorder-page">
-                {/* Left Section: Route and Vehicle Selection */}
-                <Navbar2 />
-                <Col span={8} className="left-section">
-                    
-                    <h2 className="section-title">Location</h2>
-                    <Form
-                        layout="vertical"
-                        className="route-form"
-                        onFinish={handleContinue}
-                        form={form}
-                        onValuesChange={() => {
-                            const values = form.getFieldsValue();
-                            const isComplete = values.pickUpProvince &&
-                                values.pickUpLocation &&
-                                values.dropOffProvince &&
-                                values.dropOffLocation &&
-                                values.vehicleType &&
-                                price !== null &&
-                                values.servicePricing;
-                            setFormIsComplete(isComplete);
-                        }}
-                    // Theo dõi sự thay đổi của form
-                    >
-                        <h3>Pick-up location</h3>
-                        <Row gutter={0} style={{ display: 'flex', alignItems: 'center' }}>
-                            <Col>
-                                <Form.Item name="pickUpProvince" style={{ marginBottom: 0, marginRight: 8 }}>
-                                    <Input
-                                        style={{ width: '150px' }}
-                                        type="text"
-                                        onChange={(e) => handleProvinceChange('pickUpProvince', e.target.value)}
-                                        placeholder='Pick-up Province'
-                                    />
-                                </Form.Item>
-                            </Col>
-                            <Col flex="auto">
-                                <Form.Item name="pickUpLocation" style={{ marginBottom: 0 }} rules={[{ required: true, message: 'Please select pick-up location' }]}>
-                                    <AutoComplete
-                                        options={pickUpSuggestions.map(suggestion => ({
-                                            value: suggestion.display_name,
-                                            lat: suggestion.lat,
-                                            lon: suggestion.lon,
-                                        }))}
-                                        onSearch={handlePickUpSearch}
-                                        onSelect={handlePickUpSelect}
-                                        placeholder="Select pick-up location"
-                                    />
-                                </Form.Item>
-                            </Col>
-                        </Row>
+        <LoadScriptNext 
+            googleMapsApiKey="AIzaSyDJO2B-_FLwk1R1pje5gKEAB9h2qUDb-FU"
+            libraries={libraries}
+        >
+            <div>
+                <Row className="placeorder-page">
+                    <Navbar2 />
+                    <Col span={8} className="left-section">
+                        <h2 className="section-title">Location</h2>
+                        <Form
+                            layout="vertical"
+                            className="route-form"
+                            onFinish={handleContinue}
+                            form={form}
+                            onValuesChange={() => {
+                                const values = form.getFieldsValue();
+                                const isComplete = values.pickUpProvince &&
+                                    values.pickUpLocation &&
+                                    values.dropOffProvince &&
+                                    values.dropOffLocation &&
+                                    values.vehicleType &&
+                                    price !== null &&
+                                    values.servicePricing;
+                                setFormIsComplete(isComplete);
+                            }}
+                        // Theo dõi sự thay đổi của form
+                        >
+                            <h3>Pick-up location</h3>
+                            <Row gutter={0} style={{ display: 'flex', alignItems: 'center' }}>
+                                <Col>
+                                    <Form.Item name="pickUpProvince" style={{ marginBottom: 0, marginRight: 8, display:'none' }}>
+                                        <Input
+                                            style={{ width: '150px' }}
+                                            type="text"
+                                            onChange={(e) => handleProvinceChange('pickUpProvince', e.target.value)}
+                                            placeholder='Pick-up Province'
+                                        />
+                                    </Form.Item>
+                                </Col>
+                                <Col flex="auto">
+                                    <Form.Item name="pickUpLocation" style={{ marginBottom: 0 }}>
+                                        <Autocomplete
+                                            onLoad={onPickUpLoad}
+                                            onPlaceChanged={handlePickUpPlaceSelect}
+                                            options={{
+                                                componentRestrictions: { country: 'vn' },
+                                                fields: ['address_components', 'formatted_address', 'geometry'],
+                                                types: ['address']
+                                            }}
+                                        >
+                                            <Input 
+                                                placeholder="Select pick-up location"
+                                                value={pickUpInputValue}
+                                                onChange={(e) => setPickUpInputValue(e.target.value)}
+                                            />
+                                        </Autocomplete>
+                                    </Form.Item>
+                                </Col>
+                            </Row>
 
                                 <h3>Drop-off location</h3>
                                 <Row gutter={0} style={{ display: 'flex', alignItems: 'center' }}>
                                     <Col>
-                                        <Form.Item name="dropOffProvince" style={{ marginBottom: 0, marginRight: 8 }}>
+                                        <Form.Item name="dropOffProvince" style={{ marginBottom: 0, marginRight: 8, display:'none'}}>
                                             <Input
                                                 style={{ width: '150px' }}
                                                 type="text"
@@ -354,17 +492,22 @@ function PlaceOrderPage() {
                                         </Form.Item>
                                     </Col>
                                     <Col flex="auto">
-                                        <Form.Item name="dropOffLocation" style={{ marginBottom: 0 }} rules={[{ required: true, message: 'Please select drop-off location' }]}>
-                                            <AutoComplete
-                                                options={dropOffSuggestions.map(suggestion => ({
-                                                    value: suggestion.display_name,
-                                                    lat: suggestion.lat,
-                                                    lon: suggestion.lon,
-                                                }))}
-                                                onSearch={handleDropOffSearch}
-                                                onSelect={handleDropOffSelect}
-                                                placeholder="Select Drop-off location"
-                                            />
+                                        <Form.Item name="dropOffLocation" style={{ marginBottom: 0 }}>
+                                            <Autocomplete
+                                                onLoad={onDropOffLoad}
+                                                onPlaceChanged={handleDropOffPlaceSelect}
+                                                options={{
+                                                    componentRestrictions: { country: 'vn' },
+                                                    fields: ['address_components', 'formatted_address', 'geometry'],
+                                                    types: ['address']
+                                                }}
+                                            >
+                                                <Input 
+                                                    placeholder="Select drop-off location"
+                                                    value={dropOffInputValue}
+                                                    onChange={(e) => setDropOffInputValue(e.target.value)}
+                                                />
+                                            </Autocomplete>
                                         </Form.Item>
                                     </Col>
                                 </Row>
@@ -382,9 +525,46 @@ function PlaceOrderPage() {
                                                 {service.name === "Road" && <img src='src/images/truck.png' alt="Road" />}
                                                 {service.name === "Air" && <img src='src/images/plane.png' alt="Air" />}
                                                 <div>{service.name}</div>
+                                                <a 
+                                                    className="detail-service-btn"
+                                                    href="#" 
+                                                    onClick={(e) => {
+                                                        e.preventDefault();
+                                                        showModal(service);
+                                                    }}                                                  
+                                                >
+                                                    Detail
+                                                </a>
                                             </Radio>
                                         ))}
                                     </Radio.Group>
+                                    <Modal
+                                        title="Service Details"
+                                        open={isModalVisible}
+                                        onCancel={handleModalClose}
+                                        footer={null}
+                                        width={400}
+                                    >
+                                        {selectedServiceDetails && (
+                                            <div style={{ padding: '10px' }}>
+                                                <p style={{ marginBottom: '10px' }}>
+                                                    <strong>Service Name:</strong> {selectedServiceDetails.name}
+                                                </p>
+                                                <p style={{ marginBottom: '10px' }}>
+                                                    <strong>Price per km:</strong> {selectedServiceDetails.pricePerKm.toLocaleString()} VNĐ
+                                                </p>
+                                                <p style={{ marginBottom: '10px' }}>
+                                                    <strong>Price per amount:</strong> {selectedServiceDetails.pricePerAmount.toLocaleString()} VNĐ
+                                                </p>
+                                                <p style={{ marginBottom: '10px' }}>
+                                                    <strong>Price per kg:</strong> {selectedServiceDetails.pricePerKg.toLocaleString()} VNĐ
+                                                </p>
+                                                <p style={{ marginBottom: '10px' }}>
+                                                    <strong>Description:</strong> {selectedServiceDetails.description}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </Modal>
                                 </div>
                             </Form.Item>
                         )}
@@ -419,11 +599,15 @@ function PlaceOrderPage() {
                             <Input />
                         </Form.Item>
                     </Form>
-                    <div style={{marginTop: '170px'}}>
-                    {price !== null && distance !== null && distance > 0 && (
-
-                            <div className="distance-display">
-                            Provisional Price: {price?.toLocaleString() || '0'} VNĐ
+                    <div style={{marginTop: '120px'}}>
+                    {distance !== null && distance > 0 && price !== null && (
+                        <div className="distance-display">                            
+                                <span >
+                                    Provisional Price: {price?.toLocaleString() || '0'} VNĐ
+                                </span>                   
+                                <Tooltip title="Provisional Price = Distance * Price per km" >
+                                    <FontAwesomeIcon icon={faCircleInfo}  style={{marginLeft: '10px'}}/>
+                                </Tooltip>
                         </div>
                     )}
                     <Form.Item>
@@ -440,7 +624,7 @@ function PlaceOrderPage() {
                 </Form.Item>
                     </div>
                 </Col>
-                <Col span={16}>
+                {/* <Col span={16}>
                     <DeliveryMap
                         suggestion={{
                             form: pickUpLocation ? [pickUpLocation.lat, pickUpLocation.lng] : defaultPosition,
@@ -448,21 +632,59 @@ function PlaceOrderPage() {
                         }}
                         autoSetDistance={setDistance}
                     />
-                </Col>
+                </Col> */}
                 {/* Right Section: Google Map */}
-                {/* <Col span={16} className="map-section">
-                    <LoadScriptNext googleMapsApiKey="AIzaSyDJO2B-_FLwk1R1pje5gKEAB9h2qUDb-FU">
-                        <GoogleMap
-                            mapContainerStyle={mapContainerStyle}
-                            zoom={10}
-                            center={center}
-                        />
-                    </LoadScriptNext>
-                </Col>  */}
+                <Col span={16} className="map-section">
+                    <GoogleMap
+                        mapContainerStyle={mapContainerStyle}
+                        zoom={12}
+                        center={pickUpLocation || center}
+                        onLoad={onMapLoad}
+                    >
+                        {pickUpLocation && (
+                            <Marker
+                                position={pickUpLocation}
+                                icon={{
+                                    url: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
+                                    scaledSize: new window.google.maps.Size(40, 40)
+                                }}
+                                title="Pick-up Location"
+                            />
+                        )}
+
+                        {dropOffLocation && (
+                            <Marker
+                                position={dropOffLocation}
+                                icon={{
+                                    url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                                    scaledSize: new window.google.maps.Size(40, 40)
+                                }}
+                                title="Drop-off Location"
+                            />
+                        )}
+                    </GoogleMap>
+
+                    {/* Hiển thị thông tin khoảng cách */}
+                    {distance !== null && (
+                        <div className="distance-info" style={{
+                            position: 'absolute',
+                            bottom: '20px',
+                            left: '20px',
+                            backgroundColor: 'white',
+                            padding: '10px',
+                            borderRadius: '8px',
+                            boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+                            zIndex: 1
+                        }}>
+                            <strong>Distance:</strong> {distance.toFixed(2)} km
+                        </div>
+                    )}
+                </Col> 
 
             </Row>
             <Footer />
-        </div>
+            </div>
+        </LoadScriptNext>
     );
 };
 
