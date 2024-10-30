@@ -58,7 +58,7 @@ const OrderConfirmation = () => {
           canvas.height = height;
           const ctx = canvas.getContext('2d');
           ctx.drawImage(img, 0, 0, width, height);
-          
+
           canvas.toBlob((blob) => {
             const newFile = new File([blob], file.name, {
               type: 'image/jpeg',
@@ -119,7 +119,7 @@ const OrderConfirmation = () => {
 
       // Tạo FormData để gửi cả data và files
       const formData = new FormData();
-      
+
       // Thêm data vào FormData
       const orderData = {
         servicePricingType: servicePricingType,
@@ -143,7 +143,7 @@ const OrderConfirmation = () => {
           fish.qualifications.forEach((file, fileIndex) => {
             if (file.originFileObj) {
               formData.append(
-                `files`, 
+                `files`,
                 file.originFileObj,
                 `fish_${fishIndex}_image_${fileIndex}.jpg`
               );
@@ -157,7 +157,7 @@ const OrderConfirmation = () => {
 
       // Send the data to the API with the token in the headers
       const response = await axios.post(
-        'http://26.61.210.173:3001/api/orders/create-order', 
+        'http://26.61.210.173:3001/api/orders/create-order',
         formData,
         {
           headers: {
@@ -193,7 +193,7 @@ const OrderConfirmation = () => {
   const [selectedServices, setSelectedServices] = useState([]);
 
   // Thêm data mẫu cho services (có thể chuyển thành API call sau)
-  
+
 
   // Thêm handler cho việc thay đổi services
   const handleServiceChange = (checkedValues) => {
@@ -320,18 +320,18 @@ const OrderConfirmation = () => {
       }
     `;
     const accessToken = sessionStorage.getItem("accessToken");
-    
+
     try {
-      const additionalServiceResponse = await axios.post('http://26.61.210.173:3001/graphql', 
+      const additionalServiceResponse = await axios.post('http://26.61.210.173:3001/graphql',
         { query, variables: { data: { transportType: selectedService } } },
-        { 
+        {
           headers: {
             "Authorization": `Bearer ${accessToken}`,
             "Content-Type": "application/json"
           }
         }
       );
-      
+
       if (additionalServiceResponse.data?.data?.findManySuitableAdditionalService) {
         setAdditionalServices(additionalServiceResponse.data.data.findManySuitableAdditionalService);
       }
@@ -352,7 +352,7 @@ const OrderConfirmation = () => {
   }, [selectedService]); // Re-fetch when selectedService changes
 
   // Add new state for calculated final price
-  const [calculatedFinalPrice, setCalculatedFinalPrice] = useState(totalPrice);
+  const [calculatedFinalPrice, setCalculatedFinalPrice] = useState(0);
 
   // Add function to calculate total price
   const calculateTotalPrice = () => {
@@ -386,7 +386,7 @@ const OrderConfirmation = () => {
       <Row className="placeorder-page">
         <Navbar2 />
         <Col span={8} className="left-section">
-          
+
           <Form form={form} layout="vertical" onFinish={handleSubmit}>
             {/* <Form.Item label="Sender Notes" name="senderNote" >
               <Input placeholder="Enter your notes" />
@@ -404,7 +404,7 @@ const OrderConfirmation = () => {
                 </Form.Item>
               </Col>
             </Row>
-            
+
             {/* Fish Orders Table */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h2 className="section-title" style={{ margin: 0 }}>Fish Orders</h2>
@@ -460,8 +460,8 @@ const OrderConfirmation = () => {
               <>
                 <h2 className="section-title">Additional Services</h2>
                 <Form.Item name="additionalServices">
-                  <Checkbox.Group 
-                    style={{ width: '100%' }} 
+                  <Checkbox.Group
+                    style={{ width: '100%' }}
                     onChange={handleAdditionalServiceChange}
                   >
                     <Row gutter={[16, 16]}>
@@ -506,7 +506,7 @@ const OrderConfirmation = () => {
               >
                 <h2 className="section-title">Fish Information</h2>
                 <Form.Item
-                  
+
                   name="name"
                   rules={[{ required: true, message: 'Please enter fish name' }]}
                 >
@@ -662,9 +662,9 @@ const OrderConfirmation = () => {
           <DeliveryMap
             suggestion={{
               form: pickUpLocation ? [pickUpLocation.lat, pickUpLocation.lng] : defaultPosition,
-              to: dropOffLocation ? [dropOffLocation.lat, dropOffLocation.lng] : defaultPosition            
+              to: dropOffLocation ? [dropOffLocation.lat, dropOffLocation.lng] : defaultPosition
             }}
-            
+
           />
         </Col>
       </Row>

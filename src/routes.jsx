@@ -14,7 +14,7 @@ import TransportService from './components/common/manager/transportservice';
 import OrderConfirmation from './components/common/orderconfirmation';
 import Delivery from './components/common/delivery/delivery';
 import HealChecker from './components/common/healchecker/healchecker';
-import Manager from './components/common/manager/manager'; 
+import Manager from './components/common/manager/manager';
 
 export const router = createBrowserRouter([
   {
@@ -75,6 +75,6 @@ export const router = createBrowserRouter([
   },
   {
     path: "manager",
-    element: <Manager />, 
+    element: <Manager />,
   }
 ]);

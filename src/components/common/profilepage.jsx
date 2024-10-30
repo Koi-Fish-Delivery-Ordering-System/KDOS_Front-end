@@ -67,7 +67,7 @@ function ProfilePage() {
         <div className="profile-value">{username}</div>
         {/* <a href="#" className="profile-action" onClick={() => showModal('username')}>Change</a> */}
       </div>
-  
+
       <div className="profile-item">
         <div className="profile-label">Phone</div>
         <div className="profile-value">{phone}</div>

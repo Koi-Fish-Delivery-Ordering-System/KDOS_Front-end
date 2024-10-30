@@ -1,231 +1,147 @@
 import React, { useState, useEffect } from 'react';
+import { useQuery, ApolloProvider, ApolloClient, InMemoryCache, gql } from '@apollo/client';
+import { Button, Table, Modal, Form, Input } from 'antd';
+import { toast } from 'react-toastify';
 import axios from 'axios';
-import '../../../css/transportservice.css';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+const GET_TRANSPORT_SERVICE = gql`
+  query FindAllTransportService($data: FindAllTransportServiceInputData!) {
+    findAllTransportService(data: $data) {
+      transportServiceId
+      name
+      pricePerKm
+      pricePerKg
+      pricePerAmount
+      description
+      isActive
+    }
+  }
+`;
+
+const client = new ApolloClient({
+  uri: 'http://26.61.210.173:3001/graphql',
+  cache: new InMemoryCache(),
+  headers: {
+    Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`, // Use the token stored during login
+  },
+});
 
 function TransportService() {
   const [data, setData] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [formData, setFormData] = useState({
-    name: '',
-    description: '',
-    priceKM: '',
-    priceKg: ''
+  const [formData, setFormData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  const { loading: queryLoading, error, data: apiData } = useQuery(GET_TRANSPORT_SERVICE, {
+    variables: {
+      data: {
+        options: {
+          take: 10, // Adjust as needed
+          skip: 0, // Adjust for pagination if needed
+        },
+      },
+    },
   });
-  const [isUpdate, setIsUpdate] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-  const [disabledItems, setDisabledItems] = useState(new Set());
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get('https://6512cbd1b8c6ce52b396392e.mockapi.io/manager');
-        const apiData = response.data;
-        const storedData = JSON.parse(localStorage.getItem('transportData')) || [];
-        const combinedData = [...apiData, ...storedData];
-        setData(combinedData);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    const apiDataIds = new Set(data.map(item => item.id));
-    const newEntries = data.filter(item => !apiDataIds.has(item.id));
-    localStorage.setItem('transportData', JSON.stringify(newEntries));
-  }, [data]);
+    if (apiData) {
+      setData(apiData.findAllTransportService);
+      setLoading(false);
+    }
+    if (error) {
+      toast.error("Error fetching transport services");
+      setLoading(false);
+    }
+  }, [apiData, error]);
 
   const handleCreate = () => {
-    setFormData({
-      name: '',
-      description: '',
-      priceKM: '',
-      priceKg: ''
-    });
-    setIsUpdate(false);
+    setFormData(null);
     setShowForm(true);
   };
 
-  const handleUpdate = (id) => {
-    const item = data.find(d => d.id === id);
-    setFormData({
-      id: item.id,
-      name: item.name || '',
-      description: item.description || '',
-      priceKM: item.priceKM || '',
-      priceKg: item.priceKg || '',
-      deliveryPrice: item.deliveryPrice || '',
-      priceFish: item.priceFish || '',
-    });
-    setIsUpdate(true);
+  const handleEdit = (record) => {
+    setFormData(record);
     setShowForm(true);
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    if (['priceKM', 'priceKg', 'deliveryPrice', 'priceFish'].includes(name) && value < 0) {
-      return;
-    }
-    setFormData({
-      ...formData,
-      [name]: value
-    });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const updatedDate = new Date().toLocaleDateString();
-    if (isUpdate) {
-      const updatedData = data.map(item =>
-        item.id === formData.id ? { ...formData, updatedDate } : item
-      );
-      setData(updatedData);
-      console.log('Update Data:', formData);
-    } else {
-      const newEntry = {
-        id: data.length + 1,
-        ...formData,
-        updatedDate
-      };
-      setData([...data, newEntry]);
-    }
-    setShowForm(false);
-  };
-
-  const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      setCurrentPage(newPage);
-    }
-  };
-
-  const handleToggleDisable = (id) => {
-    setDisabledItems(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
+  const handleSubmit = async (values) => {
+    try {
+      const response = await axios.post('http://26.61.210.173:3001/api/transport', values); // Adjust the endpoint as needed
+      if (response.data) {
+        toast.success("Transport service saved successfully");
+        // Refresh or update data accordingly
+        setShowForm(false);
       }
-      return newSet;
-    });
+    } catch (error) {
+      console.error("Error saving transport service:", error);
+      toast.error("Failed to save transport service");
+    }
   };
 
-  const totalPages = Math.ceil(data.length / itemsPerPage);
-  const paginatedData = data.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const columns = [
+    {
+      title: 'Service ID',
+      dataIndex: 'transportServiceId',
+    },
+    {
+      title: 'Name',
+      dataIndex: 'name',
+    },
+    {
+      title: 'Price per KM',
+      dataIndex: 'pricePerKm',
+    },
+    {
+      title: 'Price per KG',
+      dataIndex: 'pricePerKg',
+    },
+    {
+      title: 'Actions',
+      render: (text, record) => (
+        <Button onClick={() => handleEdit(record)}>Edit</Button>
+      ),
+    },
+  ];
 
   return (
-    <div>
-      <h1>Transport Service</h1>
-      <table className="transport-table">
-        <thead>
-          <tr>
-            <th>No</th>
-            <th>Name</th>
-            <th>Type</th>
-            <th>Updated Date</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {paginatedData.map((item) => (
-            <tr key={item.id} className={disabledItems.has(item.id) ? 'disabled-row' : ''}>
-              <td>{item.id}</td>
-              <td>{item.name}</td>
-              <td>{item.description || 'N/A'}</td>
-              <td>{item.updatedDate || 'N/A'}</td>
-              <td>
-                <button className="transport-button" onClick={() => handleUpdate(item.id)}>Update</button>
-                <button
-                  className={`transport-button ${disabledItems.has(item.id) ? 'enable-button' : ''}`}
-                  onClick={() => handleToggleDisable(item.id)}
-                >
-                  {disabledItems.has(item.id) ? 'Enable' : 'Disable'}
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="pagination">
-        <button className="arrow-button" onClick={() => handlePageChange(1)} disabled={currentPage === 1}>&laquo;</button>
-        <button className="arrow-button" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>&lsaquo;</button>
-        {Array.from({ length: totalPages }, (_, index) => (
-          <button
-            key={index}
-            className={`page-button ${currentPage === index + 1 ? 'active' : ''}`}
-            onClick={() => handlePageChange(index + 1)}
-          >
-            {index + 1}
-          </button>
-        ))}
-        <button className="arrow-button" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>&rsaquo;</button>
-        <button className="arrow-button" onClick={() => handlePageChange(totalPages)} disabled={currentPage === totalPages}>&raquo;</button>
-        <select
-          value={currentPage}
-          onChange={(e) => handlePageChange(Number(e.target.value))}
-          className="page-select"
+    <ApolloProvider client={client}>
+      <ToastContainer />
+      <div>
+        <h2>Transport Services</h2>
+        <Button onClick={handleCreate} type="primary" style={{ marginBottom: '16px' }}>
+          Add Service
+        </Button>
+        <Table columns={columns} dataSource={data} loading={loading || queryLoading} rowKey="transportServiceId" />
+        <Modal
+          title={formData ? "Edit Transport Service" : "Add Transport Service"}
+          open={showForm}
+          onCancel={() => setShowForm(false)}
+          footer={null}
         >
-          {Array.from({ length: totalPages }, (_, index) => (
-            <option key={index} value={index + 1}>
-              Page {index + 1}
-            </option>
-          ))}
-        </select>
+          <Form
+            initialValues={formData}
+            onFinish={handleSubmit}
+          >
+            <Form.Item name="name" label="Service Name" rules={[{ required: true, message: 'Please input the service name!' }]}>
+              <Input />
+            </Form.Item>
+            <Form.Item name="pricePerKm" label="Price per KM" rules={[{ required: true, message: 'Please input price per KM!' }]}>
+              <Input type="number" />
+            </Form.Item>
+            <Form.Item name="pricePerKg" label="Price per KG" rules={[{ required: true, message: 'Please input price per KG!' }]}>
+              <Input type="number" />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
+                Save
+              </Button>
+            </Form.Item>
+          </Form>
+        </Modal>
       </div>
-      <button className="transport-button" onClick={handleCreate}>Create Transport Service</button>
-
-      {showForm && (
-        <div className="modal">
-          <div className="modal-content">
-            <span className="close" onClick={() => setShowForm(false)}>&times;</span>
-            <h2>{isUpdate ? 'Update Transport Service' : 'Create Transport Service'}</h2>
-            <form onSubmit={handleSubmit}>
-              {isUpdate ? (
-                <>
-                  <div className="form-group">
-                    <label>Delivery Price:</label>
-                    <input type="number" name="deliveryPrice" value={formData.deliveryPrice} onChange={handleChange} required />
-                  </div>
-                  <div className="form-group">
-                    <label>Price Fish:</label>
-                    <input type="number" name="priceFish" value={formData.priceFish} onChange={handleChange} required />
-                  </div>
-                  <div className="form-group">
-                    <label>Price per KG:</label>
-                    <input type="number" name="priceKg" value={formData.priceKg} onChange={handleChange} required />
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="form-group">
-                    <label>Name:</label>
-                    <input type="text" name="name" value={formData.name} onChange={handleChange} required />
-                  </div>
-                  <div className="form-group">
-                    <label>Description:</label>
-                    <input type="text" name="description" value={formData.description} onChange={handleChange} required />
-                  </div>
-                  <div className="form-group">
-                    <label>Price per KM:</label>
-                    <input type="number" name="priceKM" value={formData.priceKM} onChange={handleChange} required />
-                  </div>
-                  <div className="form-group">
-                    <label>Price per KG:</label>
-                    <input type="number" name="priceKg" value={formData.priceKg} onChange={handleChange} required />
-                  </div>
-                </>
-              )}
-              <div className="form-actions">
-                <button type="submit">Save</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
+    </ApolloProvider>
   );
 }
 
