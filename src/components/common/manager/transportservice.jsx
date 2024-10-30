@@ -24,7 +24,17 @@ const client = new ApolloClient({
   uri: 'http://26.61.210.173:3001/graphql',
   cache: new InMemoryCache(),
   headers: {
-    Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`, // Use the token stored during login
+    Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+  },
+  defaultOptions: {
+    watchQuery: {
+      fetchPolicy: 'network-only',
+      errorPolicy: 'all',
+    },
+    query: {
+      fetchPolicy: 'network-only',
+      errorPolicy: 'all',
+    },
   },
 });
 
@@ -34,24 +44,30 @@ function TransportService() {
   const [formData, setFormData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const { loading: queryLoading, error, data: apiData } = useQuery(GET_TRANSPORT_SERVICE, {
+  const { loading: queryLoading, error, data: apiData, refetch } = useQuery(GET_TRANSPORT_SERVICE, {
+    client,
     variables: {
       data: {
         options: {
-          take: 10, // Adjust as needed
-          skip: 0, // Adjust for pagination if needed
+          take: 10,
+          skip: 0,
         },
       },
     },
+    onError: (error) => {
+      console.error('GraphQL Error:', error);
+      toast.error("Error fetching transport services: " + error.message);
+    }
   });
 
   useEffect(() => {
     if (apiData) {
-      setData(apiData.findAllTransportService);
+      setData(apiData.findAllTransportService || []);
       setLoading(false);
     }
     if (error) {
-      toast.error("Error fetching transport services");
+      console.error('Apollo Error:', error);
+      toast.error("Error fetching transport services: " + error.message);
       setLoading(false);
     }
   }, [apiData, error]);
