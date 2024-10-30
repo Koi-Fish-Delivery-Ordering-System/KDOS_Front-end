@@ -81,7 +81,7 @@ function ProfilePage() {
       <div className="profile-item">
         <div className="profile-label">Address</div>
         <div className={`profile-value ${address === "null" ? "not-updated" : ""}`}>
-          {address === "null" ? "Chưa cập nhật" : address}
+          {address === "null" ? "not-updated" : address}
         </div>
         <a href="#" className="profile-action" onClick={() => showModal('address')}>Change</a>
       </div>

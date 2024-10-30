@@ -9,7 +9,7 @@ import TrackOrderPage from './components/common/trackorder';
 import PlaceOrderPage from './components/common/placeorderpage';
 import DeliveryPage from './components/common/delivery/deliverypickup';
 import DeliveryDetail from './components/common/delivery/deliverydetail';
-import AccountManagement from './components/common/AccountManagement';
+import AccountManagement from './components/common/accountmanagement';
 import TransportService from './components/common/manager/transportservice';
 import OrderConfirmation from './components/common/orderconfirmation';
 import Delivery from './components/common/delivery/delivery';
