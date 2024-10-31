@@ -40,6 +40,8 @@ function PlaceOrderPage() {
         console.log(vehicleType);
         navigate('/order-confirmation', {
             state: {
+                fromProvince: formData.pickUpProvince,
+                toProvince: formData.dropOffProvince,   
                 pricePerAmount: selectedService.pricePerAmount,
                 pricePerKg: selectedService.pricePerKg,
                 servicePricingType: formData.servicePricing,
@@ -238,6 +240,7 @@ function PlaceOrderPage() {
                     pricePerAmount
                     pricePerKg
                     description
+                    updatedAt
                 }
             }
         `;
@@ -544,6 +547,7 @@ function PlaceOrderPage() {
                                         onCancel={handleModalClose}
                                         footer={null}
                                         width={400}
+                                        centered
                                     >
                                         {selectedServiceDetails && (
                                             <div style={{ padding: '10px' }}>
@@ -561,6 +565,9 @@ function PlaceOrderPage() {
                                                 </p>
                                                 <p style={{ marginBottom: '10px' }}>
                                                     <strong>Description:</strong> {selectedServiceDetails.description}
+                                                </p>
+                                                <p style={{ marginBottom: '10px' }}>
+                                                    <strong>Last updated at:</strong> {new Date(selectedServiceDetails.updatedAt).toLocaleTimeString()} {new Date(selectedServiceDetails.updatedAt).toLocaleDateString()}
                                                 </p>
                                             </div>
                                         )}
@@ -605,7 +612,19 @@ function PlaceOrderPage() {
                                 <span >
                                     Provisional Price: {price?.toLocaleString() || '0'} VNĐ
                                 </span>                   
-                                <Tooltip title="Provisional Price = Distance * Price per km" >
+                                <Tooltip 
+                                    title={
+                                        <div>
+                                            Provisional Price = Distance × Price per km<br/>
+                                            Distance: {distance?.toFixed(2)} km<br/>
+                                            Price per km: {selectedService?.pricePerKm?.toLocaleString()} VNĐ
+                                        </div>
+                                    }
+                                    overlayStyle={{ 
+                                        maxWidth: '400px',  // Increase tooltip width
+                                        minWidth: '300px'   // Set minimum width
+                                    }}
+                                >
                                     <FontAwesomeIcon icon={faCircleInfo}  style={{marginLeft: '10px'}}/>
                                 </Tooltip>
                         </div>

@@ -28,7 +28,7 @@ const OrderConfirmation = () => {
     height: "95vh",
     width: "100%",
 };
-  const { pickUpLocation, dropOffLocation, vehicleType, totalPrice, pickUpLocationName, dropOffLocationName, selectedService, servicePricingType, pricePerAmount, pricePerKg } = location.state || {};
+  const { pickUpLocation, dropOffLocation, vehicleType, totalPrice, pickUpLocationName, dropOffLocationName, selectedService, servicePricingType, pricePerAmount, pricePerKg, fromProvince, toProvince } = location.state || {};
   const [qualificationsImage, setQualificationsImage] = useState([]);
 
   // Thêm hàm compress image
@@ -130,6 +130,8 @@ const OrderConfirmation = () => {
       
       // Thêm data vào FormData
       const orderData = {
+        fromProvince: fromProvince,
+        toProvince: toProvince,
         servicePricingType: servicePricingType,
         notes: values.notes,
         totalPrice: calculatedFinalPrice,
@@ -377,7 +379,7 @@ const OrderConfirmation = () => {
     if (servicePricingType === 'volume') {
       const totalWeight = fishOrders.reduce((sum, fish) => sum + Number(fish.weight), 0);
       finalPrice += totalWeight * pricePerKg;
-    } else if (servicePricingType === 'quantity') {
+    } else if (servicePricingType === 'amount') {
       finalPrice += fishOrders.length * pricePerAmount;
     }
 
@@ -537,7 +539,6 @@ const OrderConfirmation = () => {
               open={modalVisible}
               onOk={handleModalOk}
               onCancel={handleCancel}
-
               okText={editingIndex !== null ? "Update" : "Add"}
             >
               <Form
@@ -555,86 +556,108 @@ const OrderConfirmation = () => {
                 }}
               >
                 <h2 className="section-title">Fish Information</h2>
-                <Form.Item
-                  
-                  name="name"
-                  rules={[{ required: true, message: 'Please enter fish name' }]}
-                >
-                  <Input
-                    onChange={(e) => handleInputChange({ target: { name: 'name', value: e.target.value } })}
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <Form.Item
+                      name="name"
+                      rules={[{ required: true, message: 'Please enter fish name' }]}
+                      label="Fish Name"
+                    >
+                      <Input
+                        onChange={(e) => handleInputChange({ target: { name: 'name', value: e.target.value } })}
+                        placeholder="Enter fish name"
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item
+                      name="gender"
+                      rules={[{ required: true, message: 'Please enter fish gender' }]}
+                      label="Fish Gender"
+                    >
+                      <Select
+                        placeholder="Choose a fish gender"
+                        value={newFish.gender}
+                        onChange={(value) => setNewFish({ ...newFish, gender: value })}
+                      >
+                        <Option value="male">Male</Option>
+                        <Option value="female">Female</Option>
+                      </Select>
+                    </Form.Item>
+                  </Col>
+                </Row>
 
-                    placeholder="Enter fish name"
-                  />
-                </Form.Item>
-                <Form.Item
-                  name="gender"
-                  rules={[{ required: true, message: 'Please enter fish gender' }]} // Required validation
-                >
-                  <Select
-                    placeholder="Choose a fish gender"
-                    value={newFish.gender}
-                    onChange={(value) => setNewFish({ ...newFish, gender: value })}
-                  >
-                    <Option value="male">Male</Option>
-                    <Option value="female">Female</Option>
-                  </Select>
-                </Form.Item>
-                <Form.Item
-                  name="species"
-                  rules={[{ required: true, message: 'Please enter fish species' }]} // Required validation
-                >
-                  <Input
-                    name="species"
-                    value={newFish.species}
-                    onChange={handleInputChange}
-                    placeholder="Enter fish species"
-                  />
-                </Form.Item>
-                {/* css lai mot hang cho weight va length */}
-                <Form.Item
-                  name="age"
-                  rules={[{ required: true, message: 'Please enter fish age' }]} // Required validation
-                >
-                  <Input
-                    name="age"
-                    type="number"
-                    value={newFish.age}
-                    onChange={handleInputChange}
-                    placeholder="Enter fish age"
-                  />
-                </Form.Item>
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <Form.Item
+                      name="species"
+                      rules={[{ required: true, message: 'Please enter fish species' }]}
+                      label="Fish Species"
+                    >
+                      <Input
+                        name="species"
+                        value={newFish.species}
+                        onChange={handleInputChange}
+                        placeholder="Enter fish species"
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item
+                      name="age"
+                      rules={[{ required: true, message: 'Please enter fish age' }]}
+                      label="Fish Age"
+                    >
+                      <Input
+                        name="age"
+                        type="number"
+                        value={newFish.age}
+                        onChange={handleInputChange}
+                        placeholder="Enter fish age"
+                      />
+                    </Form.Item>
+                  </Col>
+                </Row>
+
                 <h2 className="section-title">Appearance</h2>
-                <Form.Item
-                  name="weight"
-                  rules={[{ required: true, message: 'Please enter fish weight(kg)' }]} // Required validation
-                >
-                  <Input
-                    name="weight"
-                    type="number"
-                    value={newFish.weight}
-                    onChange={handleInputChange}
-                    placeholder="Enter weight(kg)"
-                  />
-                </Form.Item>
-                <Form.Item
-                  name="length"
-                  rules={[{ required: true, message: 'Please enter fish length(cm)' }]} // Required validation
-                >
-                  <Input
-                    name="length"
-                    type="number"
-                    value={newFish.length}
-                    onChange={handleInputChange}
-                    placeholder="Enter length(cm)"
-                  />
-                </Form.Item>
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <Form.Item
+                      name="weight"
+                      rules={[{ required: true, message: 'Please enter fish weight(kg)' }]}
+                      label="Fish Weight"
+                    >
+                      <Input
+                        name="weight"
+                        type="number"
+                        value={newFish.weight}
+                        onChange={handleInputChange}
+                        placeholder="Enter weight(kg)"
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item
+                      name="length"
+                      rules={[{ required: true, message: 'Please enter fish length(cm)' }]}
+                      label="Fish Length"
+                    >
+                      <Input
+                        name="length"
+                        type="number"
+                        value={newFish.length}
+                        onChange={handleInputChange}
+                        placeholder="Enter length(cm)"
+                      />
+                    </Form.Item>
+                  </Col>
+                </Row>
 
                 <h2 className="section-title">Additional Information</h2>
-
-
                 <Form.Item
                   name="descriptions"
-                  rules={[{ required: true, message: 'Please enter fish description' }]} // Required validation
+                  rules={[{ message: 'Please enter fish description' }]}
+                  label="Fish Description"
                 >
                   <Input
                     name="descriptions"
@@ -643,10 +666,10 @@ const OrderConfirmation = () => {
                     placeholder="Enter fish description"
                   />
                 </Form.Item>
+
                 <Form.Item
                   label="Qualifications"
                   name="qualifications"
-
                 >
                   <Upload
                     listType="picture-card"
@@ -663,7 +686,7 @@ const OrderConfirmation = () => {
                         message.error('Image must be smaller than 5MB!');
                         return false;
                       }
-                      return false; // Prevent automatic upload
+                      return false;
                     }}
                   >
                     {(!newFish.qualifications || newFish.qualifications.length < 5) && (
@@ -698,9 +721,38 @@ const OrderConfirmation = () => {
             </Form.Item>
             <div className="distance-display">
               Final Price: {calculatedFinalPrice.toLocaleString()} VNĐ
-              <Tooltip title="Final Price = Provisional Price + [(Price per kg * Weight) or (Price per amount * Amount)] + Additional Services Price" >
-                                    <FontAwesomeIcon icon={faCircleInfo}  style={{marginLeft: '10px'}}/>
-                                </Tooltip>
+              <Tooltip 
+                title={
+                    <div>
+                        Provisional Price: Total distance × Price per Km<br/>
+                        Transport Fee ({servicePricingType}): {servicePricingType === 'volume' 
+                            ? `Price per kg (${pricePerKg?.toLocaleString()} VNĐ) × Total Weight (${fishOrders.reduce((sum, fish) => sum + Number(fish.weight), 0)} kg)`
+                            : `Price per amount (${pricePerAmount?.toLocaleString()} VNĐ) × Number of Fish (${fishOrders.length})`
+                        }<br/>
+                        Final Price = Provisional Price + Transport Fee + Additional Services Price (optional)<br/>
+                        <br/>                     
+                        Provisional Price: {totalPrice.toLocaleString()} VNĐ<br/>
+                        Transport Fee ({servicePricingType}): {servicePricingType === 'volume' 
+                            ? `${(pricePerKg * fishOrders.reduce((sum, fish) => sum + Number(fish.weight), 0)).toLocaleString()} VNĐ`
+                            : `${(pricePerAmount * fishOrders.length).toLocaleString()} VNĐ`
+                        }<br/>
+                        
+                        Additional Services Price: {selectedAdditionalServices.reduce((sum, serviceId) => {
+                            const service = additionalServices.find(s => s.additionalServiceId === serviceId);
+                            return sum + (service ? service.price : 0);
+                        }, 0).toLocaleString()} VNĐ<br/>
+                        <br/>
+                        Final Price: {calculatedFinalPrice.toLocaleString()} VNĐ
+                        
+                    </div>
+                }
+                overlayStyle={{ 
+                    maxWidth: '400px',
+                    minWidth: '300px'
+                }}
+              >
+                <FontAwesomeIcon icon={faCircleInfo} style={{marginLeft: '10px'}}/>
+              </Tooltip>
             </div>
             <Form.Item >
               <Button type="primary" htmlType="submit" className="submit-btn">
