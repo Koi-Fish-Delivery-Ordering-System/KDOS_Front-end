@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-
-import { Form, Input, Button, Row, Col, message, Select, Modal, Upload, Checkbox } from 'antd';
-
+import React, { useState, useEffect, useCallback } from 'react';
+import { LoadScriptNext, GoogleMap, Marker, Autocomplete } from '@react-google-maps/api';
+import { Form, Input, Button, Row, Col, message, Select, Modal, Upload, Checkbox, Tooltip } from 'antd';
+import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { UploadOutlined } from '@ant-design/icons';
 import { useLocation, useNavigate } from 'react-router-dom';
 import DeliveryMap from './Map';
@@ -22,8 +23,11 @@ const OrderConfirmation = () => {
   const location = useLocation();
   const [form] = Form.useForm();
   const [modalForm] = Form.useForm(); // Thêm form instance cho modal
-
-
+  const libraries = ["places"];
+  const mapContainerStyle = {
+    height: "95vh",
+    width: "100%",
+};
   const { pickUpLocation, dropOffLocation, vehicleType, totalPrice, pickUpLocationName, dropOffLocationName, selectedService, servicePricingType, pricePerAmount, pricePerKg } = location.state || {};
   const [qualificationsImage, setQualificationsImage] = useState([]);
 
@@ -82,17 +86,21 @@ const OrderConfirmation = () => {
       }
     }
 
-    // Compress images
+    // Compress images and add mediaIndex
     const compressedFileList = await Promise.all(
-      fileList.map(async (file) => {
+      fileList.map(async (file, index) => {
         if (file.originFileObj) {
           const compressedFile = await compressImage(file.originFileObj);
           return {
             ...file,
-            originFileObj: compressedFile
+            originFileObj: compressedFile,
+            mediaIndex: index // Add mediaIndex to each file
           };
         }
-        return file;
+        return {
+          ...file,
+          mediaIndex: index // Add mediaIndex even if file is not compressed
+        };
       })
     );
 
@@ -124,7 +132,7 @@ const OrderConfirmation = () => {
       const orderData = {
         servicePricingType: servicePricingType,
         notes: values.notes,
-        totalPrice: totalPrice,
+        totalPrice: calculatedFinalPrice,
         fishes: fishes,
         transportServiceId: vehicleType,
         fromAddress: pickUpLocationName,
@@ -137,15 +145,15 @@ const OrderConfirmation = () => {
 
       formData.append('data', JSON.stringify(orderData));
 
-      // Thêm files vào FormData
+      // Thêm files vào FormData with mediaIndex
       fishOrders.forEach((fish, fishIndex) => {
         if (fish.qualifications) {
-          fish.qualifications.forEach((file, fileIndex) => {
+          fish.qualifications.forEach((file) => {
             if (file.originFileObj) {
               formData.append(
                 `files`,
                 file.originFileObj,
-                `fish_${fishIndex}_image_${fileIndex}.jpg`
+                `fish_${fishIndex}_image_${file.mediaIndex}.jpg` // Use mediaIndex in filename
               );
             }
           });
@@ -170,7 +178,7 @@ const OrderConfirmation = () => {
 
       // Check if the request was successful
       if (response.status === 200 || response.status === 201) {
-        navigate('/');
+        navigate('/account-management', {state:{activeComponent: 'orders'}});
         message.success('Order placed successfully!');
 
       } else {
@@ -381,8 +389,50 @@ const OrderConfirmation = () => {
     calculateTotalPrice();
   }, [fishOrders, selectedAdditionalServices, servicePricingType]);
 
+  const [map, setMap] = useState(null);
+  const [directions, setDirections] = useState(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
+
+  // Add this state for tracking script loading
+  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
+
+  const onMapLoad = useCallback((map) => {
+    setMapLoaded(true);
+    setMap(map);
+  }, []);
+
+  // Modify fitBounds to check for script loading
+  const fitBounds = useCallback(() => {
+    if (map && window.google && location.state?.pickUpLocation && location.state?.dropOffLocation) {
+      const bounds = new window.google.maps.LatLngBounds();
+      bounds.extend(location.state.pickUpLocation);
+      bounds.extend(location.state.dropOffLocation);
+      map.fitBounds(bounds);
+
+      const padding = { top: 50, right: 50, bottom: 50, left: 50 };
+      map.fitBounds(bounds, padding);
+    }
+  }, [map, location.state]);
+
+  // Add script load handler
+  const handleScriptLoad = () => {
+    setIsScriptLoaded(true);
+  };
+
+  useEffect(() => {
+    if (isScriptLoaded) {
+      fitBounds();
+    }
+  }, [isScriptLoaded, mapLoaded, location.state, fitBounds]);
+
   return (
+    <LoadScriptNext 
+            googleMapsApiKey="AIzaSyDJO2B-_FLwk1R1pje5gKEAB9h2qUDb-FU"
+            libraries={libraries}
+            onLoad={handleScriptLoad}
+          >
     <div>
+       
       <Row className="placeorder-page">
         <Navbar2 />
         <Col span={8} className="left-section">
@@ -629,7 +679,7 @@ const OrderConfirmation = () => {
             <h2 className="section-title">Note</h2>
             <Form.Item
               name="notes"
-              rules={[{ required: true, message: 'Please enter your notes' }]}
+              rules={[{  message: 'Please enter your notes' }]}
             >
               <TextArea placeholder="Enter your notes" />
             </Form.Item>
@@ -648,6 +698,9 @@ const OrderConfirmation = () => {
             </Form.Item>
             <div className="distance-display">
               Final Price: {calculatedFinalPrice.toLocaleString()} VNĐ
+              <Tooltip title="Final Price = Provisional Price + [(Price per kg * Weight) or (Price per amount * Amount)] + Additional Services Price" >
+                                    <FontAwesomeIcon icon={faCircleInfo}  style={{marginLeft: '10px'}}/>
+                                </Tooltip>
             </div>
             <Form.Item >
               <Button type="primary" htmlType="submit" className="submit-btn">
@@ -658,18 +711,63 @@ const OrderConfirmation = () => {
           </Form>
 
         </Col>
-        <Col span={16}>
-          <DeliveryMap
-            suggestion={{
-              form: pickUpLocation ? [pickUpLocation.lat, pickUpLocation.lng] : defaultPosition,
-              to: dropOffLocation ? [dropOffLocation.lat, dropOffLocation.lng] : defaultPosition
-            }}
 
-          />
-        </Col>
+        <Col span={16} className="map-section">
+         
+            {isScriptLoaded && (
+              <div style={{ height: '400px', width: '100%' }}>
+                <GoogleMap
+                  mapContainerStyle={mapContainerStyle}
+                  zoom={12}
+                  center={location.state?.pickUpLocation || { lat: 10.8231, lng: 106.6297 }}
+                  onLoad={onMapLoad}
+                >
+                  {pickUpLocation && (
+                    <Marker
+                      position={pickUpLocation}
+                      icon={{
+                        url: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
+                        scaledSize: isScriptLoaded ? new window.google.maps.Size(40, 40) : null
+                      }}
+                      title="Pick-up Location"
+                    />
+                  )}
+
+                  {location.state?.dropOffLocation && (
+                    <Marker
+                      position={dropOffLocation}
+                      icon={{
+                        url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                        scaledSize: isScriptLoaded ? new window.google.maps.Size(40, 40) : null
+                      }}
+                      title="Drop-off Location"
+                    />
+                  )}
+                </GoogleMap>
+
+                {location.state?.distance && (
+                  <div className="distance-info" style={{
+                    position: 'absolute',
+                    bottom: '20px',
+                    left: '20px',
+                    backgroundColor: 'white',
+                    padding: '10px',
+                    borderRadius: '8px',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+                    zIndex: 1
+                  }}>
+                    <strong>Distance:</strong> {location.state.distance.toFixed(2)} km
+                  </div>
+                )}
+              </div>
+            )}
+          
+        </Col> 
+
       </Row>
       <Footer />
     </div>
+    </LoadScriptNext>
   );
 };
 

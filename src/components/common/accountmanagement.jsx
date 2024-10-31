@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
-import ProfilePage from './profilepage';
-import Orders from './orderhistory';
+import { useLocation } from 'react-router-dom';
+import ProfilePage from './profilepage'; 
+import Orders from './orderhistory'; 
+
 import Navbar from './navbar2'; // Import the Navbar component
 import '../../css/accountManagement.css';
 import Navbar2 from './navbar2';
 
 const AccountManagement = () => {
-  const [activeComponent, setActiveComponent] = useState('profile');
+  const location = useLocation();
+  console.log('Location state:', location.state);
+
+  const [activeComponent, setActiveComponent] = useState(location.state?.activeComponent || 'profile');
 
   const renderContent = () => {
     switch (activeComponent) {

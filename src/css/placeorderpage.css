@@ -59,6 +59,7 @@
   /* Map Section */
   .map-section {
     position: relative;
+    height: 95vh;
     
   }
   
@@ -124,6 +125,15 @@
   .vehicle-radio-group .ant-radio-wrapper-checked img {
     filter: drop-shadow(0px 0px 4px rgba(0, 0, 0, 0.2)); /* add a small shadow to selected image */
   }
+  .detail-service-btn {
+    text-decoration: none;
+    color: #ff7700;
+    margin-left: 20px;
+  }
+  .detail-service-btn:hover {
+    color: orangered;
+  }
+  
   .distance-display {
     background-color: whitesmoke; /* Light background color */
     border: 1px solid #ff7700; /* Border color */
