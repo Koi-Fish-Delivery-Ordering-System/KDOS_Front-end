@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye } from '@fortawesome/free-solid-svg-icons';
-import { Modal, Form, Input, Row, Col, Select, Checkbox } from 'antd';
+import { Modal, Form, Input, Row, Col, Select, Checkbox, Radio, message } from 'antd';
+import '../../../css/transportservice.css';
 
 function ManageRoute() {
   const [data, setData] = useState([]);
@@ -14,6 +15,9 @@ function ManageRoute() {
   const [orders, setOrders] = useState([]);
   const [selectedOrders, setSelectedOrders] = useState([]);
   const [showSelected, setShowSelected] = useState(false);
+  const [drivers, setDrivers] = useState([]);
+  const [selectedDriver, setSelectedDriver] = useState(null);
+  const [selectedLocation, setSelectedLocation] = useState(null);
 
   const fetchOrder = async () => {
     const query = `
@@ -50,10 +54,20 @@ function ManageRoute() {
     }
   }
 
+  const fetchDrivers = async () => {
+    try {
+      const response = await axios.get('https://6703b45dab8a8f8927314be8.mockapi.io/orderEx/driver');
+      setDrivers(response.data);
+    } catch (error) {
+      console.error('Error fetching drivers:', error);
+    }
+  };
+
   useEffect(() => {
     fetchOrder();
     console.log(orders);
     console.log(sessionStorage.getItem('accessToken'));
+    fetchDrivers();
   }, []);
 
   const handleCreate = () => {
@@ -84,6 +98,42 @@ function ManageRoute() {
     });
   };
 
+  const getSelectedFromProvinces = () => {
+    return [...new Set(
+      orders
+        .filter(order => selectedOrders.includes(order.orderId))
+        .map(order => order.fromProvince)
+    )];
+  };
+
+  const filteredDrivers = selectedLocation
+    ? drivers.filter(driver => driver.currentLocation === selectedLocation)
+    : drivers;
+
+  const handleCreateRoute = () => {
+    if (!selectedDriver) {
+      message.error('Please select a driver');
+      return;
+    }
+    if (selectedOrders.length === 0) {
+      message.error('Please select at least one order');
+      return;
+    }
+
+    const routeData = {
+      driverId: selectedDriver,
+      orderIds: selectedOrders
+    };
+
+    console.log('Creating new route with data:', routeData);
+    message.success('Route created successfully');
+    
+    // Reset form và đóng modal
+    setSelectedDriver(null);
+    setSelectedOrders([]);
+    setShowForm(false);
+  };
+
   return (
     <div>
       <h1>Manage Route</h1>
@@ -97,6 +147,7 @@ function ManageRoute() {
         onCancel={() => setShowForm(false)}
         footer={null}
         width={1000}
+        destroyOnClose={true}
       >
         <Row className="placeorder-page">
           
@@ -107,7 +158,6 @@ function ManageRoute() {
               {/* Fish Orders Table */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h2 className="section-title" style={{ margin: 0 }}>Orders</h2>
-                {/* <a onClick={showModal} style={{ color: '#ff7700', cursor: 'pointer' }}>+ Add Fish</a> */}
               </div>
               <div className="fish-orders-scroll-container">
                 <table className="fixed-table">
@@ -137,17 +187,64 @@ function ManageRoute() {
                     ))}
                     
                   </tbody>
+                </table>                
+               </div>
+               <div style={{ marginTop: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                  <h2 className="section-title" style={{ margin: 0 }}>Driver</h2>
+                  <Select
+                    style={{ width: 200 }}
+                    placeholder="Filter by location"
+                    allowClear
+                    onChange={(value) => setSelectedLocation(value)}
+                  >
+                    {getSelectedFromProvinces().map(location => (
+                      <Select.Option key={location} value={location}>
+                        {location}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </div>
+                <table className="fixed-table">
+                  <thead>
+                    <tr>
+                      <th className="label-table">Driver ID</th>
+                      <th className="label-table">Driver Name</th>
+                      <th className="label-table">Current Location</th>
+                      <th className="label-table">Status</th>
+                      <th className="label-table">Select</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredDrivers.map((driver) => (
+                      <tr key={driver.id}>
+                        <td>{driver.id}</td>
+                        <td>{driver.name}</td>
+                        <td>{driver.currentLocation}</td>
+                        <td>{driver.status}</td>
+                        <td>
+                          <Radio 
+                            checked={selectedDriver === driver.id}
+                            onChange={() => setSelectedDriver(driver.id)}
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
                 </table>
-
-                
-              </div>
-
-
-              
-              
+              </div>          
             </Form>
+            <div style={{ marginTop: '20px', textAlign: 'right' }}>
+          <button 
+            className="new-route-button" 
+            onClick={handleCreateRoute}           
+          >
+            Create Route
+          </button>
+        </div>
           </Col>
         </Row>
+        
       </Modal>
       <table className="transport-table">
         <thead>

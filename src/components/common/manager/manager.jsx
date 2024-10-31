@@ -57,7 +57,7 @@ function Manager() {
       <Navbar2 />
       <div className="account-management">
         <div className="sidebar">
-          <h3>Delivery</h3>
+          <h3>Manager</h3>
           <ul>
             <li>
               <button onClick={() => setActiveComponent('profile')} className={activeComponent === 'profile' ? 'active' : ''}>
