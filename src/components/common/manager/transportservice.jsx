@@ -1,12 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, ApolloProvider, ApolloClient, InMemoryCache, gql } from '@apollo/client';
-import { Button, Table, Modal, Form, Input } from 'antd';
-import { toast } from 'react-toastify';
+import { Button, Table, Modal, Form, Input, Switch, Select } from 'antd';
+import { toast, ToastContainer } from 'react-toastify';
 import axios from 'axios';
-import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Switch, Select } from 'antd'; // Add this import
-
 
 const GET_TRANSPORT_SERVICE = gql`
   query FindAllTransportService($data: FindAllTransportServiceInputData!) {
@@ -30,14 +27,8 @@ const client = new ApolloClient({
     Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
   },
   defaultOptions: {
-    watchQuery: {
-      fetchPolicy: 'network-only',
-      errorPolicy: 'all',
-    },
-    query: {
-      fetchPolicy: 'network-only',
-      errorPolicy: 'all',
-    },
+    watchQuery: { fetchPolicy: 'network-only', errorPolicy: 'all' },
+    query: { fetchPolicy: 'network-only', errorPolicy: 'all' },
   },
 });
 
@@ -46,21 +37,15 @@ function TransportService() {
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [form] = Form.useForm();
 
   const { loading: queryLoading, error, data: apiData, refetch } = useQuery(GET_TRANSPORT_SERVICE, {
     client,
-    variables: {
-      data: {
-        options: {
-          take: 10,
-          skip: 0,
-        },
-      },
-    },
+    variables: { data: { options: { take: 10, skip: 0 } } },
     onError: (error) => {
       console.error('GraphQL Error:', error);
       toast.error("Error fetching transport services: " + error.message);
-    }
+    },
   });
 
   useEffect(() => {
@@ -68,82 +53,140 @@ function TransportService() {
       setData(apiData.findAllTransportService || []);
       setLoading(false);
     }
-    if (error) {
-      console.error('Apollo Error:', error);
-      toast.error("Error fetching transport services: " + error.message);
-      setLoading(false);
-    }
-  }, [apiData, error]);
+  }, [apiData]);
 
-  const handleCreate = () => {
+  const openAddModal = () => {
+    form.resetFields();
     setFormData(null);
     setShowForm(true);
   };
 
-  const handleEdit = (record) => {
+  const openEditModal = (record) => {
     setFormData(record);
+    form.setFieldsValue(record);
     setShowForm(true);
   };
 
-  const handleSubmit = async (values) => {
+  const handleCreate = async (values) => {
     try {
-      const response = await axios({
-        method: 'PATCH', // Only using PATCH for updates
-        url: 'http://26.61.210.173:3001/api/transport/update-transport-service',
-        data: {
-          transportServiceId: formData.transportServiceId, // Include ID for updates
-          ...values, // Spread the form values
+      // Send a POST request to create a new transport service with Authorization header
+      const response = await axios.post(
+        'http://26.61.210.173:3001/api/transport/create-transport-service',
+        {
+          name: values.name,
+          type: values.type,
+          description: values.description,
+          pricePerKm: values.pricePerKm,
+          pricePerKg: values.pricePerKg,
+          pricePerAmount: values.pricePerAmount
         },
-      });
+        {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`
+          }
+        }
+      );
 
       if (response.data) {
+        toast.success("Transport service added successfully");
+        refetch(); // Refetch data to reflect changes
+        setShowForm(false); // Close the form modal
+      }
+    } catch (error) {
+      console.error("Error adding transport service:", error);
+      toast.error("Failed to add transport service");
+    }
+  };
+
+
+  const handleEdit = async (values) => {
+    try {
+      console.log("Edit Payload:", values);
+      // Send a PATCH request to update the transport service
+      const response = await axios.patch(
+        'http://26.61.210.173:3001/api/transport/update-transport-service',
+        {
+          transportServiceId: values.transportServiceId,
+          name: values.name,
+          type: values.type,
+          description: values.description,
+          pricePerKm: values.pricePerKm,
+          pricePerKg: values.pricePerKg,
+          pricePerAmount: values.pricePerAmount
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`
+          }
+        }
+      );
+
+      if (response.data) {
+        console.log("Edit Response:", response.data);
         toast.success("Transport service updated successfully");
         refetch(); // Refetch data to reflect changes
         setShowForm(false);
       }
     } catch (error) {
-      console.error("Error updating transport service:", error);
+      console.error("Error updating transport service:", error.response?.data || error.message);
       toast.error("Failed to update transport service");
     }
   };
 
+
+
+  const handleSubmit = async (values) => {
+    if (formData) {
+      await handleEdit(values);
+    } else {
+      await handleCreate(values);
+    }
+  };
+
+  const handleToggleActive = async (record) => {
+    try {
+      console.log("Toggle Status Payload:", { transportServiceId: record.transportServiceId });
+      const response = await axios.patch(
+        'http://26.61.210.173:3001/api/transport/toggle-transport-service',
+        { transportServiceId: record.transportServiceId },
+        {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`
+          }
+        }
+      );
+
+      if (response.data) {
+        console.log("Toggle Status Response:", response.data);
+        toast.success("Transport service status updated successfully");
+        refetch();
+      }
+    } catch (error) {
+      console.error("Error toggling transport service status:", error.response?.data || error.message);
+      toast.error("Failed to update transport service status");
+    }
+  };
+
   const columns = [
-    {
-      title: 'Service ID',
-      dataIndex: 'transportServiceId',
-    },
-    {
-      title: 'Name',
-      dataIndex: 'name',
-    },
-    {
-      title: 'Type',
-      dataIndex: 'type',
-    },
-    {
-      title: 'Price per KM',
-      dataIndex: 'pricePerKm',
-    },
-    {
-      title: 'Price per KG',
-      dataIndex: 'pricePerKg',
-    },
-    {
-      title: 'Price per Amount',
-      dataIndex: 'pricePerAmount',
-    },
-    {
-      title: 'Description',
-      dataIndex: 'description',
-    },
+    { title: 'Service ID', dataIndex: 'transportServiceId' },
+    { title: 'Name', dataIndex: 'name' },
+    { title: 'Type', dataIndex: 'type' },
+    { title: 'Price per KM', dataIndex: 'pricePerKm' },
+    { title: 'Price per KG', dataIndex: 'pricePerKg' },
+    { title: 'Price per Amount', dataIndex: 'pricePerAmount' },
+    { title: 'Description', dataIndex: 'description' },
     {
       title: 'Status',
       dataIndex: 'isActive',
       render: (text, record) => (
         <Button
           type="primary"
-          disabled={!record.isActive}
-          style={{ opacity: record.isActive ? 1 : 0.5 }} // Faded when disabled
+          onClick={() => handleToggleActive(record)}
+          style={{
+            opacity: record.isActive ? 1 : 0.5,
+            backgroundColor: record.isActive ? '#ff7700' : '#ccc',
+            borderColor: '#ff7700',
+          }}
         >
           {record.isActive ? 'Active' : 'Inactive'}
         </Button>
@@ -152,7 +195,7 @@ function TransportService() {
     {
       title: 'Actions',
       render: (text, record) => (
-        <Button onClick={() => handleEdit(record)}>Edit</Button>
+        <Button onClick={() => openEditModal(record)}>Edit</Button>
       ),
     },
   ];
@@ -162,10 +205,30 @@ function TransportService() {
       <ToastContainer />
       <div>
         <h2>Transport Services</h2>
-        <Button onClick={handleCreate} type="primary" style={{ marginBottom: '16px' }}>
+        <Button
+          onClick={openAddModal}
+          type="primary"
+          style={{ marginBottom: '16px', backgroundColor: '#ff7700', borderColor: '#ff7700' }}
+        >
           Add Service
         </Button>
-        <Table columns={columns} dataSource={data} loading={loading || queryLoading} rowKey="transportServiceId" />
+        <Table
+          columns={columns}
+          dataSource={data}
+          loading={loading || queryLoading}
+          style={{
+            // Custom styles for the table header
+            header: {
+              backgroundColor: '#ff7700', // Set header background color to orange
+              color: 'white', // Set header text color to white
+            }
+          }}
+          rowKey="transportServiceId"
+          pagination={{
+            pageSize: 5, // Set the number of rows per page to 5
+            showSizeChanger: false, // Optional: Hide the option to change page size
+          }}
+        />
         <Modal
           title={formData ? "Edit Transport Service" : "Add Transport Service"}
           open={showForm}
@@ -173,36 +236,61 @@ function TransportService() {
           footer={null}
         >
           <Form
-            initialValues={formData}
+            form={form}
+            initialValues={formData || {}}
             onFinish={handleSubmit}
-            layout="horizontal" // Set layout to horizontal
+            layout="horizontal"
           >
-            <Form.Item label="Service Type" style={{ flex: '0 0 30%' }}>
+            <Form.Item
+              label="Service Type"
+              name="type"
+              rules={formData ? [] : [{ required: true, message: 'Please choose the service type!' }]}
+            >
               <Select>
                 <Select.Option value="air">Air</Select.Option>
                 <Select.Option value="road">Road</Select.Option>
               </Select>
             </Form.Item>
-            <Form.Item label="Service Name" style={{ flex: '0 0 30%' }}>
+            <Form.Item
+              label="Service Name"
+              name="name"
+              rules={formData ? [] : [{ required: true, message: 'Please input service name!' }]}
+            >
               <Input />
             </Form.Item>
-            <Form.Item label="Description" style={{ flex: '0 0 30%' }}>
+            <Form.Item
+              label="Description"
+              name="description"
+              rules={formData ? [] : [{ required: true, message: 'Please input description!' }]}
+            >
               <Input.TextArea rows={4} />
             </Form.Item>
-            <Form.Item label="Price per KM" style={{ flex: '0 0 30%' }} rules={[{ message: 'Please input price per KM!' }]}>
+            <Form.Item
+              label="Price per KM"
+              name="pricePerKm"
+              rules={formData ? [] : [{ required: true, message: 'Please input price per KM!' }]}
+            >
               <Input type="number" />
             </Form.Item>
-            <Form.Item label="Price per KG" style={{ flex: '0 0 30%' }} rules={[{ message: 'Please input price per KG!' }]}>
+            <Form.Item
+              label="Price per KG"
+              name="pricePerKg"
+              rules={formData ? [] : [{ required: true, message: 'Please input price per KG!' }]}
+            >
               <Input type="number" />
             </Form.Item>
-            <Form.Item label="Price per Amount" style={{ flex: '0 0 30%' }} rules={[{ message: 'Please input price per Amount!' }]}>
+            <Form.Item
+              label="Price per Amount"
+              name="pricePerAmount"
+              rules={formData ? [] : [{ required: true, message: 'Please input price per Amount!' }]}
+            >
               <Input type="number" />
             </Form.Item>
-            <Form.Item label="Is Active" style={{ flex: '0 0 30%' }} valuePropName="checked">
-              <Switch />
+            <Form.Item name="transportServiceId" style={{ display: 'none' }}>
+              <Input type="hidden" />
             </Form.Item>
-            <Form.Item style={{ flex: '0 0 30%' }}>
-              <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
+            <Form.Item>
+              <Button type="primary" htmlType="submit" style={{ backgroundColor: '#ff7700', borderColor: '#ff7700' }}>
                 Save
               </Button>
             </Form.Item>

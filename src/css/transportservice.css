@@ -107,7 +107,10 @@
   opacity: 0.6;
 }
 
-
+.ant-table-thead > tr > th {
+  background-color: #ff7700 !important; /* Set header background color to orange */
+  color: white !important; /* Set header text color to white */
+}
 .pagination {
   display: flex;
   justify-content: center;

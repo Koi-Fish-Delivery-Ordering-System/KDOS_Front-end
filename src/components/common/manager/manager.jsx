@@ -78,7 +78,7 @@ function Manager() {
               <button onClick={() => handleAccountClick('additionalserviceManagement')} className={activeComponent === 'additionalserviceManagement' ? 'active' : ''}>
                 Manage Additional Service
               </button>
-            </li>          
+            </li>
             <li>
               <button onClick={() => setActiveComponent('manageRoute')} className={activeComponent === 'manageRoute' ? 'active' : ''}>
                 Manage Route
