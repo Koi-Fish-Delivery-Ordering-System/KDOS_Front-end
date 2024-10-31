@@ -4,7 +4,7 @@ import Navbar2 from '../navbar2';
 import TransportService from './transportservice';
 import AccountManagement from './accountmanager.jsx';
 import AdditionalserviceManagement from './manageaddtionalservice.jsx';
-import Routemanage from './routemanage.jsx';
+import ManageRoute from './manageroute';
 import '../../../css/accountmanagement.css';
 
 function Manager() {
@@ -39,8 +39,9 @@ function Manager() {
         return <AccountManagement selectedAccountId={selectedAccountId} />;
       case 'additionalserviceManagement': // Updated case for additional service management
         return <AdditionalserviceManagement selectedAdditionalServiceId={selectedAdditionalServiceId} />; // Pass the selected ID to the component
-      case 'routemanage':
-        return <Routemanage selectedRouteId={selectedRouteId} />; // Added return for routemanage
+      case 'manageRoute':
+        return <ManageRoute />;
+
       default:
         return (
           <div>
@@ -56,7 +57,7 @@ function Manager() {
       <Navbar2 />
       <div className="account-management">
         <div className="sidebar">
-          <h3>Delivery</h3>
+          <h3>Manager</h3>
           <ul>
             <li>
               <button onClick={() => setActiveComponent('profile')} className={activeComponent === 'profile' ? 'active' : ''}>
@@ -77,10 +78,10 @@ function Manager() {
               <button onClick={() => handleAccountClick('additionalserviceManagement')} className={activeComponent === 'additionalserviceManagement' ? 'active' : ''}>
                 Manage Additional Service
               </button>
-            </li>
+            </li>          
             <li>
-              <button onClick={() => handleAccountClick('routemanage')} className={activeComponent === 'routemanage' ? 'active' : ''}>
-                Manage Routes
+              <button onClick={() => setActiveComponent('manageRoute')} className={activeComponent === 'manageRoute' ? 'active' : ''}>
+                Manage Route
               </button>
             </li>
           </ul>

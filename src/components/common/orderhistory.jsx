@@ -160,6 +160,7 @@ const OrderHistory = () => {
               <p><strong>To:</strong> {selectedOrder.toAddress}</p>
               <p><strong>Notes:</strong> {selectedOrder.notes}</p>
               <p><strong>Total Price:</strong> <span className="price-tag">{selectedOrder.totalPrice.toLocaleString()} VNĐ</span></p>
+              <p><strong>Status:</strong> {selectedOrder.orderStatus}</p>
               <h4 style={{ marginTop: '20px', color: '#1a1a1a' }}>Ordered Fish:</h4>
               <div className="fish-list">
                 {selectedOrder.orderedFish && selectedOrder.orderedFish.map((fish, index) => (

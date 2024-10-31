@@ -191,3 +191,24 @@
   border-radius: 4px;
   cursor: pointer;
 }
+.view-button{
+  background-color: transparent;
+  border: none;
+  font-size: 16px; 
+  cursor: pointer;
+}
+.new-route-button{
+  color: white;
+  border-radius: 5px;
+  background-color: #ff7700;
+  padding: 8px 12px;
+  font-weight: bold;
+  text-decoration: none;
+  display: inline-block;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+  border-width: 0px;
+  margin-right: 10px;
+  float: right;
+  margin-bottom: 20px;
+}
