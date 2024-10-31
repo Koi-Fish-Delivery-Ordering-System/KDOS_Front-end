@@ -4,6 +4,7 @@ import Navbar2 from '../navbar2';
 import TransportService from './transportservice';
 import AccountManagement from './accountmanager.jsx';
 import AdditionalserviceManagement from './manageaddtionalservice.jsx';
+import Routemanage from './routemanage.jsx';
 import '../../../css/accountmanagement.css';
 
 function Manager() {
@@ -11,6 +12,7 @@ function Manager() {
   const [selectedTransportId, setSelectedTransportId] = useState(null);
   const [selectedAccountId, setSelectedAccountId] = useState(null); // New state for selected account
   const [selectedAdditionalServiceId, setSelectedAdditionalServiceId] = useState(null); // New state for selected account
+  const [selectedRouteId, setSelectedRouteId] = useState(null); // New state for selected route 
 
 
   const handleDetailClick = (transportId) => {
@@ -37,6 +39,8 @@ function Manager() {
         return <AccountManagement selectedAccountId={selectedAccountId} />;
       case 'additionalserviceManagement': // Updated case for additional service management
         return <AdditionalserviceManagement selectedAdditionalServiceId={selectedAdditionalServiceId} />; // Pass the selected ID to the component
+      case 'routemanage':
+        return <Routemanage selectedRouteId={selectedRouteId} />; // Added return for routemanage
       default:
         return (
           <div>
@@ -72,6 +76,11 @@ function Manager() {
             <li>
               <button onClick={() => handleAccountClick('additionalserviceManagement')} className={activeComponent === 'additionalserviceManagement' ? 'active' : ''}>
                 Manage Additional Service
+              </button>
+            </li>
+            <li>
+              <button onClick={() => handleAccountClick('routemanage')} className={activeComponent === 'routemanage' ? 'active' : ''}>
+                Manage Routes
               </button>
             </li>
           </ul>
