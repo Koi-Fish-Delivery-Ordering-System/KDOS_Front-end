@@ -1,172 +1,251 @@
 import React, { useState, useEffect } from 'react';
+import { useQuery, ApolloProvider, ApolloClient, InMemoryCache, gql } from '@apollo/client';
+import { Button, Table, Modal, Form, Input, Select } from 'antd';
+import { toast, ToastContainer } from 'react-toastify';
 import axios from 'axios';
-import '../../../css/additionalservicemanager.css';
+import 'react-toastify/dist/ReactToastify.css';
 
-function AdditionalserviceManagement() {
-  const [additionalservices, setAdditionalservices] = useState([]);
+const GET_ADDITIONAL_SERVICE = gql`
+  query FindAllAdditionalService($data: FindAllTransportServiceInputData!) {
+    findAllAdditionalService(data: $data) {
+      price
+      name
+      isActive
+      forTransportType
+      description
+      additionalServiceId
+    }
+  }
+`;
+
+const client = new ApolloClient({
+  uri: 'http://26.61.210.173:3001/graphql',
+  cache: new InMemoryCache(),
+  headers: {
+    Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+  },
+  defaultOptions: {
+    watchQuery: { fetchPolicy: 'network-only', errorPolicy: 'all' },
+    query: { fetchPolicy: 'network-only', errorPolicy: 'all' },
+  },
+});
+
+function ManageAdditionalService() {
+  const [data, setData] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [formData, setFormData] = useState({
-    additionalServiceId: '',
-    description: '',
-    transportType: '',
-    name: '',
-    price: ''
+  const [formData, setFormData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [form] = Form.useForm();
+
+  const { loading: queryLoading, error, data: apiData, refetch } = useQuery(GET_ADDITIONAL_SERVICE, {
+    client,
+    variables: { data: { options: { take: 10, skip: 0 } } },
+    onError: (error) => {
+      console.error('GraphQL Error:', error);
+      toast.error("Error fetching additional services: " + error.message);
+    },
   });
-  const [isUpdate, setIsUpdate] = useState(false);
 
   useEffect(() => {
-    const fetchAdditionalservices = async () => {
-      try {
-        const response = await axios.get('https://67040f16ab8a8f892732c8b7.mockapi.io/account');
-        setAdditionalservices(response.data);
-      } catch (error) {
-        console.error('Error fetching additionalservices:', error);
+    if (apiData) {
+      setData(apiData.findAllAdditionalService || []);
+      setLoading(false);
+    }
+  }, [apiData]);
+
+  const openAddModal = () => {
+    form.resetFields();
+    setFormData(null);
+    setShowForm(true);
+  };
+
+  const openEditModal = (record) => {
+    setFormData(record);
+    form.setFieldsValue(record);
+    setShowForm(true);
+  };
+
+  const handleCreate = async (values) => {
+    try {
+      const response = await axios.post(
+        'http://26.61.210.173:3001/api/transport/create-additional-service',
+        {
+          name: values.name,
+          forTransportType: values.forTransportType,
+          description: values.description,
+          price: values.price
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`
+          }
+        }
+      );
+
+      if (response.data) {
+        toast.success("Additional service added successfully");
+        refetch();
+        setShowForm(false);
       }
-    };
-
-    fetchAdditionalservices();
-  }, []);
-
-  const handleCreate = () => {
-    setFormData({ additionalServiceId: '', description: '', transportType: '', name: '', price: '' });
-    setIsUpdate(false);
-    setShowForm(true);
-  };
-
-  const handleUpdate = (id) => {
-    const additionalservice = additionalservices.find(a => a.serviceid === id);
-    setFormData({ ...additionalservice });
-    setIsUpdate(true);
-    setShowForm(true);
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (isUpdate) {
-      await axios.put(`https://67040f16ab8a8f892732c8b7.mockapi.io/account/${formData.serviceid}`, formData);
-      alert('Update successful!');
-    }
-    setShowForm(false);
-    const response = await axios.get('https://67040f16ab8a8f892732c8b7.mockapi.io/account');
-    setAdditionalservices(response.data);
-  };
-
-  const handleDelete = async (id) => {
-    await axios.delete(`https://api.example.com/account/${id}`);
-    const response = await axios.get('https://api.example.com/account');
-    setAdditionalservices(response.data);
-  };
-
-  const itemsPerPage = 5;
-  const totalPages = Math.ceil(additionalservices.length / itemsPerPage);
-  const paginatedData = additionalservices.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-  const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      setCurrentPage(newPage);
+    } catch (error) {
+      console.error("Error adding additional service:", error);
+      toast.error("Failed to add additional service");
     }
   };
+  const handleToggleActive = async (record) => {
+    try {
+      console.log("Toggle Status Payload:", { additionalServiceId: record.additionalServiceId });
+      const response = await axios.patch(
+        'http://26.61.210.173:3001/api/transport/toggle-additional-service',
+        { additionalServiceId: record.additionalServiceId },
+        {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`
+          }
+        }
+      );
 
+      if (response.data) {
+        console.log("Toggle Status Response:", response.data);
+        toast.success("Transport service status updated successfully");
+        refetch();
+      }
+    } catch (error) {
+      console.error("Error toggling transport service status:", error.response?.data || error.message);
+      toast.error("Failed to update transport service status");
+    }
+  };
+  const handleEdit = async (values) => {
+    try {
+      const response = await axios.patch(
+        'http://26.61.210.173:3001/api/transport/update-additional-service',
+        {
+          additionalServiceId: values.additionalServiceId,
+          name: values.name,
+          forTransportType: values.forTransportType,
+          description: values.description,
+          price: values.price
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`
+          }
+        }
+      );
+
+      if (response.data) {
+        toast.success("Additional service updated successfully");
+        refetch();
+        setShowForm(false);
+      }
+    } catch (error) {
+      console.error("Error updating additional service:", error);
+      toast.error("Failed to update additional service");
+    }
+  };
+
+  const handleSubmit = async (values) => {
+    if (formData) {
+      await handleEdit(values);
+    } else {
+      await handleCreate(values);
+    }
+  };
+
+  const columns = [
+    { title: 'Service ID', dataIndex: 'additionalServiceId' },
+    { title: 'Name', dataIndex: 'name' },
+    { title: 'Type', dataIndex: 'forTransportType' },
+    { title: 'Price', dataIndex: 'price' },
+    { title: 'Description', dataIndex: 'description' },
+    {
+      title: 'Status',
+      dataIndex: 'isActive',
+      render: (text, record) => (
+        <Button
+          type="primary"
+          onClick={() => handleToggleActive(record)}
+          style={{
+            opacity: record.isActive ? 1 : 0.5,
+            backgroundColor: record.isActive ? '#ff7700' : '#ccc',
+            color: 'white',
+            borderColor: '#ff7700',
+          }}
+        >
+          {record.isActive ? 'Active' : 'Inactive'}
+        </Button>
+      ),
+    },
+    {
+      title: 'Actions',
+      render: (text, record) => (
+        <Button onClick={() => openEditModal(record)}>Edit</Button>
+      ),
+    },
+  ];
 
   return (
-    <div>
-      <h1>Additionalservice Management</h1>
-      <button className="transport-button" onClick={handleCreate}>Create Additionalservice</button>
-      <table className="transport-table">
-        <thead>
-          <tr>
-            <th>Service ID</th>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Transport Type</th>
-            <th>Price</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {paginatedData.map(additionalservice => (
-            <tr key={additionalservice.serviceid}>
-              <td>{additionalservice.serviceid}</td>
-              <td>{additionalservice.name}</td>
-              <td>{additionalservice.description}</td>
-              <td>{additionalservice.type}</td>
-              <td>{additionalservice.price}</td>
-              <td>
-                <button className="transport-button" onClick={() => handleUpdate(additionalservice.serviceid)}>Update</button>
-                <button className="transport-button" onClick={() => handleDelete(additionalservice.serviceid)}>Delete</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="pagination">
-        <button className="arrow-button" onClick={() => handlePageChange(1)} disabled={currentPage === 1}>&laquo;</button>
-        <button className="arrow-button" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>&lsaquo;</button>
-        {Array.from({ length: totalPages }, (_, index) => (
-          <button
-            key={index}
-            className={`page-button ${currentPage === index + 1 ? 'active' : ''}`}
-            onClick={() => handlePageChange(index + 1)}
-          >
-            {index + 1}
-          </button>
-        ))}
-        <button className="arrow-button" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>&rsaquo;</button>
-        <button className="arrow-button" onClick={() => handlePageChange(totalPages)} disabled={currentPage === totalPages}>&raquo;</button>
-        <select
-          value={currentPage}
-          onChange={(e) => handlePageChange(Number(e.target.value))}
-          className="page-select"
+    <ApolloProvider client={client}>
+      <ToastContainer />
+      <div>
+        <h2>Manage Additional Services</h2>
+        <Button
+          onClick={openAddModal}
+          type="primary"
+          style={{ marginBottom: '16px', backgroundColor: '#ff7700', borderColor: '#ff7700' }}
         >
-          {Array.from({ length: totalPages }, (_, index) => (
-            <option key={index} value={index + 1}>
-              Page {index + 1}
-            </option>
-          ))}
-        </select>
+          Add Service
+        </Button>
+        <Table
+          columns={columns}
+          dataSource={data}
+          loading={loading || queryLoading}
+          rowKey="additionalServiceId"
+          pagination={{
+            pageSize: 5, // Set the number of rows per page to 5
+            showSizeChanger: false,
+          }}
+        />
+        <Modal
+          title={formData ? "Edit Additional Service" : "Add Additional Service"}
+          open={showForm}
+          onCancel={() => setShowForm(false)}
+          footer={null}
+        >
+          <Form
+            form={form}
+            initialValues={formData || {}}
+            onFinish={handleSubmit}
+            layout="horizontal"
+          >
+            <Form.Item label="For Transport Type" name="forTransportType">
+              <Select>
+                <Select.Option value="air">Air</Select.Option>
+                <Select.Option value="road">Road</Select.Option>
+              </Select>
+            </Form.Item>
+            <Form.Item label="Service Name" name="name" rules={[{ required: true, message: 'Please input service name!' }]}>
+              <Input />
+            </Form.Item>
+            <Form.Item label="Description" name="description">
+              <Input.TextArea rows={4} />
+            </Form.Item>
+            <Form.Item label="Price" name="price" rules={[{ required: true, message: 'Please input price!' }]}>
+              <Input type="number" />
+            </Form.Item>
+            <Form.Item name="additionalServiceId" style={{ display: 'none' }}>
+              <Input type="hidden" />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit" style={{ backgroundColor: '#ff7700', borderColor: '#ff7700' }}>
+                Save
+              </Button>
+            </Form.Item>
+          </Form>
+        </Modal>
       </div>
-
-      {showForm && (
-        <div className="modal">
-          <div className="modal-content">
-            <span className="close" onClick={() => setShowForm(false)}>&times;</span>
-            <h2>{isUpdate ? 'Update Additionalservice' : 'Create Additionalservice'}</h2>
-            <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label>Name:</label>
-                <input type="text" name="name" value={formData.name} onChange={handleChange} />
-              </div>
-              <div className="form-group">
-                <label>Description:</label>
-                <input type="text" name="description" value={formData.description} onChange={handleChange} />
-              </div>
-              <div className="form-group">
-                <label>Transport Type:</label>
-                <select name="transportType" value={formData.type} onChange={handleChange}>
-                  <option value="">Select Type</option>
-                  <option value="road">Road</option>
-                  <option value="air">Air</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label>Price:</label>
-                <input type="number" name="price" value={formData.price} onChange={handleChange} />
-              </div>
-              <div className="form-actions">
-                <button type="submit" className="go-button">Save</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
+    </ApolloProvider>
   );
 }
 
-export default AdditionalserviceManagement;
+export default ManageAdditionalService;
