@@ -5,8 +5,6 @@ import { toast } from 'react-toastify';
 import axios from 'axios';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Switch, Select } from 'antd'; // Add this import
-
 
 const GET_TRANSPORT_SERVICE = gql`
   query FindAllTransportService($data: FindAllTransportServiceInputData!) {
@@ -41,7 +39,7 @@ const client = new ApolloClient({
   },
 });
 
-function TransportService() {
+function Routemanage() {
   const [data, setData] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState(null);
@@ -87,23 +85,15 @@ function TransportService() {
 
   const handleSubmit = async (values) => {
     try {
-      const response = await axios({
-        method: 'PATCH', // Only using PATCH for updates
-        url: 'http://26.61.210.173:3001/api/transport/update-transport-service',
-        data: {
-          transportServiceId: formData.transportServiceId, // Include ID for updates
-          ...values, // Spread the form values
-        },
-      });
-
+      const response = await axios.post('http://26.61.210.173:3001/api/transport', values); // Adjust the endpoint as needed
       if (response.data) {
-        toast.success("Transport service updated successfully");
-        refetch(); // Refetch data to reflect changes
+        toast.success("Transport service saved successfully");
+        // Refresh or update data accordingly
         setShowForm(false);
       }
     } catch (error) {
-      console.error("Error updating transport service:", error);
-      toast.error("Failed to update transport service");
+      console.error("Error saving transport service:", error);
+      toast.error("Failed to save transport service");
     }
   };
 
@@ -175,33 +165,29 @@ function TransportService() {
           <Form
             initialValues={formData}
             onFinish={handleSubmit}
-            layout="horizontal" // Set layout to horizontal
           >
-            <Form.Item label="Service Type" style={{ flex: '0 0 30%' }}>
-              <Select>
-                <Select.Option value="air">Air</Select.Option>
-                <Select.Option value="road">Road</Select.Option>
-              </Select>
-            </Form.Item>
-            <Form.Item label="Service Name" style={{ flex: '0 0 30%' }}>
+            <Form.Item name="type" label="Service Type" rules={[{ message: 'Please input the service name!' }]}>
               <Input />
             </Form.Item>
-            <Form.Item label="Description" style={{ flex: '0 0 30%' }}>
-              <Input.TextArea rows={4} />
+            <Form.Item name="name" label="Service Name" rules={[{ message: 'Please input the service name!' }]}>
+              <Input />
             </Form.Item>
-            <Form.Item label="Price per KM" style={{ flex: '0 0 30%' }} rules={[{ message: 'Please input price per KM!' }]}>
+            <Form.Item name="description" label="Description" rules={[{ message: 'Please input the service name!' }]}>
+              <Input />
+            </Form.Item>
+            <Form.Item name="pricePerKm" label="Price per KM" rules={[{ message: 'Please input price per KM!' }]}>
               <Input type="number" />
             </Form.Item>
-            <Form.Item label="Price per KG" style={{ flex: '0 0 30%' }} rules={[{ message: 'Please input price per KG!' }]}>
+            <Form.Item name="pricePerKg" label="Price per KG" rules={[{ message: 'Please input price per KG!' }]}>
               <Input type="number" />
             </Form.Item>
-            <Form.Item label="Price per Amount" style={{ flex: '0 0 30%' }} rules={[{ message: 'Please input price per Amount!' }]}>
+            <Form.Item name="pricePerAmount" label="Price per Amount" rules={[{ message: 'Please input price per Amount!' }]}>
               <Input type="number" />
             </Form.Item>
-            <Form.Item label="Is Active" style={{ flex: '0 0 30%' }} valuePropName="checked">
-              <Switch />
+            <Form.Item name="isActive" label="Is Active" rules={[{ message: 'Please input price per Amount!' }]}>
+              <Input type="number" />
             </Form.Item>
-            <Form.Item style={{ flex: '0 0 30%' }}>
+            <Form.Item>
               <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
                 Save
               </Button>
@@ -213,4 +199,4 @@ function TransportService() {
   );
 }
 
-export default TransportService;
+export default Routemanage;
