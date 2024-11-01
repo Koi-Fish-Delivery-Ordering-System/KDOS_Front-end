@@ -53,12 +53,12 @@ function Delivery() {
             </li>
             <li>
               <button onClick={() => setActiveComponent('pending')} className={activeComponent === 'pending' ? 'active' : ''}>
-                Pending Transportation 
+                Delivery Route 
               </button>
             </li>
             <li>
               <button onClick={() => setActiveComponent('process')} className={activeComponent === 'process' ? 'active' : ''}>
-                Process Transportation
+                Process Route
               </button>
             </li>
           </ul>

@@ -6,18 +6,20 @@ import { Modal, Form, Input, Row, Col, Select, Checkbox, Radio, message } from '
 import '../../../css/transportservice.css';
 
 function ManageRoute() {
-  const [data, setData] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [isUpdate, setIsUpdate] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
+ 
+  
   const [disabledItems, setDisabledItems] = useState(new Set());
   const [orders, setOrders] = useState([]);
   const [selectedOrders, setSelectedOrders] = useState([]);
-  const [showSelected, setShowSelected] = useState(false);
+  const [selectedRoute, setSelectedRoute] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [drivers, setDrivers] = useState([]);
   const [selectedDriver, setSelectedDriver] = useState(null);
   const [selectedLocation, setSelectedLocation] = useState(null);
+  const [routes, setRoutes] = useState([]);
+  const [form] = Form.useForm();
 
   const fetchOrder = async () => {
     const query = `
@@ -53,21 +55,72 @@ function ManageRoute() {
       console.error('Error fetching data:', error);
     }
   }
+  
 
   const fetchDrivers = async () => {
     try {
-      const response = await axios.get('https://6703b45dab8a8f8927314be8.mockapi.io/orderEx/driver');
-      setDrivers(response.data);
+      const query = `
+      query FindManyAvailableDriver {
+  findManyAvailableDriver {
+    driverId
+    currentProvince
+          status
+          account {
+            username
+          }
+          }
+        }
+      `;
+      const driverResponse = await axios.post('http://26.61.210.173:3001/graphql', {
+        query,       
+      }, {
+        headers: {
+          'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
+          'Content-Type': 'application/json',
+        }
+      });
+      setDrivers(driverResponse.data.data.findManyAvailableDriver);
     } catch (error) {
       console.error('Error fetching drivers:', error);
     }
   };
-
+  const fetchRoutes = async () => {
+    const query = `
+    query FindManyRoutes {
+  findManyRoutes {
+    routeId
+    driver {
+      account {
+        username
+      }
+    }
+    status
+    deliveryStartDate
+    updatedAt
+    notes
+    routeStops {
+      address
+      status
+    }
+  }
+}
+    `;
+    const routeResponse = await axios.post('http://26.61.210.173:3001/graphql', {
+      query,       
+    }, {
+      headers: {
+        'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
+        'Content-Type': 'application/json',
+      }
+    });
+    setRoutes(routeResponse.data.data.findManyRoutes);
+  }
   useEffect(() => {
     fetchOrder();
     console.log(orders);
     console.log(sessionStorage.getItem('accessToken'));
     fetchDrivers();
+    fetchRoutes();
   }, []);
 
   const handleCreate = () => {
@@ -77,16 +130,14 @@ function ManageRoute() {
   };
 
 
-  const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      setCurrentPage(newPage);
-    }
-  };
+ 
 
   
 
-  const totalPages = Math.ceil(data.length / itemsPerPage);
-  const paginatedData = data.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const handleView = (route) => {
+    setSelectedRoute(route);
+    setIsModalOpen(true);
+  };
 
   const handleOrderSelect = (orderId) => {
     setSelectedOrders(prev => {
@@ -107,10 +158,10 @@ function ManageRoute() {
   };
 
   const filteredDrivers = selectedLocation
-    ? drivers.filter(driver => driver.currentLocation === selectedLocation)
+    ? drivers.filter(driver => driver.currentProvince === selectedLocation)
     : drivers;
 
-  const handleCreateRoute = () => {
+  const handleCreateRoute = async (values) => {
     if (!selectedDriver) {
       message.error('Please select a driver');
       return;
@@ -119,16 +170,25 @@ function ManageRoute() {
       message.error('Please select at least one order');
       return;
     }
-
+    const formData = form.getFieldsValue();
     const routeData = {
+      notes: formData.note,
       driverId: selectedDriver,
       orderIds: selectedOrders
     };
+    const createRouteResponse = await axios.post('http://26.61.210.173:3001/api/transport/create-route', routeData, {
+      headers: {
+        'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
+        'Content-Type': 'application/json',
+      }
+    });
+      
 
     console.log('Creating new route with data:', routeData);
     message.success('Route created successfully');
     
-    // Reset form và đóng modal
+    
+    form.resetFields();
     setSelectedDriver(null);
     setSelectedOrders([]);
     setShowForm(false);
@@ -152,7 +212,7 @@ function ManageRoute() {
         <Row className="placeorder-page">
           
           <Col span={24} className="">
-            <Form >
+            <Form form={form}>
              
               
               {/* Fish Orders Table */}
@@ -205,6 +265,11 @@ function ManageRoute() {
                     ))}
                   </Select>
                 </div>
+                <div>
+
+                </div>
+                <div className="fish-orders-scroll-container">
+
                 <table className="fixed-table">
                   <thead>
                     <tr>
@@ -217,22 +282,29 @@ function ManageRoute() {
                   </thead>
                   <tbody>
                     {filteredDrivers.map((driver) => (
-                      <tr key={driver.id}>
-                        <td>{driver.id}</td>
-                        <td>{driver.name}</td>
-                        <td>{driver.currentLocation}</td>
-                        <td>{driver.status}</td>
+                      <tr key={driver.driverId}>
+                        <td>{driver.driverId}</td>
+                        <td>{driver.account?.username}</td>
+                        <td>{driver.currentProvince}</td>
+                        <td className={`status-driver ${driver.status}`}>{driver.status}</td>
                         <td>
                           <Radio 
-                            checked={selectedDriver === driver.id}
-                            onChange={() => setSelectedDriver(driver.id)}
+                            checked={selectedDriver === driver.driverId}
+                            onChange={() => setSelectedDriver(driver.driverId)}
                           />
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-              </div>          
+                </div>
+              </div>  
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h2 className="section-title" style={{ margin: 0 }}>Note</h2>
+              </div>
+              <Form.Item name="note" >
+                <Input.TextArea style={{ height: '150px' }} />
+              </Form.Item>        
             </Form>
             <div style={{ marginTop: '20px', textAlign: 'right' }}>
           <button 
@@ -252,50 +324,90 @@ function ManageRoute() {
             <th>No</th>
             <th>Route Id</th>
             <th>Driver Name</th>
-            <th>Status</th>           
-            <th>Actions</th>
+            <th style={{textAlign: 'center'}}>Status</th>
+            <th>Delivery Date</th> 
+            <th>Last Updated</th>          
+            <th style={{textAlign: 'center'}}>Actions</th>
           </tr>
         </thead>
         <tbody>
-          {paginatedData.map((item) => (
-            <tr key={item.id} className={disabledItems.has(item.id) ? 'disabled-row' : ''}>
-              <td>{item.id}</td>
-              <td>{item.name}</td>
-              <td>{item.description || 'N/A'}</td>
-              <td>{item.updatedDate || 'N/A'}</td>
-              <td>
-               <button className="view-button" onClick={() => handleView(item.id)}><FontAwesomeIcon icon={faEye} /></button>
-              </td>
-            </tr>
-          ))}
+            {routes.map((route, index) => (
+              <tr key={route.routeId} className={disabledItems.has(route.routeId) ? 'disabled-row' : ''}>
+                <td>{index + 1}</td>
+                <td>{route.routeId}</td>
+                <td>{route.driver.account.username}</td>
+                <td className={`status-route ${route.status.toLowerCase()}`}>{route.status}</td>
+                <td>{route.deliveryStartDate ? route.deliveryStartDate : <span style={{color: '#790808', fontWeight: 'bold'}}>Not Started</span>}</td>
+                <td>{new Date(route.updatedAt).toLocaleString()}</td>
+                <td style={{textAlign: 'center'}}>
+                <button className="view-button" onClick={() => handleView(route)}><FontAwesomeIcon icon={faEye} /></button>
+                </td>
+              </tr>
+            ))}
         </tbody>
       </table>
-      <div className="pagination">
-        <button className="arrow-button" onClick={() => handlePageChange(1)} disabled={currentPage === 1}>&laquo;</button>
-        <button className="arrow-button" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>&lsaquo;</button>
-        {Array.from({ length: totalPages }, (_, index) => (
-          <button
-            key={index}
-            className={`page-button ${currentPage === index + 1 ? 'active' : ''}`}
-            onClick={() => handlePageChange(index + 1)}
-          >
-            {index + 1}
-          </button>
-        ))}
-        <button className="arrow-button" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>&rsaquo;</button>
-        <button className="arrow-button" onClick={() => handlePageChange(totalPages)} disabled={currentPage === totalPages}>&raquo;</button>
-        <select
-          value={currentPage}
-          onChange={(e) => handlePageChange(Number(e.target.value))}
-          className="page-select"
-        >
-          {Array.from({ length: totalPages }, (_, index) => (
-            <option key={index} value={index + 1}>
-              Page {index + 1}
-            </option>
-          ))}
-        </select>
-      </div>
+      <Modal 
+        title={`Route ID: ${selectedRoute?.routeId}`}
+        className='route-detail-modal'
+        open={isModalOpen} 
+        onCancel={() => setIsModalOpen(false)}
+        footer={null}
+        width={1000}
+      >
+        {selectedRoute && (
+          <div className="route-detail">
+            <div className="route-header">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h2 className="section-title" style={{ margin: 0 }}>Route Stops</h2>
+                
+              </div>         
+                <div className="info-item">
+                  <span className="info-label"><strong>Driver:</strong></span>
+                  <span className="info-value">{selectedRoute.driver.account.username}</span>
+                </div>
+              
+              
+              <div className="info-item">
+                <span className="info-label"><strong>Delivery Date:</strong></span>
+                <span className="info-value">
+                  {selectedRoute.deliveryStartDate ? selectedRoute.deliveryStartDate : <span style={{color: '#790808', fontWeight: 'bold'}}>Not Started</span>}
+                </span>
+              </div>
+              <div className="info-item">
+                <span className="info-label"><strong>Last Updated:</strong></span>
+                <span className="info-value">{new Date(selectedRoute.updatedAt).toLocaleString()}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label"><strong>Notes:</strong></span>
+                <span className="info-value">{selectedRoute.notes}</span>
+              </div>
+              <div className="info-item" >
+                <span className="info-label"><strong>Status:</strong></span>
+                <span className={`status-route ${selectedRoute.status.toLowerCase()}`}>
+                  {selectedRoute.status}
+                </span>
+              </div>
+
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h2 className="section-title" style={{ margin: 0 }}>Route Stops</h2>
+                <a style={{ color: '#ff7700', cursor: 'pointer' }}>+ Add Stop</a>
+              </div>
+            <div className="route-stops">
+              {selectedRoute.routeStops.map((stop, index) => (
+                <div key={index} className="route-stop-item">
+                  <span className="route-stop-marker"></span>
+                  <p>{stop.address}</p>
+                  <span className={`status-route ${stop.status.toLowerCase()}`}>
+                      {stop.status}
+                    </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </Modal>
+      
     </div>
   );
 }

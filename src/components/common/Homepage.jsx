@@ -88,8 +88,8 @@ export default function Homepage() {
           </div>
           <div className="feature-card">
             <FontAwesomeIcon icon={faClock} />
-            <h3>Real-Time Tracking</h3>
-            <p>Continuous order status updates</p>
+            <h3>Fast Delivery</h3>
+            <p>Quick and efficient shipping service</p>
           </div>
           <div className="feature-card">
             <FontAwesomeIcon icon={faShieldAlt} />

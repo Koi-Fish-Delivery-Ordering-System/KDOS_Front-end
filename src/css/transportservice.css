@@ -199,6 +199,7 @@
   border: none;
   font-size: 16px; 
   cursor: pointer;
+  text-align: center;
 }
 .new-route-button{
   color: white;
@@ -214,4 +215,122 @@
   margin-right: 10px;
   float: right;
   margin-bottom: 20px;
+}
+.status-driver.ready{
+  text-align: center;
+  background-color: #d4edda;
+  color: #155724;
+}
+.status-driver.delivery{
+  text-align: center;
+  background-color: #ffcdcd;
+  color: #790808;
+}
+.status-route.pending{
+  text-align: center;
+  background-color: #ffcdcd;
+  color: #790808;
+}
+.status-route.delivering{
+  text-align: center;
+  background-color: #fff3cd;
+  color: #856404;
+}
+.status-route.completed{
+  text-align: center;
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.route-stops {
+  padding: 10px 0;
+}
+
+.route-stop-item {
+  display: flex;
+  align-items: flex-start;
+  margin: 15px 0;
+  gap: 15px;
+  position: relative;
+}
+
+.route-stop-marker {
+  min-width: 12px;
+  height: 12px;
+  background: white;
+  border: 1.5px solid #666;
+  border-radius: 50%;
+  margin-top: 5px;
+  position: relative;
+  z-index: 1;
+}
+
+.route-stop-item p {
+  margin: 0;
+  flex: 1;
+}
+.route-stop-item:last-child .route-stop-marker {
+  background: #fff;
+  border-color: #ff0000;
+}
+.route-stop-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 5px; 
+  top: 22px; 
+  width: 2px;
+  height: calc(100% + 5px);
+  background-image: linear-gradient(to bottom, #666 20%, transparent 20%);
+  background-size: 2px 8px;
+  background-repeat: repeat-y;
+}
+
+.route-detail {
+  padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.route-header {
+  margin-bottom: 20px;
+}
+
+.route-info {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 15px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.info-label {
+  color: #333;
+  font-size: 18px;
+}
+
+.info-value {
+  font-weight: 500;
+  color: #333;
+}
+
+.route-status {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.route-detail-modal .ant-modal-title{
+  
+    font-size: 24px !important;
+    margin-bottom: 16px;
+    margin-top: 20px;
+    font-weight: bold;
+    color: #ff7700;
 }
