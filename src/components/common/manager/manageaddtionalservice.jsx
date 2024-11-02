@@ -188,14 +188,13 @@ function ManageAdditionalService() {
     <ApolloProvider client={client}>
       <ToastContainer />
       <div>
-        <h2>Manage Additional Services</h2>
-        <Button
+        <h1 className='section-title'>Manage Additional Services</h1>
+        <button
           onClick={openAddModal}
-          type="primary"
-          style={{ marginBottom: '16px', backgroundColor: '#ff7700', borderColor: '#ff7700' }}
+          className='new-route-button'
         >
           Add Service
-        </Button>
+        </button>
         <Table
           columns={columns}
           dataSource={data}

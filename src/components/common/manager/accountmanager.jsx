@@ -77,8 +77,8 @@ function AccountManagement() {
 
   return (
     <div>
-      <h1>Account Management</h1>
-      <button className="transport-button" onClick={handleCreate}>Create Account</button>
+      <h1 className='section-title'>Account Management</h1>
+      <button className="new-route-button" onClick={handleCreate}>Create Account</button>
       <table className="transport-table">
         <thead>
           <tr>
