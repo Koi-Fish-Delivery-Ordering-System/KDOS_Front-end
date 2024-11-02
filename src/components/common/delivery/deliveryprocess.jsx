@@ -7,10 +7,10 @@ function DeliveryProcess() {
 
     return (
         <div className="delivery-process">
-            <h1 className="delivery-process__title">Process Route</h1>
+            <h1 className="section-title">Process Route</h1>
             
             <div className="delivery-process__section">
-                <h2 className="delivery-process__section-title">Route Information</h2>
+                <h2 className="section-title">Route Information</h2>
                 <div className="delivery-process__info">
                     <p className="delivery-process__info-item"><strong>Route ID: </strong> </p>
                     <p className="delivery-process__info-item"><strong>Driver Name: </strong> </p>
@@ -20,7 +20,7 @@ function DeliveryProcess() {
             </div>
             
             <div className="delivery-process__section">
-                <h2 className="delivery-process__section-title">Time Line</h2>
+                <h2 className="section-title">Time Line</h2>
                 <div className="delivery-process__info">
                     <p className="delivery-process__info-item"><strong>Delivery Date: </strong> </p>
                     <p className="delivery-process__info-item"><strong>Last Updated: </strong> </p>
@@ -28,7 +28,7 @@ function DeliveryProcess() {
             </div>
             
             <div className="delivery-process__section">
-                <h2 className="delivery-process__section-title">Route Stops</h2>
+                <h2 className="section-title">Route Stops</h2>
                 
             </div>
         </div>

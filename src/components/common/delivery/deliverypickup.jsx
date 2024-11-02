@@ -111,6 +111,7 @@ function DeliveryPage({ onDetailClick }) {
 
     return (
         <div>
+            <h1 className='section-title'>Delivery Route</h1>
             <Table
                 columns={columns}
                 dataSource={routes}

@@ -328,13 +328,14 @@ function ManageRoute() {
 
   return (
     <div>
-      <h1>Manage Route</h1>
+      <h1 className='section-title'>Manage Route</h1>
       <div>
         <button className="new-route-button" onClick={handleCreate}>Create New Route</button>
       </div>
 
       <Modal
         title={isUpdate ? 'Update Route' : 'Create New Route'}
+        className='route-detail-modal'
         open={showForm}
         onCancel={() => setShowForm(false)}
         footer={null}
