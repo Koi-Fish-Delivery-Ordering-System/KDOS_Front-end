@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye } from '@fortawesome/free-solid-svg-icons';
-import { Modal, Form, Input, Row, Col, Select, Checkbox, Radio, message } from 'antd';
+import { Modal, Form, Input, Row, Col, Select, Checkbox, Radio, message, Table, Spin } from 'antd';
 import '../../../css/transportservice.css';
 
 function ManageRoute() {
   const [showForm, setShowForm] = useState(false);
   const [isUpdate, setIsUpdate] = useState(false);
- 
-  
+
+
   const [disabledItems, setDisabledItems] = useState(new Set());
   const [orders, setOrders] = useState([]);
   const [selectedOrders, setSelectedOrders] = useState([]);
@@ -20,8 +20,10 @@ function ManageRoute() {
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [routes, setRoutes] = useState([]);
   const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
 
   const fetchOrder = async () => {
+    setLoading(true);
     const query = `
       query FindManyProcessingOrder {
         findManyProcessingOrder {
@@ -36,16 +38,16 @@ function ManageRoute() {
     `;
     try {
       const orderResponse = await axios.post('http://26.61.210.173:3001/graphql', {
-        query,       
+        query,
       }, {
         headers: {
           'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
           'Content-Type': 'application/json',
         }
       });
-      
+
       console.log('API Response:', orderResponse.data);
-      
+
       if (orderResponse.data && orderResponse.data.data) {
         setOrders(orderResponse.data.data.findManyProcessingOrder);
       } else {
@@ -53,11 +55,14 @@ function ManageRoute() {
       }
     } catch (error) {
       console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
     }
   }
-  
+
 
   const fetchDrivers = async () => {
+    setLoading(true);
     try {
       const query = `
       query FindManyAvailableDriver {
@@ -72,7 +77,7 @@ function ManageRoute() {
         }
       `;
       const driverResponse = await axios.post('http://26.61.210.173:3001/graphql', {
-        query,       
+        query,
       }, {
         headers: {
           'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
@@ -82,39 +87,48 @@ function ManageRoute() {
       setDrivers(driverResponse.data.data.findManyAvailableDriver);
     } catch (error) {
       console.error('Error fetching drivers:', error);
+    } finally {
+      setLoading(false);
     }
   };
   const fetchRoutes = async () => {
-    const query = `
-    query FindManyRoutes {
-  findManyRoutes {
-    routeId
-    driver {
-      account {
-        username
+    setLoading(true);
+    try {
+      const query = `
+      query FindManyRoutes {
+        findManyRoutes {
+          routeId
+          driver {
+            account {
+              username
+            }
+          }
+          status
+          deliveryStartDate
+          updatedAt
+          notes
+          routeStops {
+            address
+            status
+            stopType
+            orderId
+          }
+        }
       }
+      `;
+      const routeResponse = await axios.post('http://26.61.210.173:3001/graphql', {
+        query,
+      }, {
+        headers: {
+          'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
+          'Content-Type': 'application/json',
+        }
+      });
+      setRoutes(routeResponse.data.data.findManyRoutes);
+    } finally {
+      setLoading(false);
     }
-    status
-    deliveryStartDate
-    updatedAt
-    notes
-    routeStops {
-      address
-      status
-    }
-  }
-}
-    `;
-    const routeResponse = await axios.post('http://26.61.210.173:3001/graphql', {
-      query,       
-    }, {
-      headers: {
-        'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
-        'Content-Type': 'application/json',
-      }
-    });
-    setRoutes(routeResponse.data.data.findManyRoutes);
-  }
+  };
   useEffect(() => {
     fetchOrder();
     console.log(orders);
@@ -124,15 +138,15 @@ function ManageRoute() {
   }, []);
 
   const handleCreate = () => {
-    
+
     setShowForm(true);
 
   };
 
 
- 
 
-  
+
+
 
   const handleView = (route) => {
     setSelectedRoute(route);
@@ -182,17 +196,135 @@ function ManageRoute() {
         'Content-Type': 'application/json',
       }
     });
-      
+
 
     console.log('Creating new route with data:', routeData);
     message.success('Route created successfully');
-    
-    
+
+
     form.resetFields();
     setSelectedDriver(null);
     setSelectedOrders([]);
     setShowForm(false);
   };
+
+  const orderColumns = [
+    {
+      title: 'Order Id',
+      dataIndex: 'orderId',
+      key: 'orderId',
+    },
+    {
+      title: 'Transport Type',
+      dataIndex: ['transportService', 'type'],
+      key: 'transportType',
+    },
+    {
+      title: 'From Province',
+      dataIndex: 'fromProvince',
+      key: 'fromProvince',
+    },
+    {
+      title: 'To Province',
+      dataIndex: 'toProvince',
+      key: 'toProvince',
+    },
+    {
+      title: 'Select',
+      key: 'select',
+      render: (_, record) => (
+        <Checkbox
+          checked={selectedOrders.includes(record.orderId)}
+          onChange={() => handleOrderSelect(record.orderId)}
+        />
+      ),
+    },
+  ];
+
+  const driverColumns = [
+    {
+      title: 'Driver ID',
+      dataIndex: 'driverId',
+      key: 'driverId',
+    },
+    {
+      title: 'Driver Name',
+      dataIndex: ['account', 'username'],
+      key: 'driverName',
+    },
+    {
+      title: 'Current Location',
+      dataIndex: 'currentProvince',
+      key: 'currentLocation',
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      render: (status) => (
+        <span className={`status-driver ${status}`}>{status}</span>
+      ),
+    },
+    {
+      title: 'Select',
+      key: 'select',
+      render: (_, record) => (
+        <Radio
+          checked={selectedDriver === record.driverId}
+          onChange={() => setSelectedDriver(record.driverId)}
+        />
+      ),
+    },
+  ];
+
+  const routeColumns = [
+    {
+      title: 'No',
+      key: 'index',
+      render: (_, __, index) => index + 1,
+    },
+    {
+      title: 'Route Id',
+      dataIndex: 'routeId',
+      key: 'routeId',
+    },
+    {
+      title: 'Driver Name',
+      dataIndex: ['driver', 'account', 'username'],
+      key: 'driverName',
+    },
+    {
+      title: 'Status',
+      dataIndex: 'status',
+      key: 'status',
+      align: 'center',
+      render: (status) => (
+        <span className={`status-route ${status.toLowerCase()}`}>{status}</span>
+      ),
+    },
+    {
+      title: 'Delivery Date',
+      dataIndex: 'deliveryStartDate',
+      key: 'deliveryDate',
+      render: (date) => date ? date : <span style={{ color: '#790808', fontWeight: 'bold' }}>Not Started</span>,
+    },
+    {
+      title: 'Last Updated',
+      dataIndex: 'updatedAt',
+      key: 'updatedAt',
+      render: (date) => new Date(date).toLocaleString(),
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      align: 'center',
+      render: (_, record) => (
+        <button className="view-button" onClick={() => handleView(record)}>
+          <FontAwesomeIcon icon={faEye} />
+        </button>
+      ),
+    },
+  ];
 
   return (
     <div>
@@ -200,56 +332,43 @@ function ManageRoute() {
       <div>
         <button className="new-route-button" onClick={handleCreate}>Create New Route</button>
       </div>
-      
-      <Modal 
+
+      <Modal
         title={isUpdate ? 'Update Route' : 'Create New Route'}
-        open={showForm} 
+        open={showForm}
         onCancel={() => setShowForm(false)}
         footer={null}
         width={1000}
         destroyOnClose={true}
       >
         <Row className="placeorder-page">
-          
+
           <Col span={24} className="">
             <Form form={form}>
-             
-              
+
+
               {/* Fish Orders Table */}
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h2 className="section-title" style={{ margin: 0 }}>Orders</h2>
               </div>
               <div className="fish-orders-scroll-container">
-                <table className="fixed-table">
-                  <thead>
-                    <tr>
-                      <th className="label-table">Order Id</th>
-                      <th className="label-table">Transport Type</th>
-                      <th className="label-table">From Province</th>
-                      <th className="label-table">To Province</th>
-                      <th className="label-table">Select</th>
-                    </tr>
-                  </thead>
-                  <tbody>                  
-                    {orders.map((order) => (       
-                      <tr key={order.orderId}>
-                        <td>{order.orderId}</td>
-                        <td>{order.transportService?.type}</td>
-                        <td>{order.fromProvince}</td>
-                        <td>{order.toProvince}</td>
-                        <td>
-                          <Checkbox 
-                            checked={selectedOrders.includes(order.orderId)}
-                            onChange={() => handleOrderSelect(order.orderId)}
-                          />
-                        </td>
-                      </tr>                      
-                    ))}
-                    
-                  </tbody>
-                </table>                
-               </div>
-               <div style={{ marginTop: '20px' }}>
+                <Table 
+                  loading={{
+                    indicator: (
+                      <div style={{ padding: "20px 0" }}>
+                        <Spin tip="Loading..." size="large" />
+                      </div>
+                    ),
+                    spinning: loading
+                  }}
+                  columns={orderColumns}
+                  dataSource={orders}
+                  pagination={false}
+                  scroll={{ y: 240 }}
+                  rowKey="orderId"
+                />
+              </div>
+              <div style={{ marginTop: '20px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
                   <h2 className="section-title" style={{ margin: 0 }}>Driver</h2>
                   <Select
@@ -270,86 +389,60 @@ function ManageRoute() {
                 </div>
                 <div className="fish-orders-scroll-container">
 
-                <table className="fixed-table">
-                  <thead>
-                    <tr>
-                      <th className="label-table">Driver ID</th>
-                      <th className="label-table">Driver Name</th>
-                      <th className="label-table">Current Location</th>
-                      <th className="label-table">Status</th>
-                      <th className="label-table">Select</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredDrivers.map((driver) => (
-                      <tr key={driver.driverId}>
-                        <td>{driver.driverId}</td>
-                        <td>{driver.account?.username}</td>
-                        <td>{driver.currentProvince}</td>
-                        <td className={`status-driver ${driver.status}`}>{driver.status}</td>
-                        <td>
-                          <Radio 
-                            checked={selectedDriver === driver.driverId}
-                            onChange={() => setSelectedDriver(driver.driverId)}
-                          />
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                  <Table 
+                    loading={{
+                      indicator: (
+                        <div style={{ padding: "20px 0" }}>
+                          <Spin tip="Loading..."  />
+                        </div>
+                      ),
+                      spinning: loading
+                    }}
+                    columns={driverColumns}
+                    dataSource={filteredDrivers}
+                    pagination={false}
+                    scroll={{ y: 240 }}
+                    rowKey="driverId"
+                  />
                 </div>
-              </div>  
+              </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h2 className="section-title" style={{ margin: 0 }}>Note</h2>
               </div>
               <Form.Item name="note" >
                 <Input.TextArea style={{ height: '150px' }} />
-              </Form.Item>        
+              </Form.Item>
             </Form>
             <div style={{ marginTop: '20px', textAlign: 'right' }}>
-          <button 
-            className="new-route-button" 
-            onClick={handleCreateRoute}           
-          >
-            Create Route
-          </button>
-        </div>
+              <button
+                className="new-route-button"
+                onClick={handleCreateRoute}
+              >
+                Create Route
+              </button>
+            </div>
           </Col>
         </Row>
-        
+
       </Modal>
-      <table className="transport-table">
-        <thead>
-          <tr>
-            <th>No</th>
-            <th>Route Id</th>
-            <th>Driver Name</th>
-            <th style={{textAlign: 'center'}}>Status</th>
-            <th>Delivery Date</th> 
-            <th>Last Updated</th>          
-            <th style={{textAlign: 'center'}}>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-            {routes.map((route, index) => (
-              <tr key={route.routeId} className={disabledItems.has(route.routeId) ? 'disabled-row' : ''}>
-                <td>{index + 1}</td>
-                <td>{route.routeId}</td>
-                <td>{route.driver.account.username}</td>
-                <td className={`status-route ${route.status.toLowerCase()}`}>{route.status}</td>
-                <td>{route.deliveryStartDate ? route.deliveryStartDate : <span style={{color: '#790808', fontWeight: 'bold'}}>Not Started</span>}</td>
-                <td>{new Date(route.updatedAt).toLocaleString()}</td>
-                <td style={{textAlign: 'center'}}>
-                <button className="view-button" onClick={() => handleView(route)}><FontAwesomeIcon icon={faEye} /></button>
-                </td>
-              </tr>
-            ))}
-        </tbody>
-      </table>
-      <Modal 
+      <Table 
+        loading={{
+          indicator: (
+            <div style={{ padding: "20px 0" }}>
+              <Spin tip="Loading..." size="large" />
+            </div>
+          ),
+          spinning: loading
+        }}
+        columns={routeColumns}
+        dataSource={routes}
+        rowKey="routeId"
+        rowClassName={(record) => disabledItems.has(record.routeId) ? 'disabled-row' : ''}
+      />
+      <Modal
         title={`Route ID: ${selectedRoute?.routeId}`}
         className='route-detail-modal'
-        open={isModalOpen} 
+        open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         footer={null}
         width={1000}
@@ -357,20 +450,20 @@ function ManageRoute() {
         {selectedRoute && (
           <div className="route-detail">
             <div className="route-header">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h2 className="section-title" style={{ margin: 0 }}>Route Stops</h2>
-                
-              </div>         
-                <div className="info-item">
-                  <span className="info-label"><strong>Driver:</strong></span>
-                  <span className="info-value">{selectedRoute.driver.account.username}</span>
-                </div>
-              
-              
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h2 className="section-title" style={{ margin: 0 }}>Route Information</h2>
+
+              </div>
+              <div className="info-item">
+                <span className="info-label"><strong>Driver:</strong></span>
+                <span className="info-value">{selectedRoute.driver.account.username}</span>
+              </div>
+
+
               <div className="info-item">
                 <span className="info-label"><strong>Delivery Date:</strong></span>
                 <span className="info-value">
-                  {selectedRoute.deliveryStartDate ? selectedRoute.deliveryStartDate : <span style={{color: '#790808', fontWeight: 'bold'}}>Not Started</span>}
+                  {selectedRoute.deliveryStartDate ? selectedRoute.deliveryStartDate : <span style={{ color: '#790808', fontWeight: 'bold' }}>Not Started</span>}
                 </span>
               </div>
               <div className="info-item">
@@ -390,24 +483,37 @@ function ManageRoute() {
 
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h2 className="section-title" style={{ margin: 0 }}>Route Stops</h2>
-                <a style={{ color: '#ff7700', cursor: 'pointer' }}>+ Add Stop</a>
-              </div>
+              <h2 className="section-title" style={{ margin: 0 }}>Route Stops</h2>
+              <a style={{ color: '#ff7700', cursor: 'pointer' }}>+ Add Stop</a>
+            </div>
             <div className="route-stops">
-              {selectedRoute.routeStops.map((stop, index) => (
-                <div key={index} className="route-stop-item">
-                  <span className="route-stop-marker"></span>
-                  <p>{stop.address}</p>
-                  <span className={`status-route ${stop.status.toLowerCase()}`}>
-                      {stop.status}
-                    </span>
+              {Object.entries(selectedRoute.routeStops.reduce((groups, stop) => {
+                if (!groups[stop.orderId]) {
+                  groups[stop.orderId] = [];
+                }
+                groups[stop.orderId].push(stop);
+                return groups;
+              }, {})).map(([orderId, orderStops]) => (
+                <div key={orderId} className="order-group">
+                  <h3>Order ID: {orderId}</h3>
+                  <div className="stops-container">
+                    {orderStops.map((stop, index) => (
+                      <div key={index} className="route-stop-item">
+                        <span className="route-stop-marker"></span>
+                        <p>{stop.address}</p>
+                        <span className={`status-route ${stop.status.toLowerCase()}`}>
+                          {stop.status}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>
           </div>
         )}
       </Modal>
-      
+
     </div>
   );
 }
