@@ -99,12 +99,12 @@ function DeliveryPage({ onDetailClick }) {
             title: 'Action',
             key: 'action',
             render: (_, record) => (
-                <Button
+                <button
                     className="detail-delivery-btn"
                     onClick={() => handlePickup(record.routeId)}
                 >
                     Pickup
-                </Button>
+                </button>
             ),
         },
     ];
