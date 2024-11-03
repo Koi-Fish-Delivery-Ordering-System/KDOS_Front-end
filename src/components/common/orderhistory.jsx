@@ -25,8 +25,7 @@ const OrderHistory = () => {
       const query = `
       query FindManyUserOrder {
         findManyUserOrder {
-          fromAddress
-          
+          fromAddress         
           notes
           orderId
           orderStatus
@@ -48,7 +47,10 @@ const OrderHistory = () => {
           receiverPhone
           totalPrice
           transportServiceId
-          createdAt      
+          createdAt 
+          transportService {     
+            type
+          }
         }
       }
     `;
@@ -103,7 +105,9 @@ const OrderHistory = () => {
 
   return (
     <div className="records">
-      <h2 className="title">Order History</h2>
+      
+        <h2 className="section-title" style={{ margin: 0 }}>Order History</h2>
+      
       
       {loading ? (
         <div className="loading">Loading...</div>
@@ -158,9 +162,10 @@ const OrderHistory = () => {
               <p><strong>Receiver Phone:</strong> {selectedOrder.receiverPhone}</p>
               <p><strong>From:</strong> {selectedOrder.fromAddress}</p>
               <p><strong>To:</strong> {selectedOrder.toAddress}</p>
+              <p><strong>Transport Type:</strong> {selectedOrder.transportService.type}</p>
               <p><strong>Notes:</strong> {selectedOrder.notes}</p>
               <p><strong>Total Price:</strong> <span className="price-tag">{selectedOrder.totalPrice.toLocaleString()} VNĐ</span></p>
-              <p><strong>Status:</strong> {selectedOrder.orderStatus}</p>
+              <p><strong>Status:</strong> <span className={`status ${selectedOrder.orderStatus.toLowerCase()}`}>{selectedOrder.orderStatus}</span></p>
               <h4 style={{ marginTop: '20px', color: '#1a1a1a' }}>Ordered Fish:</h4>
               <div className="fish-list">
                 {selectedOrder.orderedFish && selectedOrder.orderedFish.map((fish, index) => (

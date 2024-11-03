@@ -98,6 +98,7 @@ function ManageRoute() {
       query FindManyRoutes {
         findManyRoutes {
           routeId
+          numberofOrders
           driver {
             account {
               username
@@ -112,7 +113,13 @@ function ManageRoute() {
             status
             stopType
             orderId
+            order {
+            transportService {
+              type
+            }
           }
+          }
+            
         }
       }
       `;
@@ -142,12 +149,6 @@ function ManageRoute() {
     setShowForm(true);
 
   };
-
-
-
-
-
-
   const handleView = (route) => {
     setSelectedRoute(route);
     setIsModalOpen(true);
@@ -206,6 +207,7 @@ function ManageRoute() {
     setSelectedDriver(null);
     setSelectedOrders([]);
     setShowForm(false);
+    fetchRoutes();
   };
 
   const orderColumns = [
@@ -411,7 +413,7 @@ function ManageRoute() {
                 <h2 className="section-title" style={{ margin: 0 }}>Note</h2>
               </div>
               <Form.Item name="note" >
-                <Input.TextArea style={{ height: '150px' }} />
+                <Input.TextArea style={{ height: '150px',marginTop:'15px' }} />
               </Form.Item>
             </Form>
             <div style={{ marginTop: '20px', textAlign: 'right' }}>
@@ -453,7 +455,6 @@ function ManageRoute() {
             <div className="route-header">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h2 className="section-title" style={{ margin: 0 }}>Route Information</h2>
-
               </div>
               <div className="info-item">
                 <span className="info-label"><strong>Driver:</strong></span>
@@ -481,6 +482,12 @@ function ManageRoute() {
                   {selectedRoute.status}
                 </span>
               </div>
+              <div className="info-item">
+                <span className="info-label"><strong>Number of orders:</strong></span>
+                <span className="info-value">{selectedRoute.numberofOrders}</span>
+              </div>
+              
+
 
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -496,17 +503,26 @@ function ManageRoute() {
                 return groups;
               }, {})).map(([orderId, orderStops]) => (
                 <div key={orderId} className="order-group">
-                  <h3>Order ID: {orderId}</h3>
+                  <h3 className="info-label">Order ID: {orderId}</h3>
+                  <span>Transport type: {selectedRoute.routeStops.find(stop => stop.orderId === orderId).order.transportService.type}</span>
                   <div className="stops-container">
-                    {orderStops.map((stop, index) => (
-                      <div key={index} className="route-stop-item">
-                        <span className="route-stop-marker"></span>
-                        <p>{stop.address}</p>
-                        <span className={`status-route ${stop.status.toLowerCase()}`}>
-                          {stop.status}
-                        </span>
-                      </div>
-                    ))}
+                    {orderStops
+                      .sort((a, b) => {
+                        // Sắp xếp để "pickup" lên đầu
+                        if (a.stopType === "pickup") return -1;
+                        if (b.stopType === "pickup") return 1;
+                        return 0;
+                      })
+                      .map((stop, index) => (
+                        <div key={index} className="route-stop-item">
+                          <span className="route-stop-marker"></span>
+                          <p>{stop.address}</p>
+                          <span>Stops type: {stop.stopType}</span>
+                          <span className={`status-route ${stop.status.toLowerCase()}`}>
+                            {stop.status}
+                          </span>
+                        </div>
+                      ))}
                   </div>
                 </div>
               ))}

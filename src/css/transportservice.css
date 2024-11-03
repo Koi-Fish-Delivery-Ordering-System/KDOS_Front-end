@@ -311,13 +311,13 @@
 .info-label {
   min-width: 140px;
   color: #666;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .info-value {
   flex: 1;
   color: #262626;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .section-title {
@@ -342,7 +342,10 @@
   background-color: #fff7e6;
   color: #d46b08;
 }
-
+.status-route.delivering{
+  background-color: #cce5ff;
+  color: #004085;
+}
 .status-route.completed {
   background-color: #f6ffed;
   color: #389e0d;
@@ -388,6 +391,7 @@
   align-items: center;
   gap: 10px;
   margin-bottom: 10px;
+  
 }
 
 
