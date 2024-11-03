@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Row, Col, Card, Button, Select, message } from 'antd';
+import { Row, Col, Card, Button, Select, Table, message } from 'antd';
 import '../../../css/deliverypage.css';
 import axios from "axios";
 
@@ -7,8 +7,8 @@ function DeliveryPage({ onDetailClick }) {
     const [loading, setLoading] = useState(false);
     const [routes, setRoutes] = useState([]);
     const fetchRoutes = async () => {
-        
         try {
+            setLoading(true);
             const query = `
             query FindManyAssignedRoutes {
   findManyAssignedRoutes {
@@ -20,28 +20,27 @@ function DeliveryPage({ onDetailClick }) {
   }
 }
         `;
-        console.log(sessionStorage.getItem('accessToken'));
-            // setLoading(true);
+            console.log(sessionStorage.getItem('accessToken'));
             const routesResponse = await axios.post('http://26.61.210.173:3001/graphql', {
-                query,       
-              }, {
+                query,
+            }, {
                 headers: {
-                  'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
-                  'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
+                    'Content-Type': 'application/json',
                 }
-              });
-            
+            });
+
             if (routesResponse.data?.data?.findManyAssignedRoutes) {
                 setRoutes(routesResponse.data.data.findManyAssignedRoutes);
             } else {
                 console.error("Invalid response structure:", routesResponse.data);
-                
+
             }
         } catch (err) {
             console.error("Error fetching routes:", err);
-            
+
         } finally {
-            // setLoading(false);
+            setLoading(false);
         }
     };
     const handlePickup = async (routeId) => {
@@ -62,46 +61,63 @@ function DeliveryPage({ onDetailClick }) {
     }
     useEffect(() => {
         fetchRoutes();
-        
+
         console.log(routes);
     }, []);
     // if (loading) return <div className="loading-message">Loading...</div>;
     // if (routes.length === 0) return <div className="no-order-message">No routes found</div>;
 
+    const columns = [
+        {
+            title: 'No',
+            key: 'index',
+            render: (_, __, index) => index + 1,
+        },
+        {
+            title: 'Route ID',
+            dataIndex: 'routeId',
+            key: 'routeId',
+        },
+        {
+            title: 'Status',
+            dataIndex: 'status',
+            key: 'status',
+        },
+        {
+            title: 'Delivery Date',
+            dataIndex: 'deliveryStartDate',
+            key: 'deliveryStartDate',
+            render: (date) => new Date(date).toLocaleString(),
+        },
+        {
+            title: 'Last Updated',
+            dataIndex: 'updatedAt',
+            key: 'updatedAt',
+            render: (date) => new Date(date).toLocaleString(),
+        },
+        {
+            title: 'Action',
+            key: 'action',
+            render: (_, record) => (
+                <Button
+                    className="detail-delivery-btn"
+                    onClick={() => handlePickup(record.routeId)}
+                >
+                    Pickup
+                </Button>
+            ),
+        },
+    ];
+
     return (
         <div>
-            <table className="delivery-table">
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Route ID</th>
-                        <th>Status</th>
-                        <th>Delivery Date</th>
-                        <th>Last Updated</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {routes.map((route, index) => (
-                        <tr key={route.routeId}>
-                            <td>{index + 1}</td>
-                            <td>{route.routeId}</td>
-                            <td>{route.status}</td>
-                            <td>{new Date(route.deliveryStartDate).toLocaleString()}</td>
-                            <td>{new Date(route.updatedAt).toLocaleString()}</td>
-                            <td>
-                                {/* <button 
-                                    onClick={() => onDetailClick(route.routeId)} 
-                                    className="detail-delivery-btn"
-                                >
-                                    Detail
-                                </button> */}
-                                <button className="detail-delivery-btn" onClick={() => handlePickup(route.routeId)}>Pickup</button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
+            <h1 className='section-title'>Delivery Route</h1>
+            <Table
+                columns={columns}
+                dataSource={routes}
+                rowKey="routeId"
+                loading={loading}
+            />
         </div>
     );
 }

@@ -42,15 +42,7 @@
     padding: 24px;
     max-width: 1200px;
     margin: 0 auto;
-  }
-  
-  .delivery-process__title {
-    color: #f77f00;
-    font-size: 28px;
-    margin-bottom: 24px;
-    border-bottom: 2px solid #f77f00;
-    padding-bottom: 8px;
-  }
+}
   
   .delivery-process__section {
     background: #fff;
@@ -60,57 +52,8 @@
     margin-bottom: 24px;
   }
   
-  .delivery-process__section-title {
-    color: #f77f00;
-    font-size: 20px;
-    margin: 0 0 16px 0;
-  }
   
   .delivery-process__info-item {
     margin-bottom: 8px;
   }
   
-  .delivery-process__table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 16px;
-  }
-  
-  .delivery-process__th {
-    background-color: #f5f5f5;
-    padding: 12px 16px;
-    text-align: left;
-    font-weight: 600;
-  }
-  
-  .delivery-process__td {
-    padding: 12px 16px;
-    border-bottom: 1px solid #e0e0e0;
-  }
-  
-  .delivery-process__tr:hover {
-    background-color: #f8f9fa;
-  }
-  
-  .delivery-process__status {
-    padding: 4px 12px;
-    border-radius: 16px;
-    font-size: 14px;
-    font-weight: 500;
-    background-color: #e3f2fd;
-    color: #f77f00;
-  }
-  
-  .delivery-process__action-btn {
-    padding: 6px 16px;
-    border-radius: 4px;
-    border: none;
-    background-color: #f77f00;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.2s;
-  }
-  
-  .delivery-process__action-btn:hover {
-    background-color: orangered;
-  }
