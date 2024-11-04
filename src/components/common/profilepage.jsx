@@ -78,13 +78,8 @@ function ProfilePage() {
         <div className="profile-value">{email}</div>
         <a href="#" className="profile-action" onClick={() => showModal('email')}>Change</a>
       </div>
-      <div className="profile-item">
-        <div className="profile-label">Address</div>
-        <div className={`profile-value ${address === "null" ? "not-updated" : ""}`}>
-          {address === "null" ? "not-updated" : address}
-        </div>
-        <a href="#" className="profile-action" onClick={() => showModal('address')}>Change</a>
-      </div>
+      
+      
       <div className="profile-item">
         <div className="profile-label">Password</div>
         <a href="#" className="profile-action">Change Password</a>

@@ -21,7 +21,8 @@ function ManageRoute() {
   const [routes, setRoutes] = useState([]);
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-
+  const [selectedOrderDetail, setSelectedOrderDetail] = useState(null);
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const fetchOrder = async () => {
     setLoading(true);
     const query = `
@@ -98,13 +99,14 @@ function ManageRoute() {
       query FindManyRoutes {
         findManyRoutes {
           routeId
+          numberofOrders
           driver {
             account {
               username
             }
           }
           status
-          deliveryStartDate
+         
           updatedAt
           notes
           routeStops {
@@ -112,7 +114,19 @@ function ManageRoute() {
             status
             stopType
             orderId
+            order {
+            transportService {
+              type
+            }
+              fromAddress
+              toAddress
+              totalPrice
+              
+              receiverName
+              receiverPhone
+            }
           }
+            
         }
       }
       `;
@@ -142,17 +156,15 @@ function ManageRoute() {
     setShowForm(true);
 
   };
-
-
-
-
-
-
   const handleView = (route) => {
     setSelectedRoute(route);
     setIsModalOpen(true);
   };
-
+  const handleViewOrder = (record) => {
+    // setSelectedOrderDetail(orders.find(order => order.orderId === orderId));
+    setSelectedOrderDetail(record);
+    setIsOrderModalOpen(true);
+  };
   const handleOrderSelect = (orderId) => {
     setSelectedOrders(prev => {
       if (prev.includes(orderId)) {
@@ -206,6 +218,7 @@ function ManageRoute() {
     setSelectedDriver(null);
     setSelectedOrders([]);
     setShowForm(false);
+    fetchRoutes();
   };
 
   const orderColumns = [
@@ -237,6 +250,16 @@ function ManageRoute() {
           checked={selectedOrders.includes(record.orderId)}
           onChange={() => handleOrderSelect(record.orderId)}
         />
+        
+      ),
+    },
+    {
+      title: 'View',
+      key: 'view',
+      render: (_, record) => (
+        <button className="view-button" onClick={() => handleViewOrder(record)}>
+          <FontAwesomeIcon icon={faEye} />
+        </button>
       ),
     },
   ];
@@ -411,7 +434,7 @@ function ManageRoute() {
                 <h2 className="section-title" style={{ margin: 0 }}>Note</h2>
               </div>
               <Form.Item name="note" >
-                <Input.TextArea style={{ height: '150px' }} />
+                <Input.TextArea style={{ height: '150px',marginTop:'15px' }} />
               </Form.Item>
             </Form>
             <div style={{ marginTop: '20px', textAlign: 'right' }}>
@@ -453,7 +476,6 @@ function ManageRoute() {
             <div className="route-header">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <h2 className="section-title" style={{ margin: 0 }}>Route Information</h2>
-
               </div>
               <div className="info-item">
                 <span className="info-label"><strong>Driver:</strong></span>
@@ -475,12 +497,19 @@ function ManageRoute() {
                 <span className="info-label"><strong>Notes:</strong></span>
                 <span className="info-value">{selectedRoute.notes}</span>
               </div>
+              
               <div className="info-item" >
                 <span className="info-label"><strong>Status:</strong></span>
                 <span className={`status-route ${selectedRoute.status.toLowerCase()}`}>
                   {selectedRoute.status}
                 </span>
               </div>
+              <div className="info-item">
+                <span className="info-label"><strong>Number of orders:</strong></span>
+                <span className="info-value">{selectedRoute.numberofOrders}</span>
+              </div>
+              
+
 
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -496,20 +525,119 @@ function ManageRoute() {
                 return groups;
               }, {})).map(([orderId, orderStops]) => (
                 <div key={orderId} className="order-group">
-                  <h3>Order ID: {orderId}</h3>
+                  <h3 className="info-label">Order ID: {orderId}</h3>
+                  <div className="order-info-container">
+                    <span className="order-info-item">Transport type: {selectedRoute.routeStops.find(stop => stop.orderId === orderId).order.transportService.type}</span>
+                    <span className="order-info-item">Receiver Name: {selectedRoute.routeStops.find(stop => stop.orderId === orderId).order.receiverName}</span>
+                    <span className="order-info-item">Receiver Phone: {selectedRoute.routeStops.find(stop => stop.orderId === orderId).order.receiverPhone}</span>
+                  </div>
                   <div className="stops-container">
-                    {orderStops.map((stop, index) => (
-                      <div key={index} className="route-stop-item">
-                        <span className="route-stop-marker"></span>
-                        <p>{stop.address}</p>
-                        <span className={`status-route ${stop.status.toLowerCase()}`}>
-                          {stop.status}
-                        </span>
-                      </div>
-                    ))}
+                    {orderStops
+                      .sort((a, b) => {
+                        // Sắp xếp để "pickup" lên đầu
+                        if (a.stopType === "pickup") return -1;
+                        if (b.stopType === "pickup") return 1;
+                        return 0;
+                      })
+                      .map((stop, index) => (
+                        <div key={index} className="route-stop-item">
+                          <span className="route-stop-marker"></span>
+                          <p>{stop.address}</p>
+                          <span>Stops type: {stop.stopType}</span>
+                          
+                          <span className={`status-route ${stop.status.toLowerCase()}`}>
+                            {stop.status}
+                          </span>
+                        </div>
+                      ))}
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      <Modal
+        title="Order Details"
+        open={isOrderModalOpen}
+        onCancel={() => setIsOrderModalOpen(false)}
+        footer={null}
+        width={800}
+        className="order-detail-modal"
+      >
+        {selectedOrderDetail && (
+          <div className="order-detail">
+            <div className="info-grid">
+              <div className="info-item">
+                <span className="info-label">Order ID:</span>
+                <span className="info-value">{selectedOrderDetail.orderId}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Transport Type:</span>
+                <span className="info-value">{selectedOrderDetail.transportService.type}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Status:</span>
+                <span className={`status-order ${selectedOrderDetail.status.toLowerCase()}`}>
+                  {selectedOrderDetail.status}
+                </span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Created At:</span>
+                <span className="info-value">
+                  {new Date(selectedOrderDetail.createdAt).toLocaleString()}
+                </span>
+              </div>
+            </div>
+
+            <div className="address-section">
+              <h3>Sender Information</h3>
+              <div className="info-item">
+                <span className="info-label">Name:</span>
+                <span className="info-value">{selectedOrderDetail.senderName}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Phone:</span>
+                <span className="info-value">{selectedOrderDetail.senderPhone}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Address:</span>
+                <span className="info-value">{selectedOrderDetail.fromAddress}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Province:</span>
+                <span className="info-value">{selectedOrderDetail.fromProvince}</span>
+              </div>
+            </div>
+
+            <div className="address-section">
+              <h3>Receiver Information</h3>
+              <div className="info-item">
+                <span className="info-label">Name:</span>
+                <span className="info-value">{selectedOrderDetail.receiverName}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Phone:</span>
+                <span className="info-value">{selectedOrderDetail.receiverPhone}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Address:</span>
+                <span className="info-value">{selectedOrderDetail.toAddress}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Province:</span>
+                <span className="info-value">{selectedOrderDetail.toProvince}</span>
+              </div>
+            </div>
+
+            <div className="price-section">
+              <div className="info-item">
+                <span className="info-label">Total Price:</span>
+                <span className="info-value price">
+                  {selectedOrderDetail.totalPrice.toLocaleString()} VND
+                </span>
+              </div>
             </div>
           </div>
         )}
