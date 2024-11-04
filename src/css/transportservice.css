@@ -405,3 +405,22 @@
   border-radius: 4px;
   display: inline-block;
 }
+
+
+.order-info-container {
+  display: flex;
+  gap: 20px;
+  margin: 10px 0;
+}
+
+.order-info-item {
+  color: #666;
+  font-size: 14px;
+}
+
+.order-info-item:before {
+  content: "|";
+  margin-left: 8px;
+  margin-right: 8px;
+  color: #666;
+}

@@ -21,7 +21,8 @@ function ManageRoute() {
   const [routes, setRoutes] = useState([]);
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
-
+  const [selectedOrderDetail, setSelectedOrderDetail] = useState(null);
+  const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const fetchOrder = async () => {
     setLoading(true);
     const query = `
@@ -105,7 +106,7 @@ function ManageRoute() {
             }
           }
           status
-          deliveryStartDate
+         
           updatedAt
           notes
           routeStops {
@@ -117,7 +118,13 @@ function ManageRoute() {
             transportService {
               type
             }
-          }
+              fromAddress
+              toAddress
+              totalPrice
+              
+              receiverName
+              receiverPhone
+            }
           }
             
         }
@@ -153,7 +160,11 @@ function ManageRoute() {
     setSelectedRoute(route);
     setIsModalOpen(true);
   };
-
+  const handleViewOrder = (record) => {
+    // setSelectedOrderDetail(orders.find(order => order.orderId === orderId));
+    setSelectedOrderDetail(record);
+    setIsOrderModalOpen(true);
+  };
   const handleOrderSelect = (orderId) => {
     setSelectedOrders(prev => {
       if (prev.includes(orderId)) {
@@ -239,6 +250,16 @@ function ManageRoute() {
           checked={selectedOrders.includes(record.orderId)}
           onChange={() => handleOrderSelect(record.orderId)}
         />
+        
+      ),
+    },
+    {
+      title: 'View',
+      key: 'view',
+      render: (_, record) => (
+        <button className="view-button" onClick={() => handleViewOrder(record)}>
+          <FontAwesomeIcon icon={faEye} />
+        </button>
       ),
     },
   ];
@@ -476,6 +497,7 @@ function ManageRoute() {
                 <span className="info-label"><strong>Notes:</strong></span>
                 <span className="info-value">{selectedRoute.notes}</span>
               </div>
+              
               <div className="info-item" >
                 <span className="info-label"><strong>Status:</strong></span>
                 <span className={`status-route ${selectedRoute.status.toLowerCase()}`}>
@@ -504,7 +526,11 @@ function ManageRoute() {
               }, {})).map(([orderId, orderStops]) => (
                 <div key={orderId} className="order-group">
                   <h3 className="info-label">Order ID: {orderId}</h3>
-                  <span>Transport type: {selectedRoute.routeStops.find(stop => stop.orderId === orderId).order.transportService.type}</span>
+                  <div className="order-info-container">
+                    <span className="order-info-item">Transport type: {selectedRoute.routeStops.find(stop => stop.orderId === orderId).order.transportService.type}</span>
+                    <span className="order-info-item">Receiver Name: {selectedRoute.routeStops.find(stop => stop.orderId === orderId).order.receiverName}</span>
+                    <span className="order-info-item">Receiver Phone: {selectedRoute.routeStops.find(stop => stop.orderId === orderId).order.receiverPhone}</span>
+                  </div>
                   <div className="stops-container">
                     {orderStops
                       .sort((a, b) => {
@@ -518,6 +544,7 @@ function ManageRoute() {
                           <span className="route-stop-marker"></span>
                           <p>{stop.address}</p>
                           <span>Stops type: {stop.stopType}</span>
+                          
                           <span className={`status-route ${stop.status.toLowerCase()}`}>
                             {stop.status}
                           </span>
@@ -526,6 +553,91 @@ function ManageRoute() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+      </Modal>
+
+      <Modal
+        title="Order Details"
+        open={isOrderModalOpen}
+        onCancel={() => setIsOrderModalOpen(false)}
+        footer={null}
+        width={800}
+        className="order-detail-modal"
+      >
+        {selectedOrderDetail && (
+          <div className="order-detail">
+            <div className="info-grid">
+              <div className="info-item">
+                <span className="info-label">Order ID:</span>
+                <span className="info-value">{selectedOrderDetail.orderId}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Transport Type:</span>
+                <span className="info-value">{selectedOrderDetail.transportService.type}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Status:</span>
+                <span className={`status-order ${selectedOrderDetail.status.toLowerCase()}`}>
+                  {selectedOrderDetail.status}
+                </span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Created At:</span>
+                <span className="info-value">
+                  {new Date(selectedOrderDetail.createdAt).toLocaleString()}
+                </span>
+              </div>
+            </div>
+
+            <div className="address-section">
+              <h3>Sender Information</h3>
+              <div className="info-item">
+                <span className="info-label">Name:</span>
+                <span className="info-value">{selectedOrderDetail.senderName}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Phone:</span>
+                <span className="info-value">{selectedOrderDetail.senderPhone}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Address:</span>
+                <span className="info-value">{selectedOrderDetail.fromAddress}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Province:</span>
+                <span className="info-value">{selectedOrderDetail.fromProvince}</span>
+              </div>
+            </div>
+
+            <div className="address-section">
+              <h3>Receiver Information</h3>
+              <div className="info-item">
+                <span className="info-label">Name:</span>
+                <span className="info-value">{selectedOrderDetail.receiverName}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Phone:</span>
+                <span className="info-value">{selectedOrderDetail.receiverPhone}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Address:</span>
+                <span className="info-value">{selectedOrderDetail.toAddress}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Province:</span>
+                <span className="info-value">{selectedOrderDetail.toProvince}</span>
+              </div>
+            </div>
+
+            <div className="price-section">
+              <div className="info-item">
+                <span className="info-label">Total Price:</span>
+                <span className="info-value price">
+                  {selectedOrderDetail.totalPrice.toLocaleString()} VND
+                </span>
+              </div>
             </div>
           </div>
         )}
