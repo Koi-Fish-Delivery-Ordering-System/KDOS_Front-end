@@ -778,19 +778,20 @@ const OrderConfirmation = () => {
                     <Marker
                       position={pickUpLocation}
                       icon={{
+                        
                         url: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
-                        scaledSize: isScriptLoaded ? new window.google.maps.Size(40, 40) : null
+                        scaledSize: new window.google.maps.Size(40, 40) 
                       }}
                       title="Pick-up Location"
                     />
                   )}
 
-                  {location.state?.dropOffLocation && (
+                  {dropOffLocation && (
                     <Marker
                       position={dropOffLocation}
                       icon={{
                         url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
-                        scaledSize: isScriptLoaded ? new window.google.maps.Size(40, 40) : null
+                        scaledSize:  new window.google.maps.Size(40, 40) 
                       }}
                       title="Drop-off Location"
                     />

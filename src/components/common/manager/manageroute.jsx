@@ -106,7 +106,7 @@ function ManageRoute() {
             }
           }
           status
-         
+         deliveryStartDate
           updatedAt
           notes
           routeStops {
@@ -329,7 +329,7 @@ function ManageRoute() {
       title: 'Delivery Date',
       dataIndex: 'deliveryStartDate',
       key: 'deliveryDate',
-      render: (date) => date ? date : <span style={{ color: '#790808', fontWeight: 'bold' }}>Not Started</span>,
+      render: (date) => date ? new Date(date).toLocaleString() : <span style={{ color: '#790808', fontWeight: 'bold' }}>Not Started</span>,
     },
     {
       title: 'Last Updated',

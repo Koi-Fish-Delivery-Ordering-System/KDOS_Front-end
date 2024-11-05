@@ -73,7 +73,7 @@ function PlaceOrderPage() {
         const fetchProvinces = async () => {
             try {
                 const response = await axios.get('https://670e78b03e7151861654ae2d.mockapi.io/Province'); // Thay thế bằng URL API của bạn
-                setProvinces(response.data); // Lưu trữ danh sách tỉnh vào state
+                setProvinces(response.data); // Lưu trữ danh sách t���nh vào state
             } catch (error) {
                 console.error('Error fetching provinces:', error);
             }
@@ -241,6 +241,7 @@ function PlaceOrderPage() {
                     pricePerKg
                     description
                     updatedAt
+                    
                 }
             }
         `;
@@ -324,16 +325,28 @@ function PlaceOrderPage() {
 
     useEffect(() => {
         if (formData) {
-            form.setFieldsValue(formData); // Đặt lại giá trị form
+            form.setFieldsValue(formData); // Đặt li giá trị form
         }
     }, [formData, form]);
 
     // Add useEffect to update price when distance changes
+    const [isMinPriceKm,setisMinPriceKm] = useState(false)
     useEffect(() => {
+        
         if (selectedService && distance !== null) {
-            const calculatedPrice = Math.round(distance * selectedService.pricePerKm);
-            setPrice(calculatedPrice);
-            form.setFieldsValue({ price: calculatedPrice });
+
+                const calculatedPrice = Math.round(distance * selectedService.pricePerKm);
+                if(calculatedPrice <30000){
+                    setPrice(30000);
+                form.setFieldsValue({ price: 30000 });
+                setisMinPriceKm(true)
+                }else{
+                    setPrice(calculatedPrice);
+                    form.setFieldsValue({ price: calculatedPrice });
+                }
+                
+            
+            
         }
     }, [selectedService, distance, form]);
 
@@ -528,6 +541,7 @@ function PlaceOrderPage() {
                                                 {service.name === "Road" && <img src='src/images/truck.png' alt="Road" />}
                                                 {service.name === "Air" && <img src='src/images/plane.png' alt="Air" />}
                                                 <div>{service.name}</div>
+                                                
                                                 <a 
                                                     className="detail-service-btn"
                                                     href="#" 
@@ -614,10 +628,17 @@ function PlaceOrderPage() {
                                 </span>                   
                                 <Tooltip 
                                     title={
+                                        
                                         <div>
                                             Provisional Price = Distance × Price per km<br/>
                                             Distance: {distance?.toFixed(2)} km<br/>
-                                            Price per km: {selectedService?.pricePerKm?.toLocaleString()} VNĐ
+                                            Price per km: {selectedService?.pricePerKm?.toLocaleString()} VNĐ <br/>
+                                            Notice: <br/>
+                                            
+                                            Distance below { Math.ceil(30000 / selectedService?.pricePerKm) } Km will charge delivery fee of 30,000 VNĐ
+                                            
+
+
                                         </div>
                                     }
                                     overlayStyle={{ 
