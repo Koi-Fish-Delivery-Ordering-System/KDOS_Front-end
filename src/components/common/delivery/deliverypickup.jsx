@@ -54,6 +54,7 @@ function DeliveryPage({ onDetailClick }) {
                 }
             })
             message.success('Pickup successful');
+            fetchRoutes();
         } catch (err) {
             console.error("Error picking up order:", err);
             message.error('Pickup failed');
@@ -64,8 +65,6 @@ function DeliveryPage({ onDetailClick }) {
 
         console.log(routes);
     }, []);
-    // if (loading) return <div className="loading-message">Loading...</div>;
-    // if (routes.length === 0) return <div className="no-order-message">No routes found</div>;
 
     const columns = [
         {
@@ -99,12 +98,12 @@ function DeliveryPage({ onDetailClick }) {
             title: 'Action',
             key: 'action',
             render: (_, record) => (
-                <Button
+                <button
                     className="detail-delivery-btn"
                     onClick={() => handlePickup(record.routeId)}
                 >
                     Pickup
-                </Button>
+                </button>
             ),
         },
     ];
