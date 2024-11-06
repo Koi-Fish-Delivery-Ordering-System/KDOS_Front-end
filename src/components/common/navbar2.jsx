@@ -11,7 +11,7 @@ export default function Navbar2() {
   useEffect(() => {
     const storedUsername = sessionStorage.getItem("username");
 
-    if (  storedUsername ) {
+    if (storedUsername) {
       setUserInfo({
         username: storedUsername,
       });
@@ -57,6 +57,11 @@ export default function Navbar2() {
                 <HomeOutlined style={{ fontSize: '24px' }} />
               </Link>
             </li>
+            <li className="nav-item">
+              <Link to="/faq">
+                View FAQ
+              </Link>
+            </li>
           </ul>
         </div>
         <div className="nav-right">
@@ -64,14 +69,14 @@ export default function Navbar2() {
             <div className="dropdown">
               <Dropdown overlay={menu_user} trigger={["hover"]}>
                 <a className="dropdown-link">
-                <span className='username'>Welcome, {userInfo.username}</span>
-                  <img 
-                    src="src/images/avatar.jpg" 
+                  <span className='username'>Welcome, {userInfo.username}</span>
+                  <img
+                    src="src/images/avatar.jpg"
                     alt="AVT"
-                    className="avatar-image" 
+                    className="avatar-image"
                     style={{ width: '30px', height: '30px', borderRadius: '50%', marginRight: '8px' }}
                   />
-                  
+
                 </a>
               </Dropdown>
             </div>
