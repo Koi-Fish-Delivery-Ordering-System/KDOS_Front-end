@@ -59,7 +59,12 @@ export default function Navbar2() {
             </li>
             <li className="nav-item">
               <Link to="/faq">
-                View FAQ
+                FAQ
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link to="/news">
+                News
               </Link>
             </li>
           </ul>
@@ -67,7 +72,7 @@ export default function Navbar2() {
         <div className="nav-right">
           {userInfo?.username ? (
             <div className="dropdown">
-              <Dropdown overlay={menu_user} trigger={["hover"]}>
+              <Dropdown Dropdown={menu_user} trigger={["hover"]}>
                 <a className="dropdown-link">
                   <span className='username'>Welcome, {userInfo.username}</span>
                   <img

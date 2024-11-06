@@ -16,6 +16,7 @@ import Delivery from './components/common/delivery/delivery';
 import HealChecker from './components/common/healchecker/healchecker';
 import Manager from './components/common/manager/manager';
 import FAQ from './components/common/FAQ';
+import NewsPage from './components/common/NEWS';
 
 export const router = createBrowserRouter([
   {
@@ -81,5 +82,9 @@ export const router = createBrowserRouter([
   {
     path: "faq",
     element: <FAQ />,
+  },
+  {
+    path: "news",
+    element: <NewsPage />,
   }
 ]);
