@@ -1,0 +1,59 @@
+/* General Layout Styles */
+.news-layout {
+  background-color: #f0f2f5; /* Light background for the entire layout */
+  padding: 20px; /* Padding around the layout */
+}
+
+.news-container {
+  display: flex; /* Flexbox for layout */
+  justify-content: space-between; /* Space between content and sidebar */
+}
+
+/* Card Styles */
+.news-card {
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  transition: transform 0.2s; /* Smooth transition for hover effect */
+}
+
+.news-card:hover {
+  transform: translateY(-5px); /* Lift effect on hover */
+}
+
+/* Typography Styles */
+.sidebar-title {
+  color: #333; /* Dark color for sidebar title */
+  margin-bottom: 16px; /* Space below the title */
+}
+
+.sidebar-link {
+  color: #1890ff; /* Link color */
+  transition: color 0.2s; /* Smooth transition for link color */
+}
+
+.sidebar-link:hover {
+  text-decoration: underline; /* Underline on hover */
+  color: #0056b3; /* Darker blue on hover */
+}
+
+/* Button Styles */
+.read-more {
+  font-weight: bold; /* Bold text for read more button */
+  color: #1890ff; /* Button color */
+  transition: color 0.2s; /* Smooth transition for button color */
+}
+
+.read-more:hover {
+  color: #0056b3; /* Darker blue on hover */
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .news-container {
+      flex-direction: column; /* Stack content and sidebar on smaller screens */
+  }
+
+  .news-sidebar {
+      margin-top: 20px; /* Space above sidebar on small screens */
+  }
+}
