@@ -139,9 +139,17 @@ function AccountManager() {
     },
     {
       title: 'Roles',
-      render: (text, record) => (
-        <Button onClick={() => openRoleModal(record.roles)}>View Roles</Button>
+      dataIndex: 'roles',
+      render: (roles) => (
+        <span>{roles && roles.length > 0 ? roles.map(role => role.name).join(', ') : 'No Roles'}</span>
       ),
+      filters: [
+        { text: 'Admin', value: 'Admin' },
+        { text: 'User', value: 'User' },
+      ],
+      onFilter: (value, record) => {
+        return record.roles && record.roles.some(role => role.name.includes(value));
+      },
     },
     {
       title: 'Actions',
