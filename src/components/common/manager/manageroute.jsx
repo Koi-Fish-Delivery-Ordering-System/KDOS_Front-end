@@ -23,6 +23,12 @@ function ManageRoute() {
   const [loading, setLoading] = useState(false);
   const [selectedOrderDetail, setSelectedOrderDetail] = useState(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+  const [selectedFishIndex, setSelectedFishIndex] = useState(null);
+
+  const toggleFishDetails = (index) => {
+    setSelectedFishIndex(selectedFishIndex === index ? null : index);
+  };
+
   const fetchOrder = async () => {
     setLoading(true);
     const query = `
@@ -31,9 +37,26 @@ function ManageRoute() {
           orderId
           fromProvince
           toProvince
+          fromAddress
+              toAddress
+              totalPrice
+              orderStatus
+              receiverName
+              receiverPhone
           transportService {
             type
           }
+           orderedFish {
+                name
+                species
+                gender
+                ageInMonth
+                weight
+                description
+                qualifications {
+                  fileId
+                }
+              } 
         }
       }
     `;
@@ -118,12 +141,7 @@ function ManageRoute() {
             transportService {
               type
             }
-              fromAddress
-              toAddress
-              totalPrice
               
-              receiverName
-              receiverPhone
             }
           }
             
@@ -159,11 +177,12 @@ function ManageRoute() {
   const handleView = (route) => {
     setSelectedRoute(route);
     setIsModalOpen(true);
+    console.log('Selected rout:', route);
   };
   const handleViewOrder = (record) => {
-    // setSelectedOrderDetail(orders.find(order => order.orderId === orderId));
     setSelectedOrderDetail(record);
     setIsOrderModalOpen(true);
+    console.log('Selected Order Detail:', record);
   };
   const handleOrderSelect = (orderId) => {
     setSelectedOrders(prev => {
@@ -579,28 +598,23 @@ function ManageRoute() {
               </div>
               <div className="info-item">
                 <span className="info-label">Status:</span>
-                <span className={`status-order ${selectedOrderDetail.status.toLowerCase()}`}>
-                  {selectedOrderDetail.status}
+                <span className={`status-order ${selectedOrderDetail.orderStatus.toLowerCase()}`}>
+                  {selectedOrderDetail.orderStatus}
                 </span>
               </div>
-              <div className="info-item">
-                <span className="info-label">Created At:</span>
-                <span className="info-value">
-                  {new Date(selectedOrderDetail.createdAt).toLocaleString()}
-                </span>
-              </div>
+              
             </div>
 
             <div className="address-section">
               <h3>Sender Information</h3>
-              <div className="info-item">
+              {/* <div className="info-item">
                 <span className="info-label">Name:</span>
                 <span className="info-value">{selectedOrderDetail.senderName}</span>
               </div>
               <div className="info-item">
                 <span className="info-label">Phone:</span>
                 <span className="info-value">{selectedOrderDetail.senderPhone}</span>
-              </div>
+              </div> */}
               <div className="info-item">
                 <span className="info-label">Address:</span>
                 <span className="info-value">{selectedOrderDetail.fromAddress}</span>
@@ -638,6 +652,29 @@ function ManageRoute() {
                   {selectedOrderDetail.totalPrice.toLocaleString()} VND
                 </span>
               </div>
+            </div>
+
+            <div className="fish-section">
+              <h3>Ordered Fish</h3>
+              {selectedOrderDetail.orderedFish && selectedOrderDetail.orderedFish.map((fish, index) => (
+                <div key={index} className="fish-item">
+                  <p
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => toggleFishDetails(index)}
+                  >
+                    <strong>Name:</strong> {fish.name}
+                  </p>
+                  {selectedFishIndex === index && (
+                    <div className="fish-details">
+                      <p><strong>Species:</strong> {fish.species}</p>
+                      <p><strong>Gender:</strong> {fish.gender}</p>
+                      <p><strong>Age:</strong> {fish.ageInMonth} months</p>
+                      <p><strong>Weight:</strong> {fish.weight} g</p>
+                      <p><strong>Description:</strong> {fish.description}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         )}

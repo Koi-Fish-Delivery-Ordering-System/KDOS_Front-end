@@ -73,3 +73,13 @@
   .delivery-button:hover{
     background-color: orangered !important;
   }
+  .no-route-message {
+    text-align: center; 
+    font-size: 18px; 
+    color: #ff0000; 
+    margin-top: 20px; 
+    padding: 10px; 
+    background-color: #fff3f3; 
+    border: 1px solid #ffcccc; 
+    border-radius: 5px; 
+}

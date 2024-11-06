@@ -4,6 +4,7 @@ import Navbar2 from '../navbar2';
 import DeliveryPage from './deliverypickup';
 import DeliveryDetail from './deliverydetail';
 import DeliveryProcess from './deliveryprocess';
+import DeliveryDelivered from './deliveredroute';
 import '../../../css/accountmanagement.css';
 
 function Delivery() {
@@ -29,6 +30,8 @@ function Delivery() {
         return <DeliveryDetail transportId={selectedTransportId} onBack={handleBackToPending} />;
       case 'process':
         return <DeliveryProcess onDetailClick={handleDetailClick} />;
+      case 'delivered':
+        return <DeliveryDelivered onDetailClick={handleDetailClick} />;
       default:
         return (
           <div>
@@ -58,7 +61,12 @@ function Delivery() {
             </li>
             <li>
               <button onClick={() => setActiveComponent('process')} className={activeComponent === 'process' ? 'active' : ''}>
-                Process Route
+                Processing Route
+              </button>
+            </li>
+            <li>
+              <button onClick={() => setActiveComponent('delivered')} className={activeComponent === 'delivered' ? 'active' : ''}>
+                Delivered Route
               </button>
             </li>
           </ul>
