@@ -4,34 +4,31 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import '../../css/placeorderpage.css';
 import Footer from './footer';
 import Navbar2 from './navbar2';
-import Navbar from './navbar';
 import axios from 'axios';
 import { LoadScriptNext, GoogleMap, Marker, Autocomplete } from '@react-google-maps/api';
 import { Tooltip } from 'antd';
 import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-// Add this near the top of your file, with other constant declarations
-const defaultPosition = [10.8231, 106.6297]; // Default coordinates for Ho Chi Minh City
+
+const defaultPosition = [10.8231, 106.6297]; 
 const libraries = ["places"];
 
 function PlaceOrderPage() {
     const navigate = useNavigate();
     const location = useLocation();
     const formData = location.state || {};
-    const [form] = Form.useForm(); // Thêm dòng này để sử dụng form
-    const [vehicleTypes, setVehicleTypes] = useState([]); // Thêm state để lưu trữ loại xe
-    const [vehicleType, setVehicleType] = useState(null); // Thêm state để lưu trữ loại xe đã chọn
-    const [distance, setDistance] = useState(null); // Thêm state để lưu trữ distance
-    const [provinces, setProvinces] = useState([]); // State để lưu trữ danh sách tỉnh
-    const [provincesWithAirport, setProvincesWithAirport] = useState([]);
+    const [form] = Form.useForm(); 
+    const [vehicleTypes, setVehicleTypes] = useState([]); 
+    const [vehicleType, setVehicleType] = useState(null); 
+    const [distance, setDistance] = useState(null); 
     const mapContainerStyle = {
-        height: "100%", // Set the desired height
-        width: "100%",   // Set the desired width
+        height: "100%", 
+        width: "100%",   
     };
 
     const center = {
-        lat: 10.8231,    // Set the latitude for the center of the map
-        lng: 106.6297,   // Set the longitude for the center of the map
+        lat: 10.8231,    
+        lng: 106.6297,   
     };
 
     const handleContinue = (values) => {
@@ -61,34 +58,7 @@ function PlaceOrderPage() {
         if (!accessToken) {
             navigate('/login');
         }
-        const fetchVehicleTypes = async () => {
-            try {
-                const response = await axios.get('https://670e78b03e7151861654ae2d.mockapi.io/transport'); // Thay thế 'API_URL_HERE' bằng URL của API
-                setVehicleTypes(response.data); // Lưu trữ dữ liệu loại xe vào state
-            } catch (error) {
-                console.error('Error fetching vehicle types:', error);
-            }
-        };
-        fetchVehicleTypes(); // Gọi hàm fetchVehicleTypes
-        const fetchProvinces = async () => {
-            try {
-                const response = await axios.get('https://670e78b03e7151861654ae2d.mockapi.io/Province'); // Thay thế bằng URL API của bạn
-                setProvinces(response.data); // Lưu trữ danh sách t���nh vào state
-            } catch (error) {
-                console.error('Error fetching provinces:', error);
-            }
-        };
-        fetchProvinces();
-        const fetchProvincesWithAirport = async () => {
-            try {
-                const response = await axios.get('https://670e78b03e7151861654ae2d.mockapi.io/provinceHasPlane');
-                setProvincesWithAirport(response.data);
-            } catch (error) {
-                console.error('Error fetching provinces with airport:', error);
-            }
-        };
-        fetchProvincesWithAirport();
-    }, [form], [navigate]);
+    },[navigate]);
 
 
     useEffect(() => {
@@ -460,7 +430,7 @@ function PlaceOrderPage() {
                                     values.servicePricing;
                                 setFormIsComplete(isComplete);
                             }}
-                        // Theo dõi sự thay đổi của form
+                        
                         >
                             <h3>Pick-up location</h3>
                             <Row gutter={0} style={{ display: 'flex', alignItems: 'center' }}>
@@ -590,7 +560,7 @@ function PlaceOrderPage() {
                             </Form.Item>
                         )}
 
-                        {/* Only show Service Pricing after a service is selected */}
+                        
                         {selectedService && (
                             <>
                                 <h2 className="section-title">Service Pricing</h2>
@@ -664,16 +634,7 @@ function PlaceOrderPage() {
                 </Form.Item>
                     </div>
                 </Col>
-                {/* <Col span={16}>
-                    <DeliveryMap
-                        suggestion={{
-                            form: pickUpLocation ? [pickUpLocation.lat, pickUpLocation.lng] : defaultPosition,
-                            to: dropOffLocation ? [dropOffLocation.lat, dropOffLocation.lng] : defaultPosition
-                        }}
-                        autoSetDistance={setDistance}
-                    />
-                </Col> */}
-                {/* Right Section: Google Map */}
+               
                 <Col span={16} className="map-section">
                     <GoogleMap
                         mapContainerStyle={mapContainerStyle}

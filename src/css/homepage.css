@@ -2,12 +2,12 @@
   font-family: 'Segoe UI', 'Roboto', 'Arial', sans-serif !important; 
 }
 body {
-  background-color: #f9f9f9;
+  
 }
-/* Content Section Styles */
+
 .content-section {
     padding: 0px 5vw;
-    background-color: #f9f9f9; /* Light background for contrast */
+    
 
   }
   .order-button-container {

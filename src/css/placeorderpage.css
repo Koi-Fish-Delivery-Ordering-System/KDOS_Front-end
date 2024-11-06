@@ -1,14 +1,10 @@
-/* Overall page layout */
-/* .delivery-page {
-    display: flex;
-    height: 100vh;
-  } */
+
   .placeorder-page {
 
-    height: 105vh; /* Chiều cao toàn bộ viewport */
+    height: 105vh; 
 
 }
-  /* Left Section: Form and Vehicle Selection */
+  
   .left-section {
     text-align: left;
     margin-bottom: 120px;
@@ -18,7 +14,6 @@
     overflow-y: auto;
     border-radius: 10px;
     width: 500px;
-    /* Animation properties */
     animation: slideInFade 0.5s ease-out;
     animation-fill-mode: both;
     max-height: 95vh !important;
