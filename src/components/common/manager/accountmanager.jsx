@@ -48,8 +48,8 @@ function AccountManager() {
   const [roleModalVisible, setRoleModalVisible] = useState(false);
   const [selectedRoles, setSelectedRoles] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [driverDetails, setDriverDetails] = useState(null);
-  const [driverModalVisible, setDriverModalVisible] = useState(false);
+  // const [driverDetails, setDriverDetails] = useState(null);
+  // const [driverModalVisible, setDriverModalVisible] = useState(false);
 
   const [form] = Form.useForm();
 
@@ -67,10 +67,10 @@ function AccountManager() {
       setLoading(false);
     }
   }, [apiData]);
-  const viewDriverDetails = (driver) => {
-    setDriverDetails(driver);
-    setDriverModalVisible(true);
-  };
+  // const viewDriverDetails = (driver) => {
+  //   setDriverDetails(driver);
+  //   setDriverModalVisible(true);
+  // };
   const openAddModal = () => {
     form.resetFields();
     setFormData(null);
@@ -83,18 +83,18 @@ function AccountManager() {
     setShowForm(true);
   };
 
-  const openRoleModal = (roles) => {
-    if (roles && roles.length > 0) {
-      setSelectedRoles(roles); // Set selected roles for the modal
-      setRoleModalVisible(true); // Show the modal
-    } else {
-      toast.warn("No roles available for this account.");
-    }
-  };
+  // const openRoleModal = (roles) => {
+  //   if (roles && roles.length > 0) {
+  //     setSelectedRoles(roles); // Set selected roles for the modal
+  //     setRoleModalVisible(true); // Show the modal
+  //   } else {
+  //     toast.warn("No roles available for this account.");
+  //   }
+  // };
 
-  const handleCreate = async (values) => {
-    // Handle create logic here
-  };
+  // const handleCreate = async (values) => {
+  //   // Handle create logic here
+  // };
 
   const handleEdit = async (values) => {
     try {
@@ -119,11 +119,12 @@ function AccountManager() {
   };
 
   const handleSubmit = async (values) => {
-    if (formData) {
-      await handleEdit(values);
-    } else {
-      await handleCreate(values);
-    }
+    // if (formData) {
+    //   await handleEdit(values);
+    // } else {
+    //   await handleCreate(values);
+    // }
+    await handleEdit(values);
   };
 
   const columns = [
@@ -156,11 +157,11 @@ function AccountManager() {
       render: (text, record) => (
         <>
           <Button onClick={() => openEditModal(record)}>Edit</Button>
-          {record.driver && (
+          {/* {record.driver && (
             <Button onClick={() => viewDriverDetails(record.driver)} style={{ marginLeft: '8px' }}>
               View Driver Details
             </Button>
-          )}
+          )} */}
         </>
       ),
     },
@@ -189,7 +190,7 @@ function AccountManager() {
           }}
         />
         <Modal
-          title={formData ? "Edit Account" : "Add Account"}
+          title="Edit Account"
           open={showForm}
           onCancel={() => setShowForm(false)}
           footer={null}
@@ -246,7 +247,7 @@ function AccountManager() {
             pagination={false}
           />
         </Modal>
-        <Modal
+        {/* <Modal
           title="Driver Details"
           open={driverModalVisible}
           onCancel={() => setDriverModalVisible(false)}
@@ -263,7 +264,7 @@ function AccountManager() {
               <p>Current Province: {driverDetails.currentProvince}</p>
             </div>
           )}
-        </Modal>
+        </Modal> */}
       </div>
     </ApolloProvider>
   );
