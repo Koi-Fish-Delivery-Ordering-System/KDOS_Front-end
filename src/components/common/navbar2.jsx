@@ -72,8 +72,8 @@ export default function Navbar2() {
         <div className="nav-right">
           {userInfo?.username ? (
             <div className="dropdown">
-              <Dropdown Dropdown={menu_user} trigger={["hover"]}>
-                <a className="dropdown-link">
+              <Dropdown overlay={menu_user} trigger={["hover"]}>
+                <a className="dropdown-link" onClick={e => e.preventDefault()}>
                   <span className='username'>Welcome, {userInfo.username}</span>
                   <img
                     src="src/images/avatar.jpg"
@@ -81,7 +81,6 @@ export default function Navbar2() {
                     className="avatar-image"
                     style={{ width: '30px', height: '30px', borderRadius: '50%', marginRight: '8px' }}
                   />
-
                 </a>
               </Dropdown>
             </div>

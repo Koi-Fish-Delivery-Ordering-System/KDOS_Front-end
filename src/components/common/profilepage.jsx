@@ -35,7 +35,7 @@ function ProfilePage() {
 
   const handleOk = async () => {
     if (currentField === 'phone' && !/^\d{10}$/.test(newValue)) {
-      toast.error("Please enter a phone number.");
+      toast.error("Please enter a valid phone number.");
       return;
     }
 

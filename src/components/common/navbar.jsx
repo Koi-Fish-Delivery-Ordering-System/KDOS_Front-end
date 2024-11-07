@@ -62,7 +62,7 @@ export default function Navbar() {
         <div className="nav-right">
           {userInfo?.username ? (
             <div className="dropdown">  
-              <Dropdown overlay={menu_user} trigger={["hover"]}>
+              <Dropdown menu={menu_user} trigger={["hover"]}>
                 <a className="dropdown-link">
                   <span className='username'>Welcome, {userInfo.username}</span>
                   <img 
