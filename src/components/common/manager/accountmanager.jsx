@@ -1,163 +1,272 @@
 import React, { useState, useEffect } from 'react';
+import { useQuery, ApolloProvider, ApolloClient, InMemoryCache, gql } from '@apollo/client';
+import { Button, Table, Modal, Form, Input } from 'antd';
+import { toast, ToastContainer } from 'react-toastify';
 import axios from 'axios';
-import '../../../css/accountmanager.css';
+import 'react-toastify/dist/ReactToastify.css';
 
-function AccountManagement() {
-  const [accounts, setAccounts] = useState([]);
+const GET_ACCOUNTS = gql`
+  query FindAllAccount {
+  findAllAccount {
+    accountId
+    username
+    password
+    roles {
+      roleId
+      name
+      isDisabled
+    }
+    email
+    address
+    phone
+    verified
+    driver {
+      driverId
+      status
+      currentProvince
+    }
+  }
+}
+`;
+
+const client = new ApolloClient({
+  uri: 'http://26.61.210.173:3001/graphql',
+  cache: new InMemoryCache(),
+  headers: {
+    Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+  },
+  defaultOptions: {
+    watchQuery: { fetchPolicy: 'network-only', errorPolicy: 'all' },
+    query: { fetchPolicy: 'network-only', errorPolicy: 'all' },
+  },
+});
+
+function AccountManager() {
+  const [data, setData] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [formData, setFormData] = useState({
-    username: '',
-    email: '',
-    role: ''
+  const [formData, setFormData] = useState(null);
+  const [roleModalVisible, setRoleModalVisible] = useState(false);
+  const [selectedRoles, setSelectedRoles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [driverDetails, setDriverDetails] = useState(null);
+  const [driverModalVisible, setDriverModalVisible] = useState(false);
+
+  const [form] = Form.useForm();
+
+  const { loading: queryLoading, data: apiData, refetch } = useQuery(GET_ACCOUNTS, {
+    client,
+    onError: (error) => {
+      console.error('GraphQL Error:', error);
+      toast.error("Error fetching accounts: " + error.message);
+    },
   });
-  const [isUpdate, setIsUpdate] = useState(false);
 
   useEffect(() => {
-    const fetchAccounts = async () => {
-      try {
-        const response = await axios.get('https://67040f16ab8a8f892732c8b7.mockapi.io/account');
-        setAccounts(response.data);
-      } catch (error) {
-        console.error('Error fetching accounts:', error);
-      }
-    };
-
-    fetchAccounts();
-  }, []);
-
-  const handleCreate = () => {
-    setFormData({ username: '', email: '', role: '' });
-    setIsUpdate(false);
+    if (apiData) {
+      setData(apiData.findAllAccount || []);
+      setLoading(false);
+    }
+  }, [apiData]);
+  const viewDriverDetails = (driver) => {
+    setDriverDetails(driver);
+    setDriverModalVisible(true);
+  };
+  const openAddModal = () => {
+    form.resetFields();
+    setFormData(null);
     setShowForm(true);
   };
 
-  const handleUpdate = (id) => {
-    const account = accounts.find(a => a.id === id);
-    setFormData({ ...account });
-    setIsUpdate(true);
+  const openEditModal = (record) => {
+    setFormData(record);
+    form.setFieldsValue(record);
     setShowForm(true);
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (isUpdate) {
-      await axios.put(`https://api.example.com/accounts/${formData.id}`, formData);
+  const openRoleModal = (roles) => {
+    if (roles && roles.length > 0) {
+      setSelectedRoles(roles); // Set selected roles for the modal
+      setRoleModalVisible(true); // Show the modal
     } else {
-      await axios.post('https://api.example.com/accounts', formData);
-    }
-    setShowForm(false);
-    // Refresh accounts list
-    const response = await axios.get('https://api.example.com/accounts');
-    setAccounts(response.data);
-  };
-
-  const handleDelete = async (id) => {
-    await axios.delete(`https://api.example.com/accounts/${id}`);
-    // Refresh accounts list
-    const response = await axios.get('https://api.example.com/accounts');
-    setAccounts(response.data);
-  };
-
-  const itemsPerPage = 5;
-  const totalPages = Math.ceil(accounts.length / itemsPerPage);
-  const paginatedData = accounts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-
-  const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      setCurrentPage(newPage);
+      toast.warn("No roles available for this account.");
     }
   };
 
+  const handleCreate = async (values) => {
+    // Handle create logic here
+  };
+
+  const handleEdit = async (values) => {
+    try {
+      const response = await axios.patch('http://26.61.210.173:3001/api/accounts/update-profile', {
+        username: values.username,
+        phone: values.phone,
+        email: values.email,
+        address: values.address,
+      });
+
+      if (response.status === 200) {
+        toast.success("Account updated successfully!");
+        setShowForm(false);
+        refetch(); // Refresh the data to reflect changes
+      } else {
+        toast.error("Failed to update account.");
+      }
+    } catch (error) {
+      console.error('Error updating account:', error);
+      toast.error("Error updating account: " + error.message);
+    }
+  };
+
+  const handleSubmit = async (values) => {
+    if (formData) {
+      await handleEdit(values);
+    } else {
+      await handleCreate(values);
+    }
+  };
+
+  const columns = [
+    { title: 'Account ID', dataIndex: 'accountId' },
+    { title: 'Username', dataIndex: 'username' },
+    { title: 'Email', dataIndex: 'email' },
+    { title: 'Phone', dataIndex: 'phone' },
+    { title: 'Address', dataIndex: 'address' },
+    {
+      title: 'Verified',
+      dataIndex: 'verified',
+      render: (verified) => (verified ? 'Yes' : 'No'),
+    },
+    {
+      title: 'Roles',
+      dataIndex: 'roles',
+      render: (roles) => (
+        <span>{roles && roles.length > 0 ? roles.map(role => role.name).join(', ') : 'No Roles'}</span>
+      ),
+      filters: [
+        { text: 'Admin', value: 'Admin' },
+        { text: 'User', value: 'User' },
+      ],
+      onFilter: (value, record) => {
+        return record.roles && record.roles.some(role => role.name.includes(value));
+      },
+    },
+    {
+      title: 'Actions',
+      render: (text, record) => (
+        <>
+          <Button onClick={() => openEditModal(record)}>Edit</Button>
+          {record.driver && (
+            <Button onClick={() => viewDriverDetails(record.driver)} style={{ marginLeft: '8px' }}>
+              View Driver Details
+            </Button>
+          )}
+        </>
+      ),
+    },
+  ];
 
   return (
-    <div>
-      <h1 className='section-title'>Account Management</h1>
-      <button className="new-route-button" onClick={handleCreate}>Create Account</button>
-      <table className="transport-table">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Username</th>
-            <th>Email</th>
-            <th>Role</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {paginatedData.map(account => (
-            <tr key={account.id}>
-              <td>{account.id}</td>
-              <td>{account.username}</td>
-              <td>{account.email}</td>
-              <td>{account.role}</td>
-              <td>
-                <button className="transport-button" onClick={() => handleUpdate(account.id)}>Update</button>
-                <button className="transport-button" onClick={() => handleDelete(account.id)}>Delete</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <div className="pagination">
-        <button className="arrow-button" onClick={() => handlePageChange(1)} disabled={currentPage === 1}>&laquo;</button>
-        <button className="arrow-button" onClick={() => handlePageChange(currentPage - 1)} disabled={currentPage === 1}>&lsaquo;</button>
-        {Array.from({ length: totalPages }, (_, index) => (
-          <button
-            key={index}
-            className={`page-button ${currentPage === index + 1 ? 'active' : ''}`}
-            onClick={() => handlePageChange(index + 1)}
-          >
-            {index + 1}
-          </button>
-        ))}
-        <button className="arrow-button" onClick={() => handlePageChange(currentPage + 1)} disabled={currentPage === totalPages}>&rsaquo;</button>
-        <button className="arrow-button" onClick={() => handlePageChange(totalPages)} disabled={currentPage === totalPages}>&raquo;</button>
-        <select
-          value={currentPage}
-          onChange={(e) => handlePageChange(Number(e.target.value))}
-          className="page-select"
+    <ApolloProvider client={client}>
+      <ToastContainer />
+      <div>
+        <h2>Manage Accounts</h2>
+        <Button
+          onClick={openAddModal}
+          type="primary"
+          style={{ marginBottom: '16px', backgroundColor: '#ff7700', borderColor: '#ff7700' }}
         >
-          {Array.from({ length: totalPages }, (_, index) => (
-            <option key={index} value={index + 1}>
-              Page {index + 1}
-            </option>
-          ))}
-        </select>
-      </div>
+          Add Account
+        </Button>
+        <Table
+          columns={columns}
+          dataSource={data}
+          loading={loading || queryLoading}
+          rowKey="accountId"
+          pagination={{
+            pageSize: 5,
+            showSizeChanger: false,
+          }}
+        />
+        <Modal
+          title={formData ? "Edit Account" : "Add Account"}
+          open={showForm}
+          onCancel={() => setShowForm(false)}
+          footer={null}
+        >
+          <Form
+            form={form}
+            initialValues={formData || {}}
+            onFinish={handleSubmit}
+            layout="horizontal"
+          >
+            <Form.Item name="username" style={{ display: 'none' }} >
+              <Input type="hidden" />
+            </Form.Item>
+            <Form.Item label="Phone" name="phone" rules={[{ required: true, message: 'Please input phone number!' }]}>
+              <Input />
+            </Form.Item>
+            <Form.Item label="Email" name="email" rules={[{ required: true, message: 'Please input email!' }]}>
+              <Input />
+            </Form.Item>
+            <Form.Item label="Address" name="address" rules={[{ required: true, message: 'Please input address!' }]}>
+              <Input />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit" style={{ backgroundColor: '#ff7700', borderColor: '#ff7700' }}>
+                Save
+              </Button>
+            </Form.Item>
+          </Form>
+        </Modal>
 
-      {showForm && (
-        <div className="modal">
-          <div className="modal-content">
-            <span className="close" onClick={() => setShowForm(false)}>&times;</span>
-            <h2>{isUpdate ? 'Update Account' : 'Create Account'}</h2>
-            <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label>Username:</label>
-                <input type="text" name="username" value={formData.username} onChange={handleChange} required />
-              </div>
-              <div className="form-group">
-                <label>Email:</label>
-                <input type="email" name="email" value={formData.email} onChange={handleChange} required />
-              </div>
-              <div className="form-group">
-                <label>Role:</label>
-                <input type="text" name="role" value={formData.role} onChange={handleChange} required />
-              </div>
-              <div className="form-actions">
-                <button type="submit" className="go-button">Save</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-    </div>
+        {/* Role Modal */}
+        <Modal
+          title="Account Roles"
+          open={roleModalVisible}
+          onCancel={() => setRoleModalVisible(false)}
+          footer={[
+            <Button key="close" onClick={() => setRoleModalVisible(false)}>
+              Close
+            </Button>,
+          ]}
+        >
+          <Table
+            columns={[
+              { title: 'Role ID', dataIndex: 'roleId' },
+              { title: 'Role Name', dataIndex: 'name' },
+              {
+                title: 'Is Disabled',
+                dataIndex: 'isDisabled',
+                render: (isDisabled) => (isDisabled ? 'Yes' : 'No'),
+              },
+            ]}
+            dataSource={selectedRoles}
+            rowKey="roleId"
+            pagination={false}
+          />
+        </Modal>
+        <Modal
+          title="Driver Details"
+          open={driverModalVisible}
+          onCancel={() => setDriverModalVisible(false)}
+          footer={[
+            <Button key="close" onClick={() => setDriverModalVisible(false)}>
+              Close
+            </Button>,
+          ]}
+        >
+          {driverDetails && (
+            <div>
+              <p>Driver ID: {driverDetails.driverId}</p>
+              <p>Status: {driverDetails.status}</p>
+              <p>Current Province: {driverDetails.currentProvince}</p>
+            </div>
+          )}
+        </Modal>
+      </div>
+    </ApolloProvider>
   );
 }
 
-export default AccountManagement;
+export default AccountManager;
