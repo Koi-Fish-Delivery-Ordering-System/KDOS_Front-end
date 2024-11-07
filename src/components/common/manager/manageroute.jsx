@@ -35,6 +35,7 @@ function ManageRoute() {
       query FindManyProcessingOrder {
         findManyProcessingOrder {
           orderId
+          notes
           fromProvince
           toProvince
           fromAddress
@@ -595,6 +596,10 @@ function ManageRoute() {
               <div className="info-item">
                 <span className="info-label">Transport Type:</span>
                 <span className="info-value">{selectedOrderDetail.transportService.type}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Notes:</span>
+                <span className="info-value">{selectedOrderDetail.notes??'No notes available'}</span>
               </div>
               <div className="info-item">
                 <span className="info-label">Status:</span>

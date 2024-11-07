@@ -113,6 +113,10 @@
   background-color: #d4edda;
   color: #155724;
 }
+.status.pendingPickUp {
+  background-color: #ffe4cd;
+  color: #853804;
+}
 .status.cancelled {
   background-color: #f8d7da;
   color: #721c24;

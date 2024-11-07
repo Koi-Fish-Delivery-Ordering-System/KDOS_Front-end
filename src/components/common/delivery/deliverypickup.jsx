@@ -172,7 +172,7 @@ function DeliveryPage() {
                         <p><strong>Status:</strong> {selectedRoute.status}</p>
                         <p><strong>Delivery Date:</strong> {selectedRoute.deliveryStartDate ? new Date(selectedRoute.deliveryStartDate).toLocaleString() : 'Not Started'}</p>
                         <p><strong>Last Updated:</strong> {new Date(selectedRoute.updatedAt).toLocaleString()}</p>
-                        <p><strong>Notes:</strong> {selectedRoute.notes || 'No notes available'}</p>
+                        <p><strong>Notes:</strong> {selectedRoute.notes ?? 'No notes available'}</p>
                         <div>
                             <strong>Route Stops:</strong>
                             <div className="route-stops">
