@@ -74,7 +74,13 @@ function RegisterPage() {
           <Input.Password />
         </Form.Item>
 
-        
+        <Form.Item
+          label="Full Name"
+          name="fullName"
+          rules={[{ required: true, message: "Please input your full name!" }]}
+        >
+          <Input />
+        </Form.Item>
 
         <Form.Item
           label="Phone"

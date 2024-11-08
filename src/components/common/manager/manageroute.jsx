@@ -36,6 +36,10 @@ function ManageRoute() {
         findManyProcessingOrder {
           orderId
           notes
+          account {
+            username
+            phone
+          }
           fromProvince
           toProvince
           fromAddress
@@ -138,11 +142,17 @@ function ManageRoute() {
             status
             stopType
             orderId
+            
             order {
-            transportService {
-              type
-            }
-              
+              receiverName
+              receiverPhone
+              account {
+                fullName
+                phone
+              }
+              transportService {
+                type
+              }
             }
           }
             
@@ -534,7 +544,7 @@ function ManageRoute() {
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h2 className="section-title" style={{ margin: 0 }}>Route Stops</h2>
-              <a style={{ color: '#ff7700', cursor: 'pointer' }}>+ Add Stop</a>
+             
             </div>
             <div className="route-stops">
               {Object.entries(selectedRoute.routeStops.reduce((groups, stop) => {
@@ -546,11 +556,7 @@ function ManageRoute() {
               }, {})).map(([orderId, orderStops]) => (
                 <div key={orderId} className="order-group">
                   <h3 className="info-label">Order ID: {orderId}</h3>
-                  <div className="order-info-container">
-                    <span className="order-info-item">Transport type: {selectedRoute.routeStops.find(stop => stop.orderId === orderId).order.transportService.type}</span>
-                    <span className="order-info-item">Receiver Name: {selectedRoute.routeStops.find(stop => stop.orderId === orderId).order.receiverName}</span>
-                    <span className="order-info-item">Receiver Phone: {selectedRoute.routeStops.find(stop => stop.orderId === orderId).order.receiverPhone}</span>
-                  </div>
+                  
                   <div className="stops-container">
                     {orderStops
                       .sort((a, b) => {
@@ -607,19 +613,26 @@ function ManageRoute() {
                   {selectedOrderDetail.orderStatus}
                 </span>
               </div>
-              
+              <div className="price-section">
+              <div className="info-item">
+                <span className="info-label">Total Price:</span>
+                <span className="info-value price">
+                  {selectedOrderDetail.totalPrice.toLocaleString()} VND
+                </span>
+              </div>
+            </div>
             </div>
 
             <div className="address-section">
               <h3>Sender Information</h3>
-              {/* <div className="info-item">
+              <div className="info-item">
                 <span className="info-label">Name:</span>
-                <span className="info-value">{selectedOrderDetail.senderName}</span>
+                <span className="info-value">{selectedOrderDetail.account.username}</span>
               </div>
               <div className="info-item">
                 <span className="info-label">Phone:</span>
-                <span className="info-value">{selectedOrderDetail.senderPhone}</span>
-              </div> */}
+                <span className="info-value">{selectedOrderDetail.account.phone}</span>
+              </div>
               <div className="info-item">
                 <span className="info-label">Address:</span>
                 <span className="info-value">{selectedOrderDetail.fromAddress}</span>
@@ -650,14 +663,7 @@ function ManageRoute() {
               </div>
             </div>
 
-            <div className="price-section">
-              <div className="info-item">
-                <span className="info-label">Total Price:</span>
-                <span className="info-value price">
-                  {selectedOrderDetail.totalPrice.toLocaleString()} VND
-                </span>
-              </div>
-            </div>
+            
 
             <div className="fish-section">
               <h3>Ordered Fish</h3>

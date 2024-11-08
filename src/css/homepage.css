@@ -177,15 +177,24 @@ body {
 
 /* Hero Section */
 .hero-section {
-  height: 80vh;
-  background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('../images/header.png');
+  height: 100vh;
+  background:  url('../images/background3.jpg');
+  
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column; /* Ensure content stacks vertically */
+  
+  justify-content: center; /* Center content vertically */
   text-align: center;
   color: white;
+}
+
+.hero-content {
+  max-width: 800px; /* Optional: limit the width of the content */
+  margin-left: 220px;
+    margin-top: 40px;
 }
 
 .hero-content h1 {
@@ -200,8 +209,8 @@ body {
 
 .hero-buttons {
   display: flex;
-  gap: 1rem;
-  justify-content: center;
+  /* justify-content: flex-start;  */
+  gap: 10px; /* Optional: Adds space between buttons */
 }
 
 .primary-button, .secondary-button {

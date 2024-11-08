@@ -23,6 +23,7 @@ function ProfilePage() {
   const [currentField, setCurrentField] = useState('');
   const [newValue, setNewValue] = useState('');
   const username = sessionStorage.getItem("username");
+  const fullName = sessionStorage.getItem("fullName");
   const email = sessionStorage.getItem("email");
   const address = sessionStorage.getItem("address");
   const phone = sessionStorage.getItem("phone");
@@ -65,9 +66,12 @@ function ProfilePage() {
       <div className="profile-item">
         <div className="profile-label">Username</div>
         <div className="profile-value">{username}</div>
-        {/* <a href="#" className="profile-action" onClick={() => showModal('username')}>Change</a> */}
       </div>
-
+      <div className="profile-item">
+        <div className="profile-label">Full Name</div>
+        <div className="profile-value">{fullName}</div>
+        <a href="#" className="profile-action" onClick={() => showModal('fullName')}>Change</a>
+      </div>
       <div className="profile-item">
         <div className="profile-label">Phone</div>
         <div className="profile-value">{phone}</div>

@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Row, Col, Card, Button, Select, Spin } from 'antd';
+import { Row, Col, Card, Button, Select, Spin, Modal } from 'antd';
 import '../../../css/deliverypage.css';
+import '../../../css/transportservice.css'
 import axios from "axios";
 
 function DeliveryProcess() {
     const [route, setRoute] = useState(null);
     const [loading, setLoading] = useState(false);
-
+    const [isModalVisible, setIsModalVisible] = useState(false);
+    const [selectedOrder, setSelectedOrder] = useState(null);
+    const [selectedFishIndex, setSelectedFishIndex] = useState(null);
     const fetchRoute = async () => {
         try {
             setLoading(true);
@@ -32,6 +35,21 @@ function DeliveryProcess() {
                             transportService {
                                 type
                             }
+                          account {
+                            fullName
+                            phone
+                          }
+                          receiverName
+                          receiverPhone
+                          totalPrice
+                          orderedFish {
+                            name
+                            species
+                            gender
+                            ageInMonth
+                            weight
+                            description
+                          }
                         }
                     }
                 }
@@ -78,6 +96,23 @@ function DeliveryProcess() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const toggleFishDetails = (index) => {
+        setSelectedFishIndex(selectedFishIndex === index ? null : index);
+    };
+
+    const showModal = (order) => {
+        setSelectedOrder(order);
+        setIsModalVisible(true);
+    };
+
+    const handleOk = () => {
+        setIsModalVisible(false);
+    };
+
+    const handleCancel = () => {
+        setIsModalVisible(false);
     };
 
     useEffect(() => {
@@ -131,7 +166,10 @@ function DeliveryProcess() {
                                         return groups;
                                     }, {})).map(([orderId, orderStops]) => (
                                         <div key={orderId} className="order-group">
-                                            <h3 className="info-label" style={{fontSize:'16px'}}>Order ID: {orderId}</h3>
+                                            <h3 className="info-label" style={{ fontSize: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <span>Order ID: {orderId}</span>
+                                                <a style={{ color: '#ff7700', cursor: 'pointer' }} onClick={() => showModal(orderStops)}>View More</a>
+                                            </h3>
                                             <span>Transport type: {route?.routeStops.find(stop => stop.orderId === orderId).order.transportService.type}</span>
                                             <div className="stops-container">
                                                 {orderStops
@@ -161,6 +199,71 @@ function DeliveryProcess() {
                                     ))}
                                 </div>
                             </div>
+                            <Modal
+                                title="More Information"
+                                open={isModalVisible}
+                                onCancel={() => setIsModalVisible(false)}
+                                footer={null}
+                            >
+                                {selectedOrder && selectedOrder.length > 0 && (
+                                    <div>
+                                        <div className="address-section">
+                                            <h3 className="info-label">Sender Information</h3>
+                                            <div className="info-item">
+                                                <span className="info-label">Name:</span>
+                                                <span className="info-value">{selectedOrder[0].order.account.fullName}</span>
+                                            </div>
+                                            <div className="info-item">
+                                                <span className="info-label">Phone:</span>
+                                                <span className="info-value">{selectedOrder[0].order.account.phone}</span>
+                                            </div>
+                                           
+
+                                            <div className="address-section">
+                                                <h3 className="info-label">Receiver Information</h3>
+                                                <div className="info-item">
+                                                    <span className="info-label">Name:</span>
+                                                    <span className="info-value">{selectedOrder[0].order.receiverName}</span>
+                                                </div>
+                                                <div className="info-item">
+                                                    <span className="info-label">Phone:</span>
+                                                    <span className="info-value">{selectedOrder[0].order.receiverPhone}</span>
+                                                </div>
+
+
+                                                <div className="price-section">
+                                                    <div className="info-item">
+                                                        <span className="info-label">Total Price:</span>
+                                                        <span className="info-value price">
+                                                            {selectedOrder[0].order.totalPrice.toLocaleString()} VND
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <h3 className="info-label">Ordered Fish</h3>
+                                                {selectedOrder[0].order.orderedFish && selectedOrder[0].order.orderedFish.map((fish, index) => (
+                                                    <div key={index} className="fish-item">
+                                                        <p
+                                                            style={{ cursor: 'pointer' }}
+                                                            onClick={() => toggleFishDetails(index)}
+                                                        >
+                                                            <strong>Name:</strong> {fish.name}
+                                                        </p>
+                                                        {selectedFishIndex === index && (
+                                                            <div className="fish-details">
+                                                                <p><strong>Species:</strong> {fish.species}</p>
+                                                                <p><strong>Gender:</strong> {fish.gender}</p>
+                                                                <p><strong>Age:</strong> {fish.ageInMonth} months</p>
+                                                                <p><strong>Weight:</strong> {fish.weight} g</p>
+                                                                <p><strong>Description:</strong> {fish.description}</p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </Modal>
                         </>
                     )
                 )}
@@ -169,4 +272,4 @@ function DeliveryProcess() {
     );
 }
 
-export default DeliveryProcess;
+                export default DeliveryProcess;

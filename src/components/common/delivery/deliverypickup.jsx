@@ -80,9 +80,14 @@ function DeliveryPage() {
             })
             message.success('Pickup successful');
             fetchRoutes();
+            
         } catch (err) {
-            console.error("Error picking up order:", err);
-            message.error('Pickup failed');
+            if (err.response.status === 409) {
+                message.error('You have route being processed');
+            } else {
+                console.error("Error picking up order:", err);
+                message.error('Pickup failed');
+            }
         } finally {
             setLoading(false);
         }
@@ -112,6 +117,7 @@ function DeliveryPage() {
             title: 'Status',
             dataIndex: 'status',
             key: 'status',
+            render: (status) => <span className={`status-route ${status.toLowerCase()}`}>{status}</span>,
         },
         {
             title: 'Delivery Date',
@@ -129,24 +135,13 @@ function DeliveryPage() {
             title: 'Action',
             key: 'action',
             render: (_, record) => (
-                <button
-                    className="detail-delivery-btn"
-                    onClick={() => handlePickup(record.routeId)}
-                    disabled={loading}
-                >
-                    Pickup
-                </button>
+                
+                <button className="view-button" onClick={() => handleView(record)}>
+                        <FontAwesomeIcon icon={faEye} />
+                    </button>       
             ),
         },
-        {
-            title: 'View',
-            key: 'view',
-            render: (_, record) => (
-                <button className="view-button" onClick={() => handleView(record)}>
-                    <FontAwesomeIcon icon={faEye} />
-                </button>
-            ),
-        }
+        
     ];
 
     return (
@@ -156,7 +151,7 @@ function DeliveryPage() {
                 columns={columns}
                 dataSource={routes}
                 rowKey="routeId"
-                loading={loading}
+                loading={loading}          
             />
 
             <Modal
@@ -165,12 +160,11 @@ function DeliveryPage() {
                 onCancel={() => setIsModalOpen(false)}
                 footer={null}
                 width={1000}
+                centered
             >
                 {selectedRoute && (
                     <div>
-                        <p><strong>Route ID:</strong> {selectedRoute.routeId}</p>
-                        <p><strong>Status:</strong> {selectedRoute.status}</p>
-                        <p><strong>Delivery Date:</strong> {selectedRoute.deliveryStartDate ? new Date(selectedRoute.deliveryStartDate).toLocaleString() : 'Not Started'}</p>
+                        <p><strong>Route ID:</strong> {selectedRoute.routeId}</p>                       
                         <p><strong>Last Updated:</strong> {new Date(selectedRoute.updatedAt).toLocaleString()}</p>
                         <p><strong>Notes:</strong> {selectedRoute.notes ?? 'No notes available'}</p>
                         <div>
@@ -185,15 +179,7 @@ function DeliveryPage() {
                                 }, {})).map(([orderId, orderStops]) => (
                                     <div key={orderId} className="order-group">
                                         <h3 className="info-label">Order ID: {orderId}</h3>
-                                        <div className="order-info-container">
-                                            
-                                            <span className="order-info-item">
-                                                Receiver Name: {selectedRoute.routeStops.find(stop => stop.orderId === orderId)?.order?.receiverName || 'N/A'}
-                                            </span>
-                                            <span className="order-info-item">
-                                                Receiver Phone: {selectedRoute.routeStops.find(stop => stop.orderId === orderId)?.order?.receiverPhone || 'N/A'}
-                                            </span>
-                                        </div>
+                                        
                                         <div className="stops-container">
                                             {orderStops
                                                 .sort((a, b) => {
@@ -215,6 +201,13 @@ function DeliveryPage() {
                                     </div>
                                 ))}
                             </div>
+                            <button
+                    className="detail-delivery-btn"
+                    onClick={() => handlePickup(selectedRoute.routeId)}
+                                disabled={loading}
+                            >
+                                Pickup
+                            </button>
                         </div>
                     </div>
                 )}

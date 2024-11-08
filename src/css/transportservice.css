@@ -420,7 +420,7 @@
 
 .order-info-item:before {
   content: "|";
-  margin-left: 8px;
-  margin-right: 8px;
+  margin-left: 5px;
+  margin-right: 5px;
   color: #666;
 }
