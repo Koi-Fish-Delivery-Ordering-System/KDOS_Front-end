@@ -50,9 +50,10 @@ function LoginPage() {
           console.log("Full Init response:", initResponse);
 
           if (initResponse.data && initResponse.data.data && initResponse.data.data.init) {
-            const { accountId, roles, username, email, password, phone, address } = initResponse.data.data.init;
+            const { accountId, roles, username, email, password, phone, address, fullName } = initResponse.data.data.init;
             sessionStorage.setItem("accountId", accountId);
             sessionStorage.setItem("username", username);
+            sessionStorage.setItem("fullName", fullName);
             sessionStorage.setItem("email", email);
             sessionStorage.setItem("phone", phone);
             sessionStorage.setItem("address", address);

@@ -61,7 +61,12 @@ function ManageRoute() {
                 qualifications {
                   fileId
                 }
-              } 
+              }
+          selectedAdditionalService {
+            additionalService {
+              name
+            }
+          }
         }
       }
     `;
@@ -127,7 +132,7 @@ function ManageRoute() {
       query FindManyRoutes {
         findManyRoutes {
           routeId
-          numberofOrders
+          numberOfOrders
           driver {
             account {
               username
@@ -525,7 +530,11 @@ function ManageRoute() {
               </div>
               <div className="info-item">
                 <span className="info-label"><strong>Notes:</strong></span>
-                <span className="info-value">{selectedRoute.notes}</span>
+                <span className="info-value">{selectedRoute.notes?selectedRoute.notes:'No notes available'}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label"><strong>Notes:</strong></span>
+                <span className="info-value">{selectedRoute.notes?selectedRoute.notes:'No notes available'}</span>
               </div>
               
               <div className="info-item" >
@@ -536,7 +545,7 @@ function ManageRoute() {
               </div>
               <div className="info-item">
                 <span className="info-label"><strong>Number of orders:</strong></span>
-                <span className="info-value">{selectedRoute.numberofOrders}</span>
+                <span className="info-value">{selectedRoute.numberOfOrders}</span>
               </div>
               
 
@@ -602,6 +611,12 @@ function ManageRoute() {
               <div className="info-item">
                 <span className="info-label">Transport Type:</span>
                 <span className="info-value">{selectedOrderDetail.transportService.type}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Additional Service:</span>
+                <span className="info-value">
+                  {selectedOrderDetail.selectedAdditionalService?.map(service => service.additionalService.name).join(', ') || 'No additional services'}
+                </span>
               </div>
               <div className="info-item">
                 <span className="info-label">Notes:</span>

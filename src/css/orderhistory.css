@@ -109,7 +109,7 @@
   background-color: #cce5ff;
   color: #004085;
 }
-.status.delivered {
+.status.completed {
   background-color: #d4edda;
   color: #155724;
 }
@@ -149,7 +149,10 @@
   padding-top: 1rem;
   
 }
-
+.order-actions-button{
+  display: grid;
+  justify-content: flex-end;
+}
 /* Modal Styles */
 .modal-content {
   display: flex;
@@ -235,5 +238,14 @@
   font-weight: 600;
   font-size: 16px;
 }
-
+.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #ff7700 !important; /* Orange color for active tab text */
+}
+.ant-tabs-tab:hover{
+  color: #ff7700 !important;
+}
+/* Change the color of the active tab underline */
+.ant-tabs-ink-bar {
+  background-color: #ff7700 !important; /* Orange color for active tab underline */
+}
 

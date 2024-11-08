@@ -3,7 +3,7 @@ import axios from "axios";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "../../css/orderhistory.css";
-import { Modal } from 'antd';
+import { Modal, Input, Tabs } from 'antd';
 import { faFish } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 const OrderHistory = () => {
@@ -14,6 +14,12 @@ const OrderHistory = () => {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [selectedFish, setSelectedFish] = useState(null);
   const [fishImages, setFishImages] = useState({});
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [feedbackStars, setFeedbackStars] = useState(0);
+  const [feedbackContent, setFeedbackContent] = useState('');
+  const [isViewFeedbackModalOpen, setIsViewFeedbackModalOpen] = useState(false);
+
+  const { TabPane } = Tabs;
 
   useEffect(() => {
     fetchOrder();
@@ -51,6 +57,8 @@ const OrderHistory = () => {
           transportService {     
             type
           }
+          feedBackStars
+          feedBackContent
         }
       }
     `;
@@ -103,6 +111,41 @@ const OrderHistory = () => {
     }
   };
 
+  const feedback = (orderItem) => {
+    setSelectedOrder(orderItem);
+    setIsFeedbackModalOpen(true);
+  };
+
+  const handleFeedbackSubmit = async () => {
+    try {
+      await axios.patch(`http://26.61.210.173:3001/api/orders/create-order-feedback`,{
+        orderId: selectedOrder.orderId,
+        feedBackStars: feedbackStars,
+        feedBackContent: feedbackContent
+      },{
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      }) 
+        
+      console.log('Feedback submitted:', feedbackStars, feedbackContent);
+      setIsFeedbackModalOpen(false);
+      setFeedbackStars(0);
+      setFeedbackContent('');
+    } catch (error) {
+      console.error('Error submitting feedback:', error);
+    }
+  };
+
+  const viewFeedback = (orderItem) => {
+    setSelectedOrder(orderItem);
+    setIsViewFeedbackModalOpen(true);
+  };
+
+  // Separate orders into completed and other orders
+  const completedOrders = order.filter(orderItem => orderItem.orderStatus === 'completed');
+  const otherOrders = order.filter(orderItem => orderItem.orderStatus !== 'completed');
+
   return (
     <div className="records">
       
@@ -112,28 +155,77 @@ const OrderHistory = () => {
       {loading ? (
         <div className="loading">Loading...</div>
       ) : order.length > 0 ? (
-        <div className="orders-container">
-          {order.map((orderItem) => (
-            <div key={orderItem.orderId} className="order-card">
-              <div className="order-detail">
-                <span className="label">Order ID:</span> {orderItem.orderId}
+        <Tabs defaultActiveKey="1">
+          <TabPane tab="Process Orders" key="1">
+            {otherOrders.length > 0 ? (
+              <div className="orders-container">
+                {otherOrders.map((orderItem) => (
+                  <div key={orderItem.orderId} className="order-card">
+                    <div className="order-detail">
+                      <span className="label">Order ID:</span> {orderItem.orderId}
+                    </div>
+                    <div className="order-detail">
+                      <span className="label">Date:</span> {new Date(orderItem.createdAt).toLocaleDateString()}
+                    </div>
+                    <div className="order-detail">
+                      <span className="label">Receiver Name:</span> {orderItem.receiverName}
+                    </div>
+                    <div className="order-detail">
+                      <span className="label">Total Price:</span> {orderItem.totalPrice.toLocaleString()} VNĐ
+                    </div>
+                    <div className="order-actions">
+                      <span className={`status ${orderItem.orderStatus}`}>{orderItem.orderStatus}</span>
+                      <div className="order-actions-button" style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <button className="detail-button" onClick={() => showOrderDetail(orderItem)}>View Details</button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div className="order-detail">
-                <span className="label">Date:</span> {new Date(orderItem.createdAt).toLocaleDateString()}
+            ) : (
+              <div className="emptyState">
+                <p>No other orders found.</p>
               </div>
-              <div className="order-detail">
-                <span className="label">Receiver Name:</span> {orderItem.receiverName}
+            )}
+          </TabPane>
+          <TabPane tab="Completed Orders" key="2">
+            {completedOrders.length > 0 ? (
+              <div className="orders-container">
+                {completedOrders.map((orderItem) => (
+                  <div key={orderItem.orderId} className="order-card">
+                    <div className="order-detail">
+                      <span className="label">Order ID:</span> {orderItem.orderId}
+                    </div>
+                    <div className="order-detail">
+                      <span className="label">Date:</span> {new Date(orderItem.createdAt).toLocaleDateString()}
+                    </div>
+                    <div className="order-detail">
+                      <span className="label">Receiver Name:</span> {orderItem.receiverName}
+                    </div>
+                    <div className="order-detail">
+                      <span className="label">Total Price:</span> {orderItem.totalPrice.toLocaleString()} VNĐ
+                    </div>
+                    <div className="order-actions">
+                      <span className={`status ${orderItem.orderStatus}`}>{orderItem.orderStatus}</span>
+                      <div className="order-actions-button" >
+                        <button className="detail-button" onClick={() => showOrderDetail(orderItem)}>View Details</button>
+                        {orderItem.feedBackStars === null ? (
+                          <button className="detail-button" onClick={() => feedback(orderItem)}>Feedback</button>
+                        ) : (
+                          <button className="detail-button" onClick={() => viewFeedback(orderItem)}>View Feedback</button>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
-              <div className="order-detail">
-                <span className="label">Total Price:</span> {orderItem.totalPrice.toLocaleString()} VNĐ
+            ) : (
+              <div className="emptyState">
+                <p>No completed orders found.</p>
               </div>
-              <div className="order-actions">
-                <span className={`status ${orderItem.orderStatus}`}>{orderItem.orderStatus}</span>
-                <button className="detail-button" onClick={() => showOrderDetail(orderItem)}>View Details</button>
-              </div>
-            </div>
-          ))}
-        </div>
+            )}
+          </TabPane>
+        </Tabs>
       ) : (
         <div className="emptyState">
           <img src="empty-state.png" alt="Empty State" className="emptyImage" />
@@ -208,6 +300,54 @@ const OrderHistory = () => {
                 </div>
               )}
             </div>
+          </div>
+        )}
+      </Modal>
+
+      <Modal
+        title={<h2 style={{ margin: 0, color: '#ff7700' }}>Feedback</h2>}
+        open={isFeedbackModalOpen}
+        onCancel={() => setIsFeedbackModalOpen(false)}
+        okText="Submit" 
+        onOk={handleFeedbackSubmit}
+        
+      >
+        <div className="feedback-content">
+          <h3>Rate your experience</h3>
+          <div className="star-rating">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <span
+                key={star}
+                className={`star ${feedbackStars >= star ? 'selected' : ''}`}
+                onClick={() => setFeedbackStars(star)}
+                style={{ cursor: 'pointer', fontSize: '24px', color: feedbackStars >= star ? '#ff7700' : '#ccc' }}
+              >
+                ★
+              </span>
+            ))}
+          </div>
+          <Input.TextArea
+            value={feedbackContent}
+            onChange={(e) => setFeedbackContent(e.target.value)}
+            placeholder="Write your feedback here..."
+            rows={4}
+            style={{ width: '100%', marginTop: '10px' }}
+          />
+        </div>
+      </Modal>
+
+      <Modal
+        title={<h2 style={{ margin: 0, color: '#ff7700' }}>Your Feedback</h2>}
+        open={isViewFeedbackModalOpen}
+        onCancel={() => setIsViewFeedbackModalOpen(false)}
+        footer={null}
+        centered
+      >
+        {selectedOrder && (
+          <div className="feedback-view-content">
+            
+            <p><strong>Stars:</strong> {selectedOrder.feedBackStars}</p>
+            <p><strong>Feedback:</strong> {selectedOrder.feedBackContent}</p>
           </div>
         )}
       </Modal>

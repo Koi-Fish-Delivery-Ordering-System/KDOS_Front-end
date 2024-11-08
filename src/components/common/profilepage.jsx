@@ -22,11 +22,15 @@ function ProfilePage() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [currentField, setCurrentField] = useState('');
   const [newValue, setNewValue] = useState('');
+  const [currentFieldCurrent, setCurrentFieldCurrent] = useState('');
   const username = sessionStorage.getItem("username");
   const fullName = sessionStorage.getItem("fullName");
   const email = sessionStorage.getItem("email");
   const address = sessionStorage.getItem("address");
   const phone = sessionStorage.getItem("phone");
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmNewPassword, setConfirmNewPassword] = useState('');
 
   const showModal = (field) => {
     setCurrentField(field);
@@ -34,10 +38,28 @@ function ProfilePage() {
     setIsModalVisible(true);
   };
 
+  const showModalCurrent = (field) => {
+    setCurrentFieldCurrent(field);
+    setIsModalVisible(true);
+  };
+
   const handleOk = async () => {
     if (currentField === 'phone' && !/^\d{10}$/.test(newValue)) {
       toast.error("Please enter a valid phone number.");
       return;
+    }
+
+    if (currentField === 'password') {
+      if (!currentPassword) {
+        toast.error("Please enter your current password.");
+        return;
+      }
+      if (newPassword !== confirmNewPassword) {
+        toast.error("New passwords do not match.");
+        return;
+      }
+      // Add logic to verify current password and update to new password
+      // ...
     }
 
     try {
@@ -86,7 +108,7 @@ function ProfilePage() {
       
       <div className="profile-item">
         <div className="profile-label">Password</div>
-        <a href="#" className="profile-action">Change Password</a>
+        <a href="#" className="profile-action" onClick={() => showModal('password')}>Change Password</a>
       </div>
       <div className="profile-item">
         <div className="profile-label">Account</div>
@@ -103,12 +125,35 @@ function ProfilePage() {
         okButtonProps={{ style: { backgroundColor: '#ff7700' } }}
       >
         <Form>
-          <Form.Item label={currentField}>
-            <Input
-              value={newValue}
-              onChange={(e) => setNewValue(e.target.value)}
-            />
-          </Form.Item>
+          {currentField === 'password' ? (
+            <>
+              <Form.Item label="Current Password">
+                <Input.Password
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                />
+              </Form.Item>
+              <Form.Item label="New Password">
+                <Input.Password
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                />
+              </Form.Item>
+              <Form.Item label="Confirm New Password">
+                <Input.Password
+                  value={confirmNewPassword}
+                  onChange={(e) => setConfirmNewPassword(e.target.value)}
+                />
+              </Form.Item>
+            </>
+          ) : (
+            <Form.Item label={currentField}>
+              <Input
+                value={newValue}
+                onChange={(e) => setNewValue(e.target.value)}
+              />
+            </Form.Item>
+          )}
         </Form>
       </Modal>
       <ToastContainer />

@@ -3,12 +3,14 @@ import { Table, Spin, message, Modal } from 'antd';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye } from '@fortawesome/free-solid-svg-icons';
 import axios from "axios";
+import { useNavigate } from 'react-router-dom';
 
 function DeliveryPage() {
     const [loading, setLoading] = useState(false);
     const [routes, setRoutes] = useState([]);
     const [selectedRoute, setSelectedRoute] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const navigate = useNavigate();
 
     const fetchRoutes = async () => {
         try {
@@ -80,10 +82,12 @@ function DeliveryPage() {
             })
             message.success('Pickup successful');
             fetchRoutes();
-            
+            setIsModalOpen(false);
+            navigate('/delivery', { state: { activeComponent: 'process' } });
         } catch (err) {
             if (err.response.status === 409) {
                 message.error('You have route being processed');
+                console.error(err);
             } else {
                 console.error("Error picking up order:", err);
                 message.error('Pickup failed');
@@ -135,13 +139,13 @@ function DeliveryPage() {
             title: 'Action',
             key: 'action',
             render: (_, record) => (
-                
+
                 <button className="view-button" onClick={() => handleView(record)}>
-                        <FontAwesomeIcon icon={faEye} />
-                    </button>       
+                    <FontAwesomeIcon icon={faEye} />
+                </button>
             ),
         },
-        
+
     ];
 
     return (
@@ -151,7 +155,7 @@ function DeliveryPage() {
                 columns={columns}
                 dataSource={routes}
                 rowKey="routeId"
-                loading={loading}          
+                loading={loading}
             />
 
             <Modal
@@ -160,11 +164,12 @@ function DeliveryPage() {
                 onCancel={() => setIsModalOpen(false)}
                 footer={null}
                 width={1000}
+
                 centered
             >
                 {selectedRoute && (
                     <div>
-                        <p><strong>Route ID:</strong> {selectedRoute.routeId}</p>                       
+                        <p><strong>Route ID:</strong> {selectedRoute.routeId}</p>
                         <p><strong>Last Updated:</strong> {new Date(selectedRoute.updatedAt).toLocaleString()}</p>
                         <p><strong>Notes:</strong> {selectedRoute.notes ?? 'No notes available'}</p>
                         <div>
@@ -179,7 +184,7 @@ function DeliveryPage() {
                                 }, {})).map(([orderId, orderStops]) => (
                                     <div key={orderId} className="order-group">
                                         <h3 className="info-label">Order ID: {orderId}</h3>
-                                        
+
                                         <div className="stops-container">
                                             {orderStops
                                                 .sort((a, b) => {
@@ -194,16 +199,20 @@ function DeliveryPage() {
                                                         <p>{stop.address}</p>
                                                         <span>Stops type: {stop.stopType}</span>
 
-                                                        
+
                                                     </div>
                                                 ))}
                                         </div>
                                     </div>
                                 ))}
                             </div>
+
+                        </div>
+                        <div className="order-actions-button">
                             <button
-                    className="detail-delivery-btn"
-                    onClick={() => handlePickup(selectedRoute.routeId)}
+                                className="new-route-button"
+                            style={{}}
+                            onClick={() => handlePickup(selectedRoute.routeId)}
                                 disabled={loading}
                             >
                                 Pickup

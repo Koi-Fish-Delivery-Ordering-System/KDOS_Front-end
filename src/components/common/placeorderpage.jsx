@@ -12,7 +12,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 const defaultPosition = [10.8231, 106.6297]; 
 const libraries = ["places"];
-
+    
 function PlaceOrderPage() {
     const navigate = useNavigate();
     const location = useLocation();
@@ -413,6 +413,7 @@ function PlaceOrderPage() {
                 <Row className="placeorder-page">
                     <Navbar2 />
                     <Col span={8} className="left-section">
+                    <h1 style={{textAlign:'center', color:'#ff7700'}}>New Order</h1>
                         <h2 className="section-title">Location</h2>
                         <Form
                             layout="vertical"

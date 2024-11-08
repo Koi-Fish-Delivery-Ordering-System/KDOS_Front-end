@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Row, Col, Card, Button, Select, Spin, Modal } from 'antd';
+import { Row, Col, Card, Button, Select, Spin, Modal, message } from 'antd';
 import '../../../css/deliverypage.css';
 import '../../../css/transportservice.css'
 import axios from "axios";
@@ -10,6 +10,7 @@ function DeliveryProcess() {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [selectedFishIndex, setSelectedFishIndex] = useState(null);
+    const[selectedFishModal,setSelectedFishModal] = useState(false);
     const fetchRoute = async () => {
         try {
             setLoading(true);
@@ -24,7 +25,9 @@ function DeliveryProcess() {
                     }
                     status    
                     updatedAt
+                    deliveryStartDate
                     notes
+                    numberOfOrders
                     routeStops {
                         routeStopId
                         address
@@ -92,14 +95,25 @@ function DeliveryProcess() {
             });
             fetchRoute();
         } catch (error) {
-            console.log(error);
+            if (error.response.status === 409) {
+                message.error('You have to complete picking up this order first');
+                console.log(error);
+            } else {
+                console.log(error);
+            }
         } finally {
             setLoading(false);
         }
     };
 
     const toggleFishDetails = (index) => {
-        setSelectedFishIndex(selectedFishIndex === index ? null : index);
+        if (selectedFishIndex === index) {
+            setSelectedFishIndex(null);
+            setSelectedFishModal(false);
+        } else {
+            setSelectedFishIndex(index);
+            setSelectedFishModal(true);
+        }
     };
 
     const showModal = (order) => {
@@ -121,8 +135,9 @@ function DeliveryProcess() {
 
     return (
         <Spin spinning={loading} tip="Loading...">
+
             <div className="delivery-process">
-                <h1 className="section-title">Process Route</h1>
+                <h1 className="section-title">Processing Route</h1>
 
                 {!loading && !route ? (
                     <div className="no-route-message">Don't have process route</div>
@@ -136,24 +151,21 @@ function DeliveryProcess() {
                                     <span className="info-value">{route?.routeId}</span>
                                 </div>
                                 <div className="info-item">
-                                    <span className="info-label"><strong>Driver:</strong></span>
-                                    <span className="info-value">{route?.driver?.account?.username}</span>
-                                </div>
+                                        <span className="info-label"><strong>Number of Orders: </strong></span>
+                                        <span className="info-value">{route?.numberOfOrders}</span>
+                                    </div>                               
                                 <div className="info-item">
-                                    <span className="info-label"><strong>Status:</strong></span>
-                                    <span className={`status-route ${route?.status.toLowerCase()}`}>{route?.status}</span>
-                                </div>
-                            </div>
-
-                            <div className="delivery-process__section">
-                                <h2 className="section-title">Time Line</h2>
-                                <div className="delivery-process__info">
+                                        <span className="info-label"><strong>Delivery Start Date: </strong></span>
+                                        <span className="info-value">{new Date(route?.deliveryStartDate).toLocaleString()}</span>
+                                    </div>
                                     <div className="info-item">
                                         <span className="info-label"><strong>Last Updated: </strong></span>
                                         <span className="info-value">{new Date(route?.updatedAt).toLocaleString()}</span>
                                     </div>
-                                </div>
+                                    
                             </div>
+
+                           
 
                             <div className="delivery-process__section">
                                 <h2 className="section-title">Route Stops</h2>
@@ -170,7 +182,7 @@ function DeliveryProcess() {
                                                 <span>Order ID: {orderId}</span>
                                                 <a style={{ color: '#ff7700', cursor: 'pointer' }} onClick={() => showModal(orderStops)}>View More</a>
                                             </h3>
-                                            <span>Transport type: {route?.routeStops.find(stop => stop.orderId === orderId).order.transportService.type}</span>
+                                            
                                             <div className="stops-container">
                                                 {orderStops
                                                     .sort((a, b) => {
@@ -217,7 +229,7 @@ function DeliveryProcess() {
                                                 <span className="info-label">Phone:</span>
                                                 <span className="info-value">{selectedOrder[0].order.account.phone}</span>
                                             </div>
-                                           
+
 
                                             <div className="address-section">
                                                 <h3 className="info-label">Receiver Information</h3>
@@ -248,15 +260,23 @@ function DeliveryProcess() {
                                                         >
                                                             <strong>Name:</strong> {fish.name}
                                                         </p>
-                                                        {selectedFishIndex === index && (
-                                                            <div className="fish-details">
-                                                                <p><strong>Species:</strong> {fish.species}</p>
-                                                                <p><strong>Gender:</strong> {fish.gender}</p>
-                                                                <p><strong>Age:</strong> {fish.ageInMonth} months</p>
-                                                                <p><strong>Weight:</strong> {fish.weight} g</p>
-                                                                <p><strong>Description:</strong> {fish.description}</p>
-                                                            </div>
-                                                        )}
+                                                        <Modal
+                                                            title="Fish Details"
+                                                            open={selectedFishModal && selectedFishIndex !== null}
+                                                            onCancel={() => setSelectedFishModal(false)}
+                                                            footer={null}
+                                                        >
+                                                            {selectedFishIndex !== null && (
+                                                                <div className="fish-details">
+                                                                    <p><strong>Species:</strong> {fish.species}</p>
+                                                                    <p><strong>Gender:</strong> {fish.gender}</p>
+                                                                    <p><strong>Age:</strong> {fish.ageInMonth} months</p>
+                                                                    <p><strong>Weight:</strong> {fish.weight} g</p>
+                                                                    <p><strong>Description:</strong> {fish.description}</p>
+                                                                </div>
+                                                            )}
+                                                        </Modal>
+                                                        
                                                     </div>
                                                 ))}
                                             </div>
@@ -272,4 +292,4 @@ function DeliveryProcess() {
     );
 }
 
-                export default DeliveryProcess;
+export default DeliveryProcess;
