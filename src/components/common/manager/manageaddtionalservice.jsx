@@ -217,7 +217,7 @@ function ManageAdditionalService() {
             onFinish={handleSubmit}
             layout="horizontal"
           >
-            <Form.Item label="For Transport Type" name="forTransportType">
+            <Form.Item label="For Transport Type" name="forTransportType" rules={[{ required: true, message: 'Please select transport type!' }]}>
               <Select>
                 <Select.Option value="air">Air</Select.Option>
                 <Select.Option value="road">Road</Select.Option>
@@ -226,7 +226,7 @@ function ManageAdditionalService() {
             <Form.Item label="Service Name" name="name" rules={[{ required: true, message: 'Please input service name!' }]}>
               <Input />
             </Form.Item>
-            <Form.Item label="Description" name="description">
+            <Form.Item label="Description" name="description" rules={[{ required: true, message: 'Please input description!' }]}>
               <Input.TextArea rows={4} />
             </Form.Item>
             <Form.Item label="Price" name="price" rules={[{ required: true, message: 'Please input price!' }]}>

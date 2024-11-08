@@ -139,8 +139,8 @@ const OrderConfirmation = () => {
         transportServiceId: vehicleType,
         fromAddress: pickUpLocationName,
         toAddress: dropOffLocationName,
-        receiverName: values.recipientName,
-        receiverPhone: values.recipientPhone,
+        receiverName: values.receiverName,
+        receiverPhone: values.receiverPhone,
         paymentMethod: values.paymentMethod,
         additionalServiceIds: selectedAdditionalServices,
       };
@@ -275,8 +275,8 @@ const OrderConfirmation = () => {
     try {
       // Kiểm tra các trường bắt buộc
       if (!newFish.name || !newFish.gender || !newFish.species ||
-        !newFish.age || !newFish.weight || !newFish.length ||
-        !newFish.descriptions) {
+        !newFish.age || !newFish.weight || !newFish.length 
+        ) {
         message.error('Please fill in all required fields');
         return;
       }
@@ -443,16 +443,16 @@ const OrderConfirmation = () => {
             {/* <Form.Item label="Sender Notes" name="senderNote" >
               <Input placeholder="Enter your notes" />
             </Form.Item> */}
-            <h2 className="section-title">Recipient Information</h2>
+            <h2 className="section-title">Receiver Information</h2>
             <Row gutter={16}>
               <Col span={12}>
-                <Form.Item label="Recipient Name" name="recipientName" rules={[{ required: true, message: 'Please enter recipient name' }]}>
-                  <Input placeholder="Enter recipient name" />
+                <Form.Item label="Receiver Name" name="receiverName" rules={[{ required: true, message: 'Please enter receiver name' }]}>
+                  <Input placeholder="Enter receiver name" />
                 </Form.Item>
               </Col>
               <Col span={12}>
-                <Form.Item label="Recipient Phone" name="recipientPhone" rules={[{ required: true, message: 'Please enter recipient phone' }]}>
-                  <Input placeholder="Enter recipient phone" />
+                <Form.Item label="Receiver Phone" name="receiverPhone" rules={[{ required: true, message: 'Please enter receiver phone' }]}>
+                  <Input placeholder="Enter receiver phone" />
                 </Form.Item>
               </Col>
             </Row>
@@ -656,7 +656,7 @@ const OrderConfirmation = () => {
                 <h2 className="section-title">Additional Information</h2>
                 <Form.Item
                   name="descriptions"
-                  rules={[{ message: 'Please enter fish description' }]}
+                  
                   label="Fish Description"
                 >
                   <Input
@@ -778,19 +778,20 @@ const OrderConfirmation = () => {
                     <Marker
                       position={pickUpLocation}
                       icon={{
+                        
                         url: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
-                        scaledSize: isScriptLoaded ? new window.google.maps.Size(40, 40) : null
+                        scaledSize: new window.google.maps.Size(40, 40) 
                       }}
                       title="Pick-up Location"
                     />
                   )}
 
-                  {location.state?.dropOffLocation && (
+                  {dropOffLocation && (
                     <Marker
                       position={dropOffLocation}
                       icon={{
                         url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
-                        scaledSize: isScriptLoaded ? new window.google.maps.Size(40, 40) : null
+                        scaledSize:  new window.google.maps.Size(40, 40) 
                       }}
                       title="Drop-off Location"
                     />

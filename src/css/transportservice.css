@@ -221,7 +221,7 @@
   background-color: #d4edda;
   color: #155724;
 }
-.status-driver.delivery{
+.status-driver.delivering{
   text-align: center;
   background-color: #ffcdcd;
   color: #790808;
@@ -312,6 +312,7 @@
   min-width: 140px;
   color: #666;
   font-size: 16px;
+  margin-right: 20px;
 }
 
 .info-value {
@@ -420,7 +421,7 @@
 
 .order-info-item:before {
   content: "|";
-  margin-left: 8px;
-  margin-right: 8px;
+  margin-left: 5px;
+  margin-right: 5px;
   color: #666;
 }

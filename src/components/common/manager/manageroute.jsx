@@ -23,16 +23,49 @@ function ManageRoute() {
   const [loading, setLoading] = useState(false);
   const [selectedOrderDetail, setSelectedOrderDetail] = useState(null);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+  const [selectedFishIndex, setSelectedFishIndex] = useState(null);
+
+  const toggleFishDetails = (index) => {
+    setSelectedFishIndex(selectedFishIndex === index ? null : index);
+  };
+
   const fetchOrder = async () => {
     setLoading(true);
     const query = `
       query FindManyProcessingOrder {
         findManyProcessingOrder {
           orderId
+          notes
+          account {
+            username
+            phone
+          }
           fromProvince
           toProvince
+          fromAddress
+              toAddress
+              totalPrice
+              orderStatus
+              receiverName
+              receiverPhone
           transportService {
             type
+          }
+           orderedFish {
+                name
+                species
+                gender
+                ageInMonth
+                weight
+                description
+                qualifications {
+                  fileId
+                }
+              }
+          selectedAdditionalService {
+            additionalService {
+              name
+            }
           }
         }
       }
@@ -99,14 +132,14 @@ function ManageRoute() {
       query FindManyRoutes {
         findManyRoutes {
           routeId
-          numberofOrders
+          numberOfOrders
           driver {
             account {
               username
             }
           }
           status
-         
+         deliveryStartDate
           updatedAt
           notes
           routeStops {
@@ -114,16 +147,17 @@ function ManageRoute() {
             status
             stopType
             orderId
+            
             order {
-            transportService {
-              type
-            }
-              fromAddress
-              toAddress
-              totalPrice
-              
               receiverName
               receiverPhone
+              account {
+                fullName
+                phone
+              }
+              transportService {
+                type
+              }
             }
           }
             
@@ -159,11 +193,12 @@ function ManageRoute() {
   const handleView = (route) => {
     setSelectedRoute(route);
     setIsModalOpen(true);
+    console.log('Selected rout:', route);
   };
   const handleViewOrder = (record) => {
-    // setSelectedOrderDetail(orders.find(order => order.orderId === orderId));
     setSelectedOrderDetail(record);
     setIsOrderModalOpen(true);
+    console.log('Selected Order Detail:', record);
   };
   const handleOrderSelect = (orderId) => {
     setSelectedOrders(prev => {
@@ -329,7 +364,7 @@ function ManageRoute() {
       title: 'Delivery Date',
       dataIndex: 'deliveryStartDate',
       key: 'deliveryDate',
-      render: (date) => date ? date : <span style={{ color: '#790808', fontWeight: 'bold' }}>Not Started</span>,
+      render: (date) => date ? new Date(date).toLocaleString() : <span style={{ color: '#790808', fontWeight: 'bold' }}>Not Started</span>,
     },
     {
       title: 'Last Updated',
@@ -495,7 +530,11 @@ function ManageRoute() {
               </div>
               <div className="info-item">
                 <span className="info-label"><strong>Notes:</strong></span>
-                <span className="info-value">{selectedRoute.notes}</span>
+                <span className="info-value">{selectedRoute.notes?selectedRoute.notes:'No notes available'}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label"><strong>Notes:</strong></span>
+                <span className="info-value">{selectedRoute.notes?selectedRoute.notes:'No notes available'}</span>
               </div>
               
               <div className="info-item" >
@@ -506,7 +545,7 @@ function ManageRoute() {
               </div>
               <div className="info-item">
                 <span className="info-label"><strong>Number of orders:</strong></span>
-                <span className="info-value">{selectedRoute.numberofOrders}</span>
+                <span className="info-value">{selectedRoute.numberOfOrders}</span>
               </div>
               
 
@@ -514,7 +553,7 @@ function ManageRoute() {
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h2 className="section-title" style={{ margin: 0 }}>Route Stops</h2>
-              <a style={{ color: '#ff7700', cursor: 'pointer' }}>+ Add Stop</a>
+             
             </div>
             <div className="route-stops">
               {Object.entries(selectedRoute.routeStops.reduce((groups, stop) => {
@@ -526,11 +565,7 @@ function ManageRoute() {
               }, {})).map(([orderId, orderStops]) => (
                 <div key={orderId} className="order-group">
                   <h3 className="info-label">Order ID: {orderId}</h3>
-                  <div className="order-info-container">
-                    <span className="order-info-item">Transport type: {selectedRoute.routeStops.find(stop => stop.orderId === orderId).order.transportService.type}</span>
-                    <span className="order-info-item">Receiver Name: {selectedRoute.routeStops.find(stop => stop.orderId === orderId).order.receiverName}</span>
-                    <span className="order-info-item">Receiver Phone: {selectedRoute.routeStops.find(stop => stop.orderId === orderId).order.receiverPhone}</span>
-                  </div>
+                  
                   <div className="stops-container">
                     {orderStops
                       .sort((a, b) => {
@@ -578,28 +613,40 @@ function ManageRoute() {
                 <span className="info-value">{selectedOrderDetail.transportService.type}</span>
               </div>
               <div className="info-item">
-                <span className="info-label">Status:</span>
-                <span className={`status-order ${selectedOrderDetail.status.toLowerCase()}`}>
-                  {selectedOrderDetail.status}
+                <span className="info-label">Additional Service:</span>
+                <span className="info-value">
+                  {selectedOrderDetail.selectedAdditionalService?.map(service => service.additionalService.name).join(', ') || 'No additional services'}
                 </span>
               </div>
               <div className="info-item">
-                <span className="info-label">Created At:</span>
-                <span className="info-value">
-                  {new Date(selectedOrderDetail.createdAt).toLocaleString()}
+                <span className="info-label">Notes:</span>
+                <span className="info-value">{selectedOrderDetail.notes??'No notes available'}</span>
+              </div>
+              <div className="info-item">
+                <span className="info-label">Status:</span>
+                <span className={`status-order ${selectedOrderDetail.orderStatus.toLowerCase()}`}>
+                  {selectedOrderDetail.orderStatus}
                 </span>
               </div>
+              <div className="price-section">
+              <div className="info-item">
+                <span className="info-label">Total Price:</span>
+                <span className="info-value price">
+                  {selectedOrderDetail.totalPrice.toLocaleString()} VND
+                </span>
+              </div>
+            </div>
             </div>
 
             <div className="address-section">
               <h3>Sender Information</h3>
               <div className="info-item">
                 <span className="info-label">Name:</span>
-                <span className="info-value">{selectedOrderDetail.senderName}</span>
+                <span className="info-value">{selectedOrderDetail.account.username}</span>
               </div>
               <div className="info-item">
                 <span className="info-label">Phone:</span>
-                <span className="info-value">{selectedOrderDetail.senderPhone}</span>
+                <span className="info-value">{selectedOrderDetail.account.phone}</span>
               </div>
               <div className="info-item">
                 <span className="info-label">Address:</span>
@@ -631,13 +678,29 @@ function ManageRoute() {
               </div>
             </div>
 
-            <div className="price-section">
-              <div className="info-item">
-                <span className="info-label">Total Price:</span>
-                <span className="info-value price">
-                  {selectedOrderDetail.totalPrice.toLocaleString()} VND
-                </span>
-              </div>
+            
+
+            <div className="fish-section">
+              <h3>Ordered Fish</h3>
+              {selectedOrderDetail.orderedFish && selectedOrderDetail.orderedFish.map((fish, index) => (
+                <div key={index} className="fish-item">
+                  <p
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => toggleFishDetails(index)}
+                  >
+                    <strong>Name:</strong> {fish.name}
+                  </p>
+                  {selectedFishIndex === index && (
+                    <div className="fish-details">
+                      <p><strong>Species:</strong> {fish.species}</p>
+                      <p><strong>Gender:</strong> {fish.gender}</p>
+                      <p><strong>Age:</strong> {fish.ageInMonth} months</p>
+                      <p><strong>Weight:</strong> {fish.weight} g</p>
+                      <p><strong>Description:</strong> {fish.description}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         )}

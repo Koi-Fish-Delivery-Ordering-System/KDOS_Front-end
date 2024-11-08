@@ -1,34 +1,28 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import ProfilePage from '../profilepage';
 import Navbar2 from '../navbar2';
 import DeliveryPage from './deliverypickup';
-import DeliveryDetail from './deliverydetail';
 import DeliveryProcess from './deliveryprocess';
+import DeliveryDelivered from './deliveredroute';
 import '../../../css/accountmanagement.css';
 
 function Delivery() {
-  const [activeComponent, setActiveComponent] = useState('profile');
-  const [selectedTransportId, setSelectedTransportId] = useState(null);
+  const location = useLocation();
+  const [activeComponent, setActiveComponent] = useState(location.state?.activeComponent || 'profile');
 
-  const handleDetailClick = (transportId) => {
-    setSelectedTransportId(transportId);
-    setActiveComponent('detail');
-  };
-
-  const handleBackToPending = () => {
-    setActiveComponent('pending');
-  };
+ 
 
   const renderContent = () => {
     switch (activeComponent) {
       case 'profile':
         return <ProfilePage />;
       case 'pending':
-        return <DeliveryPage onDetailClick={handleDetailClick} />;
-      case 'detail':
-        return <DeliveryDetail transportId={selectedTransportId} onBack={handleBackToPending} />;
+        return <DeliveryPage  />;
       case 'process':
-        return <DeliveryProcess onDetailClick={handleDetailClick} />;
+        return <DeliveryProcess  />;
+      case 'delivered':
+        return <DeliveryDelivered  />;
       default:
         return (
           <div>
@@ -58,7 +52,12 @@ function Delivery() {
             </li>
             <li>
               <button onClick={() => setActiveComponent('process')} className={activeComponent === 'process' ? 'active' : ''}>
-                Process Route
+                Processing Route
+              </button>
+            </li>
+            <li>
+              <button onClick={() => setActiveComponent('delivered')} className={activeComponent === 'delivered' ? 'active' : ''}>
+                Delivered Route
               </button>
             </li>
           </ul>

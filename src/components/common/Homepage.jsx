@@ -61,13 +61,13 @@ export default function Homepage() {
   return (
     <>
       <div>
-        <Navbar2 />
         
+      <Navbar2 />
         {/* Hero Section */}
         <section className="hero-section">
+          
           <div className="hero-content">
-            <h1>Koi Fish Transportation Experts</h1>
-            <p>Safe - Professional - On Time</p>
+            
             <div className="hero-buttons">
               <button className="primary-button" onClick={() => navigate('/placeorder')}>
                 Book Shipping Now
