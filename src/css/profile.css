@@ -74,3 +74,30 @@
     opacity: 1;
   }
 }
+/* profile.css */
+
+.edit-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cancel-button {
+  color: #ff7700;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.cancel-button:hover {
+  text-decoration: underline;
+}
+
+.continue-button {
+  background-color: #ff7700;
+  border-color: #ff7700;
+}
+
+.continue-button:hover {
+  background-color: orangered !important;
+  border-color: orangered !important;
+}

@@ -186,9 +186,16 @@ const OrderConfirmation = () => {
 
       // Check if the request was successful
       if (response.status === 200 || response.status === 201) {
-        navigate('/account-management', { state: { activeComponent: 'orders' } });
-        message.success('Order placed successfully!');
 
+        if(values.paymentMethod === "vnpay"){
+          console.log("here");
+          window.location.href = response.data.others?.paymentUrl;
+        } else {
+          navigate('/account-management', {state:{activeComponent: 'orders'}});
+          console.log(response);
+          message.success('Order placed successfully!');
+        }
+       
       } else {
         message.error('Failed to place order. Please try again.');
       }
@@ -737,34 +744,35 @@ const OrderConfirmation = () => {
                           sx={{ width: 100, height: 100, marginTop: 2 }}
                         />
                       )}
-                    </Upload>
-                  </Form.Item>
-                </Form>
-              </Modal>
-              <h2 className="section-title">Note</h2>
-              <Form.Item
-                name="notes"
-                rules={[{ message: 'Please enter your notes' }]}
-              >
-                <TextArea placeholder="Enter your notes" />
-              </Form.Item>
-              <h2 className="section-title">Payment Method</h2>
+                    
+                  </Upload>
+                </Form.Item>
+              </Form>
+            </Modal>
+            <h2 className="section-title">Note</h2>
+            <Form.Item
+              name="notes"
+              rules={[{  message: 'Please enter your notes' }]}
+            >
+              <TextArea placeholder="Enter your notes" />
+            </Form.Item>
+            <h2 className="section-title">Payment Method</h2>
 
-              <Form.Item
-                label="Select Payment Method"
-                name="paymentMethod"
-                rules={[{ required: true, message: 'Please select a payment method' }]}
-              >
-                <Select placeholder="Choose a payment method">
+            <Form.Item
+              label="Select Payment Method"
+              name="paymentMethod"
+              rules={[{ required: true, message: 'Please select a payment method' }]}
+            >
+              <Select placeholder="Choose a payment method">
 
-                  <Option value="banking">Bank Transfer</Option>
-                  <Option value="cash">Cash</Option>
-                </Select>
-              </Form.Item>
-              <div className="distance-display">
-                Final Price: {calculatedFinalPrice.toLocaleString()} VNĐ
-                <Tooltip
-                  title={
+                <Option value="vnpay">VN Pay</Option>
+                <Option value="cash">Cash</Option>
+              </Select>
+            </Form.Item>
+            <div className="distance-display">
+              Final Price: {calculatedFinalPrice.toLocaleString()} VNĐ
+              <Tooltip 
+                title={
                     <div>
                       Provisional Price: Total distance × Price per Km<br />
                       Transport Fee ({servicePricingType}): {servicePricingType === 'volume'
