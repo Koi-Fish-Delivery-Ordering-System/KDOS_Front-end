@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import ProfilePage from './profilepage'; 
 import Orders from './orderhistory'; 
-import Wallet from './wallet';
 import '../../css/accountManagement.css';
 import Navbar2 from './navbar2';
 
@@ -18,8 +17,7 @@ const AccountManagement = () => {
         return <ProfilePage />;
       case 'orders':
         return <Orders />;
-      case 'wallet':
-        return <Wallet />;
+      
       default:
         return (
           <div>
@@ -42,11 +40,7 @@ const AccountManagement = () => {
                 Profile
               </button>
             </li>
-            <li>
-              <button onClick={() => setActiveComponent('wallet')} className={activeComponent === 'wallet' ? 'active' : ''}>
-                Wallet
-              </button>
-            </li>
+           
             <li>
               <button onClick={() => setActiveComponent('orders')} className={activeComponent === 'orders' ? 'active' : ''}>
                 Orders
