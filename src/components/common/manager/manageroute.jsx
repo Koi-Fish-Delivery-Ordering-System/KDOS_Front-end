@@ -58,8 +58,9 @@ function ManageRoute() {
                 ageInMonth
                 weight
                 description
+                fishImageUrl
                 qualifications {
-                  fileId
+                  imageUrl
                 }
               }
           selectedAdditionalService {
@@ -697,6 +698,19 @@ function ManageRoute() {
                       <p><strong>Age:</strong> {fish.ageInMonth} months</p>
                       <p><strong>Weight:</strong> {fish.weight} g</p>
                       <p><strong>Description:</strong> {fish.description}</p>
+                      <p><strong>Fish Image:</strong></p>
+                      <img
+                        src={fish.fishImageUrl}
+                        alt="Fish Image"
+                        className="fish-image"
+                        style={{ maxWidth: '150px', maxHeight: '150px' }}
+                      />
+                      <p><strong>Qualifications:</strong></p>
+                      <div className="fish-images">
+                        {fish.qualifications?.map((qualification) => (
+                          <img key={qualification.imageUrl} src={qualification.imageUrl} style={{ maxWidth: '150px', maxHeight: '150px' }}  />
+                        ))}
+                      </div>
                     </div>
                   )}
                 </div>

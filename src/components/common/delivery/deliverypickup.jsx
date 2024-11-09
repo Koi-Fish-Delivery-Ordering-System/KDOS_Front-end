@@ -33,6 +33,7 @@ function DeliveryPage() {
                       receiverPhone
                       totalPrice
                       orderedFish {
+                        fishImageUrl
                         name
                         species
                         gender
@@ -40,7 +41,7 @@ function DeliveryPage() {
                         weight
                         description
                         qualifications {
-                          fileId
+                          imageUrl
                         }
                       }
                     }

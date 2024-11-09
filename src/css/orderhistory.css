@@ -248,4 +248,27 @@
 .ant-tabs-ink-bar {
   background-color: #ff7700 !important; /* Orange color for active tab underline */
 }
+.star-rating {
+  display: inline-block;
+  font-size: 20px;
+  color: #ccc; /* Default color for empty stars */
+  position: relative;
+  line-height: 1; /* Ensure stars are aligned properly */
+}
 
+.star-rating:before {
+  content: '★★★★★'; /* 5 empty stars */
+  color: #ff7700; /* Color for filled stars */
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  width: 0;
+  white-space: nowrap; /* Prevent line breaks */
+}
+
+.star-rating.stars-1:before { width: 20%; }
+.star-rating.stars-2:before { width: 40%; }
+.star-rating.stars-3:before { width: 60%; }
+.star-rating.stars-4:before { width: 80%; }
+.star-rating.stars-5:before { width: 100%; }

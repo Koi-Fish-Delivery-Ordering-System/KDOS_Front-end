@@ -46,6 +46,7 @@ function DeliveryProcess() {
                           receiverPhone
                           totalPrice
                           orderedFish {
+                            fishImageUrl
                             name
                             species
                             gender
@@ -131,6 +132,7 @@ function DeliveryProcess() {
 
     useEffect(() => {
         fetchRoute();
+        console.log(route)
     }, []);
 
     return (
@@ -273,6 +275,13 @@ function DeliveryProcess() {
                                                                     <p><strong>Age:</strong> {fish.ageInMonth} months</p>
                                                                     <p><strong>Weight:</strong> {fish.weight} g</p>
                                                                     <p><strong>Description:</strong> {fish.description}</p>
+                                                                    <p><strong>Fish Image:</strong></p>
+                                                                    <img
+                                                                        src={fish.fishImageUrl}
+                                                                        alt="Fish Image"
+                                                                        className="fish-image"
+                                                                        style={{ maxWidth: '150px', maxHeight: '150px' }}
+                                                                    />
                                                                 </div>
                                                             )}
                                                         </Modal>

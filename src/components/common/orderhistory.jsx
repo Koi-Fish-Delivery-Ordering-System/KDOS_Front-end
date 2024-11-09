@@ -40,12 +40,12 @@ const OrderHistory = () => {
             ageInMonth
             description
             gender
-            
+            fishImageUrl
             name
             species
             weight
             qualifications {
-              fileId
+              imageUrl
             }
           }
           toAddress
@@ -59,12 +59,15 @@ const OrderHistory = () => {
           }
           feedBackStars
           feedBackContent
+          
         }
       }
     `;
-      const orderResponse = await axios.post('http://26.61.210.173:3001/graphql', { query }, { headers: {
-        'Authorization': `Bearer ${accessToken}`
-      } });
+      const orderResponse = await axios.post('http://26.61.210.173:3001/graphql', { query }, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
       setOrder(orderResponse.data.data.findManyUserOrder);
     } catch (error) {
       console.error('Error fetching orders:', error);
@@ -75,7 +78,7 @@ const OrderHistory = () => {
 
   const fetchImages = async (qualifications, fishId) => {
     try {
-      const imagePromises = qualifications.map(qual => 
+      const imagePromises = qualifications.map(qual =>
         axios.get(`http://26.61.210.173:3001/api/assets/get-image/${qual.fileId}`, {
           responseType: 'blob',
           headers: {
@@ -83,7 +86,7 @@ const OrderHistory = () => {
           }
         })
       );
-      
+
       const responses = await Promise.all(imagePromises);
       const urls = responses.map(res => URL.createObjectURL(res.data));
       setFishImages(prev => ({
@@ -105,9 +108,11 @@ const OrderHistory = () => {
     setSelectedFish(fish);
     setFishImages({});
     if (fish.qualifications && fish.qualifications.length > 0) {
-      const fileIds = fish.qualifications.map(qual => qual.fileId);
-      console.log('FileIds for selected fish:', fileIds);
-      fetchImages(fish.qualifications, fish.orderFishId);
+      const imageUrls = fish.qualifications.map(qual => qual.imageUrl);
+      setFishImages(prev => ({
+        ...prev,
+        [fish.orderFishId]: imageUrls
+      }));
     }
   };
 
@@ -122,16 +127,16 @@ const OrderHistory = () => {
       return;
     }
     try {
-      await axios.patch(`http://26.61.210.173:3001/api/orders/create-order-feedback`,{
+      await axios.patch(`http://26.61.210.173:3001/api/orders/create-order-feedback`, {
         orderId: selectedOrder.orderId,
         feedBackStars: feedbackStars,
         feedBackContent: feedbackContent
-      },{
+      }, {
         headers: {
           'Authorization': `Bearer ${accessToken}`
         }
-      }) 
-        
+      })
+
       console.log('Feedback submitted:', feedbackStars, feedbackContent);
       setIsFeedbackModalOpen(false);
       setFeedbackStars(0);
@@ -152,12 +157,12 @@ const OrderHistory = () => {
   const otherOrders = order.filter(orderItem => orderItem.orderStatus !== 'completed');
 
   return (
-    
+
     <div className="records">
       <h1 className="section-title" >Order History</h1>
-        
-      
-      
+
+
+
       {loading ? (
         <div className="loading">Loading...</div>
       ) : order.length > 0 ? (
@@ -287,17 +292,28 @@ const OrderHistory = () => {
                   <p><strong>Age:</strong> {selectedFish.ageInMonth} months</p>
                   <p><strong>Weight:</strong> {selectedFish.weight} g</p>
                   <p><strong>Description:</strong> {selectedFish.description}</p>
+                  <div className="fish-images">
+                    <p><strong>Fish Image:</strong></p>
+                    <img
+                      src={selectedFish.fishImageUrl}
+                      alt="Fish Image"
+                      className="fish-image"
+                      style={{ maxWidth: '150px', maxHeight: '150px' }}
+                    />
+                  </div>
                   <p><strong>Qualifications:</strong></p>
                   <div className="fish-images">
                     {fishImages[selectedFish.orderFishId]?.map((imageUrl, index) => (
-                      <img 
-                        key={index} 
-                        src={imageUrl} 
-                        alt={`Fish ${index + 1}`} 
+                      <img
+                        key={index}
+                        src={imageUrl}
+                        alt={`Fish ${index + 1}`}
                         className="fish-image"
+                        style={{ maxWidth: '150px', maxHeight: '150px' }}
                       />
                     ))}
                   </div>
+                  
                 </div>
               ) : (
                 <div className="empty-state">
@@ -314,9 +330,9 @@ const OrderHistory = () => {
         title={<h2 style={{ margin: 0, color: '#ff7700' }}>Feedback</h2>}
         open={isFeedbackModalOpen}
         onCancel={() => setIsFeedbackModalOpen(false)}
-        okText="Submit" 
+        okText="Submit"
         onOk={handleFeedbackSubmit}
-        
+
       >
         <div className="feedback-content">
           <h3>Rate your experience</h3>
@@ -350,10 +366,11 @@ const OrderHistory = () => {
         centered
       >
         {selectedOrder && (
-          <div className="feedback-view-content">
-            
-            <p><strong>Stars:</strong> {selectedOrder.feedBackStars}</p>
-            <p><strong>Feedback:</strong> {selectedOrder.feedBackContent}</p>
+          <div style={{ padding: '20px', fontSize: '16px' }}>
+            <p><strong>Stars:</strong> <span className={`star-rating stars-${selectedOrder.feedBackStars || 0}`}>★★★★★</span></p>
+            <p>
+              <strong >Feedback:</strong> {selectedOrder.feedBackContent}
+            </p>
           </div>
         )}
       </Modal>
