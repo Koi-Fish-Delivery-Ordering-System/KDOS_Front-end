@@ -17,7 +17,7 @@ import HealChecker from './components/common/healchecker/healchecker';
 import Manager from './components/common/manager/manager';
 import FAQ from './components/common/FAQ';
 import NewsPage from './components/common/NEWS';
-
+import PaymentStatus from './components/common/paymentstatus';
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -86,5 +86,9 @@ export const router = createBrowserRouter([
   {
     path: "news",
     element: <NewsPage />,
+  },
+  {
+    path: "paymentstatus",
+    element: <PaymentStatus />,
   }
 ]);

@@ -28,6 +28,7 @@ function LoginPage() {
               username
               email
               password
+              fullName
               phone
               address
               roles {

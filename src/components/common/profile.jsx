@@ -4,7 +4,7 @@ import Orders from './orderhistory';
 import Navbar from './navbar2'; // Import the Navbar component
 import '../../css/accountManagement.css';
 import Navbar2 from './navbar2';
-
+import Wallet from './wallet';
 const AccountManagement = () => {
   const [activeComponent, setActiveComponent] = useState('profile');
 
@@ -12,6 +12,8 @@ const AccountManagement = () => {
     switch (activeComponent) {
       case 'profile':
         return <ProfilePage />;
+      case 'wallet':
+        return <Wallet />;
       case 'orders':
         return <Orders />;
       default:
@@ -34,6 +36,11 @@ const AccountManagement = () => {
             <li>
               <button onClick={() => setActiveComponent('profile')} className={activeComponent === 'profile' ? 'active' : ''}>
                 Profile
+              </button>
+            </li>
+            <li>
+              <button onClick={() => setActiveComponent('wallet')} className={activeComponent === 'wallet' ? 'active' : ''}>
+                Wallet
               </button>
             </li>
             <li>

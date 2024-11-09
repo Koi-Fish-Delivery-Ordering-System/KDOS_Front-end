@@ -180,8 +180,15 @@ const OrderConfirmation = () => {
 
       // Check if the request was successful
       if (response.status === 200 || response.status === 201) {
-        navigate('/account-management', {state:{activeComponent: 'orders'}});
-        message.success('Order placed successfully!');
+        if(values.paymentMethod === "vnpay"){
+          console.log("here");
+          window.location.href = response.data.others?.paymentUrl;
+        } else {
+          navigate('/account-management', {state:{activeComponent: 'orders'}});
+          console.log(response);
+          message.success('Order placed successfully!');
+        }
+       
 
       } else {
         message.error('Failed to place order. Please try again.');
@@ -715,7 +722,7 @@ const OrderConfirmation = () => {
             >
               <Select placeholder="Choose a payment method">
 
-                <Option value="banking">Bank Transfer</Option>
+                <Option value="vnpay">VN Pay</Option>
                 <Option value="cash">Cash</Option>
               </Select>
             </Form.Item>
