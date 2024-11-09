@@ -10,6 +10,11 @@ import Navbar2 from './navbar2';
 import '../../css/addfishorder.css';
 import Footer from './footer';
 import axios from 'axios';
+//firebase
+import { ref, uploadBytesResumable, getDownloadURL } from "firebase/storage";
+import { getStorage } from "firebase/storage";
+import { app } from "../../config/firebase";
+import Avatar from 'antd/es/avatar/avatar';
 
 
 
@@ -18,6 +23,7 @@ const { Option } = Select; // Destructure Option from Select
 const { TextArea } = Input;
 const OrderConfirmation = () => {
   const defaultPosition = [10.8231, 106.6297]; // Default coordinates for Ho Chi Minh City
+  const [image, setImage] = useState('');
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -27,7 +33,7 @@ const OrderConfirmation = () => {
   const mapContainerStyle = {
     height: "95vh",
     width: "100%",
-};
+  };
   const { pickUpLocation, dropOffLocation, vehicleType, totalPrice, pickUpLocationName, dropOffLocationName, selectedService, servicePricingType, pricePerAmount, pricePerKg, fromProvince, toProvince } = location.state || {};
   const [qualificationsImage, setQualificationsImage] = useState([]);
 
@@ -180,6 +186,7 @@ const OrderConfirmation = () => {
 
       // Check if the request was successful
       if (response.status === 200 || response.status === 201) {
+
         if(values.paymentMethod === "vnpay"){
           console.log("here");
           window.location.href = response.data.others?.paymentUrl;
@@ -189,7 +196,6 @@ const OrderConfirmation = () => {
           message.success('Order placed successfully!');
         }
        
-
       } else {
         message.error('Failed to place order. Please try again.');
       }
@@ -282,8 +288,8 @@ const OrderConfirmation = () => {
     try {
       // Kiểm tra các trường bắt buộc
       if (!newFish.name || !newFish.gender || !newFish.species ||
-        !newFish.age || !newFish.weight || !newFish.length 
-        ) {
+        !newFish.age || !newFish.weight || !newFish.length
+      ) {
         message.error('Please fill in all required fields');
         return;
       }
@@ -427,6 +433,49 @@ const OrderConfirmation = () => {
   const handleScriptLoad = () => {
     setIsScriptLoaded(true);
   };
+  const handleImageUpload = async (info) => {
+    const { fileList } = info; // Get the file list from the info object
+    const uploadPromises = []; // Array to hold upload promises
+
+    for (let i = 0; i < fileList.length; i++) {
+      const selectedImage = fileList[i].originFileObj; // Access the original file object
+      if (selectedImage) {
+        const storageRef = ref(getStorage(app), `manyimages/${selectedImage.name}`);
+        const uploadTask = uploadBytesResumable(storageRef, selectedImage);
+
+        // Create a promise for each upload task
+        const uploadPromise = new Promise((resolve, reject) => {
+          uploadTask.on(
+            'state_changed',
+            (snapshot) => {
+              const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+              console.log(`Upload of ${selectedImage.name} is ${progress}% done`);
+            },
+            (error) => {
+              console.error(`Error uploading ${selectedImage.name}:`, error);
+              reject(error); // Reject the promise on error
+            },
+            () => {
+              getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+                console.log(`Download URL for ${selectedImage.name}:`, downloadURL);
+                resolve(downloadURL); // Resolve the promise with the download URL
+              });
+            }
+          );
+        });
+
+        uploadPromises.push(uploadPromise); // Add the promise to the array
+      }
+    }
+
+    // Wait for all uploads to complete
+    try {
+      const downloadURLs = await Promise.all(uploadPromises);
+      setImage(downloadURLs); // Update state with all download URLs
+    } catch (error) {
+      console.error('Error uploading images:', error);
+    }
+  };
 
   useEffect(() => {
     if (isScriptLoaded) {
@@ -435,273 +484,267 @@ const OrderConfirmation = () => {
   }, [isScriptLoaded, mapLoaded, location.state, fitBounds]);
 
   return (
-    <LoadScriptNext 
-            googleMapsApiKey="AIzaSyDJO2B-_FLwk1R1pje5gKEAB9h2qUDb-FU"
-            libraries={libraries}
-            onLoad={handleScriptLoad}
-          >
-    <div>
-       
-      <Row className="placeorder-page">
-        <Navbar2 />
-        <Col span={8} className="left-section">
+    <LoadScriptNext
+      googleMapsApiKey="AIzaSyDJO2B-_FLwk1R1pje5gKEAB9h2qUDb-FU"
+      libraries={libraries}
+      onLoad={handleScriptLoad}
+    >
+      <div>
 
-          <Form form={form} layout="vertical" onFinish={handleSubmit}>
-            {/* <Form.Item label="Sender Notes" name="senderNote" >
+        <Row className="placeorder-page">
+          <Navbar2 />
+          <Col span={8} className="left-section">
+
+            <Form form={form} layout="vertical" onFinish={handleSubmit}>
+              {/* <Form.Item label="Sender Notes" name="senderNote" >
               <Input placeholder="Enter your notes" />
             </Form.Item> */}
-            <h2 className="section-title">Receiver Information</h2>
-            <Row gutter={16}>
-              <Col span={12}>
-                <Form.Item label="Receiver Name" name="receiverName" rules={[{ required: true, message: 'Please enter receiver name' }]}>
-                  <Input placeholder="Enter receiver name" />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item label="Receiver Phone" name="receiverPhone" rules={[{ required: true, message: 'Please enter receiver phone' }]}>
-                  <Input placeholder="Enter receiver phone" />
-                </Form.Item>
-              </Col>
-            </Row>
+              <h2 className="section-title">Receiver Information</h2>
+              <Row gutter={16}>
+                <Col span={12}>
+                  <Form.Item label="Receiver Name" name="receiverName" rules={[{ required: true, message: 'Please enter receiver name' }]}>
+                    <Input placeholder="Enter receiver name" />
+                  </Form.Item>
+                </Col>
+                <Col span={12}>
+                  <Form.Item label="Receiver Phone" name="receiverPhone" rules={[{ required: true, message: 'Please enter receiver phone' }]}>
+                    <Input placeholder="Enter receiver phone" />
+                  </Form.Item>
+                </Col>
+              </Row>
 
-            {/* Fish Orders Table */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h2 className="section-title" style={{ margin: 0 }}>Fish Orders</h2>
-              <a onClick={showModal} style={{ color: '#ff7700', cursor: 'pointer' }}>+ Add Fish</a>
-            </div>
-            <div className="fish-orders-scroll-container">
-              <table className="fixed-table">
-                <thead>
-                  <tr>
-                    <th className="label-table">No</th>
-                    <th className="label-table">Fish Type</th>
-                    <th className="label-table">Gender</th>
-                    <th className="label-table">Species</th>
-                    <th className="label-table">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {fishOrders.length === 0 ? (
+              {/* Fish Orders Table */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h2 className="section-title" style={{ margin: 0 }}>Fish Orders</h2>
+                <a onClick={showModal} style={{ color: '#ff7700', cursor: 'pointer' }}>+ Add Fish</a>
+              </div>
+              <div className="fish-orders-scroll-container">
+                <table className="fixed-table">
+                  <thead>
                     <tr>
-                      <td colSpan="5" style={{ textAlign: 'center' }}>
-                        There is no fish, need to add more
-                      </td>
+                      <th className="label-table">No</th>
+                      <th className="label-table">Fish Type</th>
+                      <th className="label-table">Gender</th>
+                      <th className="label-table">Species</th>
+                      <th className="label-table">Action</th>
                     </tr>
-                  ) : (
-                    fishOrders.map((order, index) => (
-                      <tr key={index} onClick={() => editFish(index)} style={{ cursor: 'pointer' }}>
-                        <td>{index + 1}</td>
-                        <td>{order.name}</td>
-                        <td>{order.gender}</td>
-                        <td>{order.species}</td>
-                        <td>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation(); // Prevent row click from triggering edit
-                              deleteRow(index);
-                            }}
-                            className="delete-button"
-                          >
-                            Delete
-                          </button>
+                  </thead>
+                  <tbody>
+                    {fishOrders.length === 0 ? (
+                      <tr>
+                        <td colSpan="5" style={{ textAlign: 'center' }}>
+                          There is no fish, need to add more
                         </td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-
-
-            {/* Additional Services Section */}
-            {additionalServices.length > 0 && (
-              <>
-                <h2 className="section-title">Additional Services</h2>
-                <Form.Item name="additionalServices">
-                  <Checkbox.Group
-                    style={{ width: '100%' }}
-                    onChange={handleAdditionalServiceChange}
-                  >
-                    <Row gutter={[16, 16]}>
-                      {additionalServices.map(service => (
-                        <Col span={24} key={service.additionalServiceId}>
-                          <Checkbox value={service.additionalServiceId}>
-                            <span>{service.name}</span>
-                            <span style={{ marginLeft: '8px', color: '#1890ff' }}>
-                              (+{service.price.toLocaleString()} VNĐ)
-                            </span>
-                          </Checkbox>
-                        </Col>
-                      ))}
-                    </Row>
-                  </Checkbox.Group>
-                </Form.Item>
-              </>
-            )}
-
-            {/* Modal for Adding Fish */}
-            <Modal
-              title={editingIndex !== null ? "Edit Fish Information" : "Add Fish Information"}
-              open={modalVisible}
-              onOk={handleModalOk}
-              onCancel={handleCancel}
-              okText={editingIndex !== null ? "Update" : "Add"}
-            >
-              <Form
-                form={modalForm}
-                layout="vertical"
-                initialValues={{
-                  name: '',
-                  gender: '',
-                  species: '',
-                  age: '',
-                  weight: '',
-                  length: '',
-                  descriptions: '',
-                  qualifications: []
-                }}
-              >
-                <h2 className="section-title">Fish Information</h2>
-                <Row gutter={16}>
-                  <Col span={12}>
-                    <Form.Item
-                      name="name"
-                      rules={[{ required: true, message: 'Please enter fish name' }]}
-                      label="Fish Name"
-                    >
-                      <Input
-                        onChange={(e) => handleInputChange({ target: { name: 'name', value: e.target.value } })}
-                        placeholder="Enter fish name"
-                      />
-                    </Form.Item>
-                  </Col>
-                  <Col span={12}>
-                    <Form.Item
-                      name="gender"
-                      rules={[{ required: true, message: 'Please enter fish gender' }]}
-                      label="Fish Gender"
-                    >
-                      <Select
-                        placeholder="Choose a fish gender"
-                        value={newFish.gender}
-                        onChange={(value) => setNewFish({ ...newFish, gender: value })}
-                      >
-                        <Option value="male">Male</Option>
-                        <Option value="female">Female</Option>
-                      </Select>
-                    </Form.Item>
-                  </Col>
-                </Row>
-
-                <Row gutter={16}>
-                  <Col span={12}>
-                    <Form.Item
-                      name="species"
-                      rules={[{ required: true, message: 'Please enter fish species' }]}
-                      label="Fish Species"
-                    >
-                      <Input
-                        name="species"
-                        value={newFish.species}
-                        onChange={handleInputChange}
-                        placeholder="Enter fish species"
-                      />
-                    </Form.Item>
-                  </Col>
-                  <Col span={12}>
-                    <Form.Item
-                      name="age"
-                      rules={[{ required: true, message: 'Please enter fish age' }]}
-                      label="Fish Age"
-                    >
-                      <Input
-                        name="age"
-                        type="number"
-                        value={newFish.age}
-                        onChange={handleInputChange}
-                        placeholder="Enter fish age"
-                      />
-                    </Form.Item>
-                  </Col>
-                </Row>
-
-                <h2 className="section-title">Appearance</h2>
-                <Row gutter={16}>
-                  <Col span={12}>
-                    <Form.Item
-                      name="weight"
-                      rules={[{ required: true, message: 'Please enter fish weight(kg)' }]}
-                      label="Fish Weight"
-                    >
-                      <Input
-                        name="weight"
-                        type="number"
-                        value={newFish.weight}
-                        onChange={handleInputChange}
-                        placeholder="Enter weight(kg)"
-                      />
-                    </Form.Item>
-                  </Col>
-                  <Col span={12}>
-                    <Form.Item
-                      name="length"
-                      rules={[{ required: true, message: 'Please enter fish length(cm)' }]}
-                      label="Fish Length"
-                    >
-                      <Input
-                        name="length"
-                        type="number"
-                        value={newFish.length}
-                        onChange={handleInputChange}
-                        placeholder="Enter length(cm)"
-                      />
-                    </Form.Item>
-                  </Col>
-                </Row>
-
-                <h2 className="section-title">Additional Information</h2>
-                <Form.Item
-                  name="descriptions"
-                  
-                  label="Fish Description"
-                >
-                  <Input
-                    name="descriptions"
-                    value={newFish.descriptions}
-                    onChange={handleInputChange}
-                    placeholder="Enter fish description"
-                  />
-                </Form.Item>
-
-                <Form.Item
-                  label="Qualifications"
-                  name="qualifications"
-                >
-                  <Upload
-                    listType="picture-card"
-                    fileList={newFish.qualifications || []}
-                    onChange={handleUploadChange}
-                    beforeUpload={(file) => {
-                      const isImage = file.type.startsWith('image/');
-                      if (!isImage) {
-                        message.error('You can only upload image files!');
-                        return false;
-                      }
-                      const isLt5M = file.size / 1024 / 1024 < 5;
-                      if (!isLt5M) {
-                        message.error('Image must be smaller than 5MB!');
-                        return false;
-                      }
-                      return false;
-                    }}
-                  >
-                    {(!newFish.qualifications || newFish.qualifications.length < 5) && (
-                      <div>
-                        <UploadOutlined />
-                        <div style={{ marginTop: 8 }}>Upload</div>
-                      </div>
+                    ) : (
+                      fishOrders.map((order, index) => (
+                        <tr key={index} onClick={() => editFish(index)} style={{ cursor: 'pointer' }}>
+                          <td>{index + 1}</td>
+                          <td>{order.name}</td>
+                          <td>{order.gender}</td>
+                          <td>{order.species}</td>
+                          <td>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation(); // Prevent row click from triggering edit
+                                deleteRow(index);
+                              }}
+                              className="delete-button"
+                            >
+                              Delete
+                            </button>
+                          </td>
+                        </tr>
+                      ))
                     )}
+                  </tbody>
+                </table>
+              </div>
+
+
+              {/* Additional Services Section */}
+              {additionalServices.length > 0 && (
+                <>
+                  <h2 className="section-title">Additional Services</h2>
+                  <Form.Item name="additionalServices">
+                    <Checkbox.Group
+                      style={{ width: '100%' }}
+                      onChange={handleAdditionalServiceChange}
+                    >
+                      <Row gutter={[16, 16]}>
+                        {additionalServices.map(service => (
+                          <Col span={24} key={service.additionalServiceId}>
+                            <Checkbox value={service.additionalServiceId}>
+                              <span>{service.name}</span>
+                              <span style={{ marginLeft: '8px', color: '#1890ff' }}>
+                                (+{service.price.toLocaleString()} VNĐ)
+                              </span>
+                            </Checkbox>
+                          </Col>
+                        ))}
+                      </Row>
+                    </Checkbox.Group>
+                  </Form.Item>
+                </>
+              )}
+
+              {/* Modal for Adding Fish */}
+              <Modal
+                title={editingIndex !== null ? "Edit Fish Information" : "Add Fish Information"}
+                open={modalVisible}
+                onOk={handleModalOk}
+                onCancel={handleCancel}
+                okText={editingIndex !== null ? "Update" : "Add"}
+              >
+                <Form
+                  form={modalForm}
+                  layout="vertical"
+                  initialValues={{
+                    name: '',
+                    gender: '',
+                    species: '',
+                    age: '',
+                    weight: '',
+                    length: '',
+                    descriptions: '',
+                    qualifications: []
+                  }}
+                >
+                  <h2 className="section-title">Fish Information</h2>
+                  <Row gutter={16}>
+                    <Col span={12}>
+                      <Form.Item
+                        name="name"
+                        rules={[{ required: true, message: 'Please enter fish name' }]}
+                        label="Fish Name"
+                      >
+                        <Input
+                          onChange={(e) => handleInputChange({ target: { name: 'name', value: e.target.value } })}
+                          placeholder="Enter fish name"
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item
+                        name="gender"
+                        rules={[{ required: true, message: 'Please enter fish gender' }]}
+                        label="Fish Gender"
+                      >
+                        <Select
+                          placeholder="Choose a fish gender"
+                          value={newFish.gender}
+                          onChange={(value) => setNewFish({ ...newFish, gender: value })}
+                        >
+                          <Option value="male">Male</Option>
+                          <Option value="female">Female</Option>
+                        </Select>
+                      </Form.Item>
+                    </Col>
+                  </Row>
+
+                  <Row gutter={16}>
+                    <Col span={12}>
+                      <Form.Item
+                        name="species"
+                        rules={[{ required: true, message: 'Please enter fish species' }]}
+                        label="Fish Species"
+                      >
+                        <Input
+                          name="species"
+                          value={newFish.species}
+                          onChange={handleInputChange}
+                          placeholder="Enter fish species"
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item
+                        name="age"
+                        rules={[{ required: true, message: 'Please enter fish age' }]}
+                        label="Fish Age"
+                      >
+                        <Input
+                          name="age"
+                          type="number"
+                          value={newFish.age}
+                          onChange={handleInputChange}
+                          placeholder="Enter fish age"
+                        />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+
+                  <h2 className="section-title">Appearance</h2>
+                  <Row gutter={16}>
+                    <Col span={12}>
+                      <Form.Item
+                        name="weight"
+                        rules={[{ required: true, message: 'Please enter fish weight(kg)' }]}
+                        label="Fish Weight"
+                      >
+                        <Input
+                          name="weight"
+                          type="number"
+                          value={newFish.weight}
+                          onChange={handleInputChange}
+                          placeholder="Enter weight(kg)"
+                        />
+                      </Form.Item>
+                    </Col>
+                    <Col span={12}>
+                      <Form.Item
+                        name="length"
+                        rules={[{ required: true, message: 'Please enter fish length(cm)' }]}
+                        label="Fish Length"
+                      >
+                        <Input
+                          name="length"
+                          type="number"
+                          value={newFish.length}
+                          onChange={handleInputChange}
+                          placeholder="Enter length(cm)"
+                        />
+                      </Form.Item>
+                    </Col>
+                  </Row>
+
+                  <h2 className="section-title">Additional Information</h2>
+                  <Form.Item
+                    name="descriptions"
+
+                    label="Fish Description"
+                  >
+                    <Input
+                      name="descriptions"
+                      value={newFish.descriptions}
+                      onChange={handleInputChange}
+                      placeholder="Enter fish description"
+                    />
+                  </Form.Item>
+
+                  <Form.Item
+                    label="Qualifications"
+                    name="qualifications"
+                  >
+                    <Upload
+                      listType="picture-card"
+                      fileList={newFish.qualifications || []}
+                      onChange={handleImageUpload}
+                    >
+                      <label htmlFor="image-upload">
+                        <Button variant="contained" component="span">
+                          Upload Image
+                        </Button>
+                      </label>
+                      {image && (
+                        <Avatar
+                          src={image}
+                          alt="Fish"
+                          sx={{ width: 100, height: 100, marginTop: 2 }}
+                        />
+                      )}
+                    
                   </Upload>
                 </Form.Item>
               </Form>
@@ -731,48 +774,48 @@ const OrderConfirmation = () => {
               <Tooltip 
                 title={
                     <div>
-                        Provisional Price: Total distance × Price per Km<br/>
-                        Transport Fee ({servicePricingType}): {servicePricingType === 'volume' 
-                            ? `Price per kg (${pricePerKg?.toLocaleString()} VNĐ) × Total Weight (${fishOrders.reduce((sum, fish) => sum + Number(fish.weight), 0)} kg)`
-                            : `Price per amount (${pricePerAmount?.toLocaleString()} VNĐ) × Number of Fish (${fishOrders.length})`
-                        }<br/>
-                        Final Price = Provisional Price + Transport Fee + Additional Services Price (optional)<br/>
-                        <br/>                     
-                        Provisional Price: {totalPrice.toLocaleString()} VNĐ<br/>
-                        Transport Fee ({servicePricingType}): {servicePricingType === 'volume' 
-                            ? `${(pricePerKg * fishOrders.reduce((sum, fish) => sum + Number(fish.weight), 0)).toLocaleString()} VNĐ`
-                            : `${(pricePerAmount * fishOrders.length).toLocaleString()} VNĐ`
-                        }<br/>
-                        
-                        Additional Services Price: {selectedAdditionalServices.reduce((sum, serviceId) => {
-                            const service = additionalServices.find(s => s.additionalServiceId === serviceId);
-                            return sum + (service ? service.price : 0);
-                        }, 0).toLocaleString()} VNĐ<br/>
-                        <br/>
-                        Final Price: {calculatedFinalPrice.toLocaleString()} VNĐ
-                        
+                      Provisional Price: Total distance × Price per Km<br />
+                      Transport Fee ({servicePricingType}): {servicePricingType === 'volume'
+                        ? `Price per kg (${pricePerKg?.toLocaleString()} VNĐ) × Total Weight (${fishOrders.reduce((sum, fish) => sum + Number(fish.weight), 0)} kg)`
+                        : `Price per amount (${pricePerAmount?.toLocaleString()} VNĐ) × Number of Fish (${fishOrders.length})`
+                      }<br />
+                      Final Price = Provisional Price + Transport Fee + Additional Services Price (optional)<br />
+                      <br />
+                      Provisional Price: {totalPrice.toLocaleString()} VNĐ<br />
+                      Transport Fee ({servicePricingType}): {servicePricingType === 'volume'
+                        ? `${(pricePerKg * fishOrders.reduce((sum, fish) => sum + Number(fish.weight), 0)).toLocaleString()} VNĐ`
+                        : `${(pricePerAmount * fishOrders.length).toLocaleString()} VNĐ`
+                      }<br />
+
+                      Additional Services Price: {selectedAdditionalServices.reduce((sum, serviceId) => {
+                        const service = additionalServices.find(s => s.additionalServiceId === serviceId);
+                        return sum + (service ? service.price : 0);
+                      }, 0).toLocaleString()} VNĐ<br />
+                      <br />
+                      Final Price: {calculatedFinalPrice.toLocaleString()} VNĐ
+
                     </div>
-                }
-                overlayStyle={{ 
+                  }
+                  overlayStyle={{
                     maxWidth: '400px',
                     minWidth: '300px'
-                }}
-              >
-                <FontAwesomeIcon icon={faCircleInfo} style={{marginLeft: '10px'}}/>
-              </Tooltip>
-            </div>
-            <Form.Item >
-              <Button type="primary" htmlType="submit" className="submit-btn">
+                  }}
+                >
+                  <FontAwesomeIcon icon={faCircleInfo} style={{ marginLeft: '10px' }} />
+                </Tooltip>
+              </div>
+              <Form.Item >
+                <Button type="primary" htmlType="submit" className="submit-btn">
 
-                Submit
-              </Button>
-            </Form.Item>
-          </Form>
+                  Submit
+                </Button>
+              </Form.Item>
+            </Form>
 
-        </Col>
+          </Col>
 
-        <Col span={16} className="map-section">
-         
+          <Col span={16} className="map-section">
+
             {isScriptLoaded && (
               <div style={{ height: '400px', width: '100%' }}>
                 <GoogleMap
@@ -785,9 +828,9 @@ const OrderConfirmation = () => {
                     <Marker
                       position={pickUpLocation}
                       icon={{
-                        
+
                         url: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
-                        scaledSize: new window.google.maps.Size(40, 40) 
+                        scaledSize: new window.google.maps.Size(40, 40)
                       }}
                       title="Pick-up Location"
                     />
@@ -798,7 +841,7 @@ const OrderConfirmation = () => {
                       position={dropOffLocation}
                       icon={{
                         url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
-                        scaledSize:  new window.google.maps.Size(40, 40) 
+                        scaledSize: new window.google.maps.Size(40, 40)
                       }}
                       title="Drop-off Location"
                     />
@@ -821,12 +864,12 @@ const OrderConfirmation = () => {
                 )}
               </div>
             )}
-          
-        </Col> 
 
-      </Row>
-      <Footer />
-    </div>
+          </Col>
+
+        </Row>
+        <Footer />
+      </div>
     </LoadScriptNext>
   );
 };
