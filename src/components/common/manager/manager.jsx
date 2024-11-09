@@ -5,6 +5,7 @@ import TransportService from './transportservice';
 import AccountManagement from './accountmanager.jsx';
 import AdditionalserviceManagement from './manageaddtionalservice.jsx';
 import ManageRoute from './manageroute';
+import Analytics from './analytics';
 import '../../../css/accountmanagement.css';
 
 function Manager() {

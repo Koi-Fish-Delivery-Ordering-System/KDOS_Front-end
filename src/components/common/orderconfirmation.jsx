@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { LoadScriptNext, GoogleMap, Marker, Autocomplete } from '@react-google-maps/api';
-import { Form, Input, Button, Row, Col, message, Select, Modal, Upload, Checkbox, Tooltip } from 'antd';
+import { Form, Input, Button, Row, Col, message, Select, Modal, Upload, Checkbox, Tooltip, Spin } from 'antd';
 import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { UploadOutlined } from '@ant-design/icons';
@@ -123,54 +123,52 @@ const OrderConfirmation = () => {
         name: order.name,
         gender: order.gender,
         species: order.species,
-
         ageInMonth: order.age,
         weight: order.weight,
         length: order.length,
         description: order.descriptions,
-        qualifications: order.qualifications // Ensure qualifications is an array
+        qualifications: order.qualifications.map(q => q.url),
+        fishImageUrl: order.fishImage?.url
       }));
 
-      // Tạo FormData để gửi cả data và files
-      const formData = new FormData();
-
-      // Thêm data vào FormData
+      // Prepare the order data
       const orderData = {
-        fromProvince: fromProvince,
-        toProvince: toProvince,
-        servicePricingType: servicePricingType,
-        notes: values.notes,
-        totalPrice: calculatedFinalPrice,
-        fishes: fishes,
-        transportServiceId: vehicleType,
-        fromAddress: pickUpLocationName,
-        toAddress: dropOffLocationName,
-        receiverName: values.receiverName,
-        receiverPhone: values.receiverPhone,
-        paymentMethod: values.paymentMethod,
-        additionalServiceIds: selectedAdditionalServices,
+        
+          notes: values.notes,
+          totalPrice: calculatedFinalPrice,
+          fishes: fishOrders.map(order => ({
+            name: order.name,
+            gender: order.gender,
+            species: order.species,
+            ageInMonth: order.age,
+            weight: order.weight,
+            length: order.length,
+            description: order.descriptions,
+            qualifications: order.qualifications.map(q => q.url),
+            fishImageUrl: order.fishImage?.url
+          })),
+          transportServiceId: vehicleType,
+          fromAddress: pickUpLocationName,
+          toAddress: dropOffLocationName,
+          fromProvince: fromProvince,
+          toProvince: toProvince,
+          receiverName: values.receiverName,
+          receiverPhone: values.receiverPhone,
+          paymentMethod: values.paymentMethod,
+          additionalServiceIds: selectedAdditionalServices,
+          servicePricingType: servicePricingType
+        
+        
       };
 
+      // Convert orderData to FormData if you need to send files
+      const formData = new FormData();
       formData.append('data', JSON.stringify(orderData));
-
-      // Thêm files vào FormData with mediaIndex
-      fishOrders.forEach((fish, fishIndex) => {
-        if (fish.qualifications) {
-          fish.qualifications.forEach((file) => {
-            if (file.originFileObj) {
-              formData.append(
-                `files`,
-                file.originFileObj,
-                `fish_${fishIndex}_image_${file.mediaIndex}.jpg` // Use mediaIndex in filename
-              );
-            }
-          });
-        }
-      });
-
-      // Get the token from localStorage
+      // console.log('FormData:', formData.get('data'));
+      
+      console.log(orderData);
       const accessToken = sessionStorage.getItem("accessToken");
-
+      console.log(accessToken);
       // Send the data to the API with the token in the headers
       const response = await axios.post(
         'http://26.61.210.173:3001/api/orders/create-order',
@@ -178,24 +176,18 @@ const OrderConfirmation = () => {
         {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'multipart/form-data'
-          }
+            'Content-Type': 'application/json'
+          },         
         }
       );
 
-
-      // Check if the request was successful
       if (response.status === 200 || response.status === 201) {
-
-        if(values.paymentMethod === "vnpay"){
-          console.log("here");
+        if (values.paymentMethod === "vnpay") {
           window.location.href = response.data.others?.paymentUrl;
         } else {
-          navigate('/account-management', {state:{activeComponent: 'orders'}});
-          console.log(response);
+          navigate('/account-management', { state: { activeComponent: 'orders' } });
           message.success('Order placed successfully!');
         }
-       
       } else {
         message.error('Failed to place order. Please try again.');
       }
@@ -203,13 +195,22 @@ const OrderConfirmation = () => {
       console.error('Error submitting order:', error);
       message.error('An error occurred while placing the order. Please try again.');
     }
-
   };
 
   // State for fish orders and modal visibility
   const [fishOrders, setFishOrders] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [newFish, setNewFish] = useState({ name: '', gender: '', species: '', age: 0, weight: 0, length: 0, descriptions: '', qualifications: null });
+  const [newFish, setNewFish] = useState({
+    name: '',
+    gender: '',
+    species: '',
+    age: 0,
+    weight: 0,
+    length: 0,
+    descriptions: '',
+    qualifications: [],
+    fishImage: null // Change to a single image object
+  });
   const [editingIndex, setEditingIndex] = useState(null); // Track the index of the fish being edited
 
   // Thêm state cho additional services
@@ -235,7 +236,8 @@ const OrderConfirmation = () => {
       weight: 0,
       length: 0,
       descriptions: '',
-      qualifications: []
+      qualifications: [],
+      fishImage: null // Initialize fishImage
     });
     setQualificationsImage([]);
     setEditingIndex(null);
@@ -263,7 +265,8 @@ const OrderConfirmation = () => {
       weight: 0,
       length: 0,
       descriptions: '',
-      qualifications: []
+      qualifications: [],
+      fishImage: null // Initialize fishImage
     });
     setQualificationsImage([]);
   };
@@ -316,7 +319,7 @@ const OrderConfirmation = () => {
       }
 
       // Reset form và đóng modal
-      setNewFish({ name: '', gender: '', species: '', age: 0, weight: 0, length: 0, descriptions: '', qualifications: null });
+      setNewFish({ name: '', gender: '', species: '', age: 0, weight: 0, length: 0, descriptions: '', qualifications: null, fishImage: null });
       setEditingIndex(null);
       setModalVisible(false);
       message.success(editingIndex !== null ? 'Fish updated successfully!' : 'Fish added successfully!');
@@ -433,12 +436,19 @@ const OrderConfirmation = () => {
   const handleScriptLoad = () => {
     setIsScriptLoaded(true);
   };
+  const [loading, setLoading] = useState(false); // State to track loading
+
   const handleImageUpload = async (info) => {
     const { fileList } = info; // Get the file list from the info object
-    const uploadPromises = []; // Array to hold upload promises
 
-    for (let i = 0; i < fileList.length; i++) {
-      const selectedImage = fileList[i].originFileObj; // Access the original file object
+    // Filter out files that have been removed
+    const filteredFileList = fileList.filter(file => file.status !== 'removed');
+
+    const uploadPromises = []; // Array to hold upload promises
+    setLoading(true); // Set loading to true when upload starts
+
+    for (let i = 0; i < filteredFileList.length; i++) {
+      const selectedImage = filteredFileList[i].originFileObj; // Access the original file object
       if (selectedImage) {
         const storageRef = ref(getStorage(app), `manyimages/${selectedImage.name}`);
         const uploadTask = uploadBytesResumable(storageRef, selectedImage);
@@ -458,7 +468,7 @@ const OrderConfirmation = () => {
             () => {
               getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
                 console.log(`Download URL for ${selectedImage.name}:`, downloadURL);
-                resolve(downloadURL); // Resolve the promise with the download URL
+                resolve({ url: downloadURL, name: selectedImage.name }); // Resolve with an object containing the URL and name
               });
             }
           );
@@ -471,9 +481,26 @@ const OrderConfirmation = () => {
     // Wait for all uploads to complete
     try {
       const downloadURLs = await Promise.all(uploadPromises);
-      setImage(downloadURLs); // Update state with all download URLs
+
+      // Append the new URLs to the existing fileList
+      const updatedFileList = [
+        ...newFish.qualifications.filter(file => file.status !== 'removed'), // Keep existing images that are not removed
+        ...downloadURLs.map(file => ({
+          uid: file.name,
+          name: file.name,
+          status: 'done',
+          url: file.url
+        }))
+      ];
+
+      setNewFish(prev => ({
+        ...prev,
+        qualifications: updatedFileList
+      }));
     } catch (error) {
       console.error('Error uploading images:', error);
+    } finally {
+      setLoading(false); // Set loading to false when upload completes
     }
   };
 
@@ -482,6 +509,52 @@ const OrderConfirmation = () => {
       fitBounds();
     }
   }, [isScriptLoaded, mapLoaded, location.state, fitBounds]);
+
+  const handleFishImageUpload = async (info) => {
+    const { file } = info;
+    setLoading(true);
+
+    if (file.status === 'removed') {
+      setNewFish(prev => ({
+        ...prev,
+        fishImage: null
+      }));
+      setLoading(false);
+      return;
+    }
+
+    const selectedImage = file.originFileObj;
+    if (selectedImage) {
+      const storageRef = ref(getStorage(app), `fishimages/${selectedImage.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, selectedImage);
+
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log(`Upload of ${selectedImage.name} is ${progress}% done`);
+        },
+        (error) => {
+          console.error(`Error uploading ${selectedImage.name}:`, error);
+          setLoading(false);
+        },
+        async () => {
+          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+          console.log(`Download URL for ${selectedImage.name}:`, downloadURL);
+          setNewFish(prev => ({
+            ...prev,
+            fishImage: {
+              uid: selectedImage.name,
+              name: selectedImage.name,
+              status: 'done',
+              url: downloadURL
+            }
+          }));
+          setLoading(false);
+        }
+      );
+    }
+  };
 
   return (
     <LoadScriptNext
@@ -608,7 +681,8 @@ const OrderConfirmation = () => {
                     weight: '',
                     length: '',
                     descriptions: '',
-                    qualifications: []
+                    qualifications: [],
+                    fishImage: null // Initialize fishImage
                   }}
                 >
                   <h2 className="section-title">Fish Information</h2>
@@ -727,151 +801,174 @@ const OrderConfirmation = () => {
                     label="Qualifications"
                     name="qualifications"
                   >
-                    <Upload
-                      listType="picture-card"
-                      fileList={newFish.qualifications || []}
-                      onChange={handleImageUpload}
-                    >
-                      <label htmlFor="image-upload">
-                        <Button variant="contained" component="span">
-                          Upload Image
-                        </Button>
-                      </label>
-                      {image && (
-                        <Avatar
-                          src={image}
-                          alt="Fish"
-                          sx={{ width: 100, height: 100, marginTop: 2 }}
-                        />
-                      )}
-                    
-                  </Upload>
+                    <Spin spinning={loading}> {/* Wrap the Upload component with Spin */}
+                      <Upload
+                        listType="picture-card"
+                        fileList={newFish.qualifications || []}
+                        onChange={handleImageUpload}
+                        onRemove={(file) => {
+                          const updatedFileList = newFish.qualifications.filter(item => item.uid !== file.uid);
+                          setNewFish(prev => ({
+                            ...prev,
+                            qualifications: updatedFileList
+                          }));
+                          return true; // Return true to confirm removal
+                        }}
+                      >
+                        {Array.isArray(newFish.qualifications) && newFish.qualifications.length < 5 && '+ Upload'}
+                      </Upload>
+                      
+                    </Spin>
+                  </Form.Item>
+
+                  <Form.Item
+                    label="Fish Image"
+                    name="fishImage"
+                  >
+                    <Spin spinning={loading}>
+                      <Upload
+                        listType="picture-card"
+                        fileList={newFish.fishImage ? [newFish.fishImage] : []}
+                        onChange={handleFishImageUpload}
+                        onRemove={() => {
+                          setNewFish(prev => ({
+                            ...prev,
+                            fishImage: null
+                          }));
+                          return true;
+                        }}
+                        maxCount={1} // Limit to one image
+                      >
+                        {!newFish.fishImage && '+ Upload'}
+                      </Upload>
+                    </Spin>
+                  </Form.Item>
+
+                </Form>
+              </Modal>
+              <h2 className="section-title">Note</h2>
+              <Form.Item
+                name="notes"
+                rules={[{  message: 'Please enter your notes' }]}
+              >
+                <TextArea placeholder="Enter your notes" />
+              </Form.Item>
+              <h2 className="section-title">Payment Method</h2>
+
+              <Form.Item
+                label="Select Payment Method"
+                name="paymentMethod"
+                rules={[{ required: true, message: 'Please select a payment method' }]}
+              >
+                <Select placeholder="Choose a payment method">
+
+                  <Option value="vnpay">VN Pay</Option>
+                  <Option value="cash">Cash</Option>
+                </Select>
+              </Form.Item>
+              <div className="distance-display">
+                Final Price: {calculatedFinalPrice.toLocaleString()} VNĐ
+                <Tooltip 
+                  title={
+                      <div>
+                        Provisional Price: Total distance × Price per Km<br />
+                        Transport Fee ({servicePricingType}): {servicePricingType === 'volume'
+                          ? `Price per kg (${pricePerKg?.toLocaleString()} VNĐ) × Total Weight (${fishOrders.reduce((sum, fish) => sum + Number(fish.weight), 0)} kg)`
+                          : `Price per amount (${pricePerAmount?.toLocaleString()} VNĐ) × Number of Fish (${fishOrders.length})`
+                        }<br />
+                        Final Price = Provisional Price + Transport Fee + Additional Services Price (optional)<br />
+                        <br />
+                        Provisional Price: {totalPrice.toLocaleString()} VNĐ<br />
+                        Transport Fee ({servicePricingType}): {servicePricingType === 'volume'
+                          ? `${(pricePerKg * fishOrders.reduce((sum, fish) => sum + Number(fish.weight), 0)).toLocaleString()} VNĐ`
+                          : `${(pricePerAmount * fishOrders.length).toLocaleString()} VNĐ`
+                        }<br />
+
+                        Additional Services Price: {selectedAdditionalServices.reduce((sum, serviceId) => {
+                          const service = additionalServices.find(s => s.additionalServiceId === serviceId);
+                          return sum + (service ? service.price : 0);
+                        }, 0).toLocaleString()} VNĐ<br />
+                        <br />
+                        Final Price: {calculatedFinalPrice.toLocaleString()} VNĐ
+
+                      </div>
+                    }
+                    overlayStyle={{
+                      maxWidth: '400px',
+                      minWidth: '300px'
+                    }}
+                  >
+                    <FontAwesomeIcon icon={faCircleInfo} style={{ marginLeft: '10px' }} />
+                  </Tooltip>
+                </div>
+                <Form.Item >
+                  <Button type="primary" htmlType="submit" className="submit-btn">
+
+                    Submit
+                  </Button>
                 </Form.Item>
               </Form>
-            </Modal>
-            <h2 className="section-title">Note</h2>
-            <Form.Item
-              name="notes"
-              rules={[{  message: 'Please enter your notes' }]}
-            >
-              <TextArea placeholder="Enter your notes" />
-            </Form.Item>
-            <h2 className="section-title">Payment Method</h2>
 
-            <Form.Item
-              label="Select Payment Method"
-              name="paymentMethod"
-              rules={[{ required: true, message: 'Please select a payment method' }]}
-            >
-              <Select placeholder="Choose a payment method">
+            </Col>
 
-                <Option value="vnpay">VN Pay</Option>
-                <Option value="cash">Cash</Option>
-              </Select>
-            </Form.Item>
-            <div className="distance-display">
-              Final Price: {calculatedFinalPrice.toLocaleString()} VNĐ
-              <Tooltip 
-                title={
-                    <div>
-                      Provisional Price: Total distance × Price per Km<br />
-                      Transport Fee ({servicePricingType}): {servicePricingType === 'volume'
-                        ? `Price per kg (${pricePerKg?.toLocaleString()} VNĐ) × Total Weight (${fishOrders.reduce((sum, fish) => sum + Number(fish.weight), 0)} kg)`
-                        : `Price per amount (${pricePerAmount?.toLocaleString()} VNĐ) × Number of Fish (${fishOrders.length})`
-                      }<br />
-                      Final Price = Provisional Price + Transport Fee + Additional Services Price (optional)<br />
-                      <br />
-                      Provisional Price: {totalPrice.toLocaleString()} VNĐ<br />
-                      Transport Fee ({servicePricingType}): {servicePricingType === 'volume'
-                        ? `${(pricePerKg * fishOrders.reduce((sum, fish) => sum + Number(fish.weight), 0)).toLocaleString()} VNĐ`
-                        : `${(pricePerAmount * fishOrders.length).toLocaleString()} VNĐ`
-                      }<br />
+            <Col span={16} className="map-section">
 
-                      Additional Services Price: {selectedAdditionalServices.reduce((sum, serviceId) => {
-                        const service = additionalServices.find(s => s.additionalServiceId === serviceId);
-                        return sum + (service ? service.price : 0);
-                      }, 0).toLocaleString()} VNĐ<br />
-                      <br />
-                      Final Price: {calculatedFinalPrice.toLocaleString()} VNĐ
+              {isScriptLoaded && (
+                <div style={{ height: '400px', width: '100%' }}>
+                  <GoogleMap
+                    mapContainerStyle={mapContainerStyle}
+                    zoom={12}
+                    center={location.state?.pickUpLocation || { lat: 10.8231, lng: 106.6297 }}
+                    onLoad={onMapLoad}
+                  >
+                    {pickUpLocation && (
+                      <Marker
+                        position={pickUpLocation}
+                        icon={{
 
+                          url: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
+                          scaledSize: new window.google.maps.Size(40, 40)
+                        }}
+                        title="Pick-up Location"
+                      />
+                    )}
+
+                    {dropOffLocation && (
+                      <Marker
+                        position={dropOffLocation}
+                        icon={{
+                          url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                          scaledSize: new window.google.maps.Size(40, 40)
+                        }}
+                        title="Drop-off Location"
+                      />
+                    )}
+                  </GoogleMap>
+
+                  {location.state?.distance && (
+                    <div className="distance-info" style={{
+                      position: 'absolute',
+                      bottom: '20px',
+                      left: '20px',
+                      backgroundColor: 'white',
+                      padding: '10px',
+                      borderRadius: '8px',
+                      boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+                      zIndex: 1
+                    }}>
+                      <strong>Distance:</strong> {location.state.distance.toFixed(2)} km
                     </div>
-                  }
-                  overlayStyle={{
-                    maxWidth: '400px',
-                    minWidth: '300px'
-                  }}
-                >
-                  <FontAwesomeIcon icon={faCircleInfo} style={{ marginLeft: '10px' }} />
-                </Tooltip>
-              </div>
-              <Form.Item >
-                <Button type="primary" htmlType="submit" className="submit-btn">
-
-                  Submit
-                </Button>
-              </Form.Item>
-            </Form>
-
-          </Col>
-
-          <Col span={16} className="map-section">
-
-            {isScriptLoaded && (
-              <div style={{ height: '400px', width: '100%' }}>
-                <GoogleMap
-                  mapContainerStyle={mapContainerStyle}
-                  zoom={12}
-                  center={location.state?.pickUpLocation || { lat: 10.8231, lng: 106.6297 }}
-                  onLoad={onMapLoad}
-                >
-                  {pickUpLocation && (
-                    <Marker
-                      position={pickUpLocation}
-                      icon={{
-
-                        url: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
-                        scaledSize: new window.google.maps.Size(40, 40)
-                      }}
-                      title="Pick-up Location"
-                    />
                   )}
+                </div>
+              )}
 
-                  {dropOffLocation && (
-                    <Marker
-                      position={dropOffLocation}
-                      icon={{
-                        url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
-                        scaledSize: new window.google.maps.Size(40, 40)
-                      }}
-                      title="Drop-off Location"
-                    />
-                  )}
-                </GoogleMap>
+            </Col>
 
-                {location.state?.distance && (
-                  <div className="distance-info" style={{
-                    position: 'absolute',
-                    bottom: '20px',
-                    left: '20px',
-                    backgroundColor: 'white',
-                    padding: '10px',
-                    borderRadius: '8px',
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
-                    zIndex: 1
-                  }}>
-                    <strong>Distance:</strong> {location.state.distance.toFixed(2)} km
-                  </div>
-                )}
-              </div>
-            )}
+          </Row>
+          <Footer />
+        </div>
+      </LoadScriptNext>
+    );
+  };
 
-          </Col>
-
-        </Row>
-        <Footer />
-      </div>
-    </LoadScriptNext>
-  );
-};
-
-export default OrderConfirmation;
+  export default OrderConfirmation;
