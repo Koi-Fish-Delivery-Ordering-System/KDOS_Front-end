@@ -41,7 +41,8 @@ function Manager() {
         return <AdditionalserviceManagement selectedAdditionalServiceId={selectedAdditionalServiceId} />; // Pass the selected ID to the component
       case 'manageRoute':
         return <ManageRoute />;
-
+      case 'analytics':
+        return <Analytics />;
       default:
         return (
           <div>
@@ -82,6 +83,11 @@ function Manager() {
             <li>
               <button onClick={() => setActiveComponent('manageRoute')} className={activeComponent === 'manageRoute' ? 'active' : ''}>
                 Manage Route
+              </button>
+            </li>
+            <li>
+              <button onClick={() => setActiveComponent('analytics')} className={activeComponent === 'analytics' ? 'active' : ''}>
+                Analytics
               </button>
             </li>
           </ul>

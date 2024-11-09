@@ -19,67 +19,44 @@ const UserProvider = ({ children }) => {
 };
 
 function ProfilePage() {
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [currentField, setCurrentField] = useState('');
+  
   const [newValue, setNewValue] = useState('');
-  const [currentFieldCurrent, setCurrentFieldCurrent] = useState('');
   const username = sessionStorage.getItem("username");
   const fullName = sessionStorage.getItem("fullName");
   const email = sessionStorage.getItem("email");
-  const address = sessionStorage.getItem("address");
   const phone = sessionStorage.getItem("phone");
-  const [currentPassword, setCurrentPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmNewPassword, setConfirmNewPassword] = useState('');
+  
+  const [editingField, setEditingField] = useState(null);
 
-  const showModal = (field) => {
-    setCurrentField(field);
+  const handleEditClick = (field) => {
+    setEditingField(field);
     setNewValue(sessionStorage.getItem(field));
-    setIsModalVisible(true);
   };
 
-  const showModalCurrent = (field) => {
-    setCurrentFieldCurrent(field);
-    setIsModalVisible(true);
-  };
-
-  const handleOk = async () => {
-    if (currentField === 'phone' && !/^\d{10}$/.test(newValue)) {
+  const handleSave = async (field) => {
+    if (field === 'phone' && !/^\d{10}$/.test(newValue)) {
       toast.error("Please enter a valid phone number.");
       return;
     }
 
-    if (currentField === 'password') {
-      if (!currentPassword) {
-        toast.error("Please enter your current password.");
-        return;
-      }
-      if (newPassword !== confirmNewPassword) {
-        toast.error("New passwords do not match.");
-        return;
-      }
-      // Add logic to verify current password and update to new password
-      // ...
-    }
-
     try {
-      // Gửi dữ liệu đến API
       const accessToken = sessionStorage.getItem("accessToken");
-      await axios.patch('http://26.61.210.173:3001/api/accounts/update-profile', { [currentField]: newValue }, {
+      await axios.patch('http://26.61.210.173:3001/api/accounts/update-profile', { [field]: newValue }, {
         headers: {
           'Authorization': `Bearer ${accessToken}`
         }
       });
       toast.success("Profile updated successfully!");
-      sessionStorage.setItem(currentField, newValue);
-      setIsModalVisible(false);
+      sessionStorage.setItem(field, newValue);
+      setEditingField(null);
     } catch (error) {
       toast.error("Failed to update profile.");
     }
   };
 
   const handleCancel = () => {
-    setIsModalVisible(false);
+    setEditingField(null);
+    setNewValue('');
   };
 
   return (
@@ -91,31 +68,73 @@ function ProfilePage() {
       </div>
       <div className="profile-item">
         <div className="profile-label">Full Name</div>
-        <div className="profile-value">{fullName}</div>
-        <a href="#" className="profile-action" onClick={() => showModal('fullName')}>Change</a>
+        {editingField === 'fullName' ? (
+          <div className="edit-container">
+            <Input
+              value={newValue}
+              onChange={(e) => setNewValue(e.target.value)}
+            />
+            <a href="#" className="cancel-button" onClick={handleCancel}>Cancel</a>
+            <Button type="primary" className="continue-button" onClick={() => handleSave('fullName')}>Save</Button>
+          </div>
+        ) : (
+          <>
+            <div className="profile-value">{fullName}</div>
+            <a href="#" className="profile-action" onClick={() => handleEditClick('fullName')}>Change</a>
+          </>
+        )}
+        
       </div>
       <div className="profile-item">
         <div className="profile-label">Phone</div>
-        <div className="profile-value">{phone}</div>
-        <a href="#" className="profile-action" onClick={() => showModal('phone')}>Change</a>
+        {editingField === 'phone' ? (
+          <div className="edit-container">
+            <Input
+              value={newValue}
+              onChange={(e) => setNewValue(e.target.value)}
+            />
+            <a href="#" className="cancel-button" onClick={handleCancel}>Cancel</a>
+            <Button type="primary" className="continue-button" onClick={() => handleSave('phone')}>Save</Button>
+          </div>
+        ) : (
+          <>
+            <div className="profile-value">{phone}</div>
+            <a href="#" className="profile-action" onClick={() => handleEditClick('phone')}>Change</a>
+          </>
+        )}
+        
       </div>
       <div className="profile-item">
-        <div className="profile-label"> Email</div>
-        <div className="profile-value">{email}</div>
-        <a href="#" className="profile-action" onClick={() => showModal('email')}>Change</a>
+        <div className="profile-label">Email</div>
+        {editingField === 'email' ? (
+          <div className="edit-container">
+            <Input
+              value={newValue}
+              onChange={(e) => setNewValue(e.target.value)}
+            />
+            <a href="#" className="cancel-button" onClick={handleCancel}>Cancel</a>
+            <Button type="primary" className="continue-button" onClick={() => handleSave('email')}>Save</Button>
+          </div>
+        ) : (
+          <>
+            <div className="profile-value">{email}</div>
+            <a href="#" className="profile-action" onClick={() => handleEditClick('email')}>Change</a>
+          </>
+        )}
+        
       </div>
       
       
       <div className="profile-item">
         <div className="profile-label">Password</div>
-        <a href="#" className="profile-action" onClick={() => showModal('password')}>Change Password</a>
+        <a href="#" className="profile-action" onClick={() => handleEditClick('password')}>Change Password</a>
       </div>
       <div className="profile-item">
         <div className="profile-label">Account</div>
         <a href="#" className="profile-action">Disable Account</a>
       </div>
 
-      <Modal
+      {/* <Modal
         title={`Edit ${currentField}`}
         visible={isModalVisible}
         onOk={handleOk}
@@ -155,7 +174,7 @@ function ProfilePage() {
             </Form.Item>
           )}
         </Form>
-      </Modal>
+      </Modal> */}
       <ToastContainer />
     </div>
   );

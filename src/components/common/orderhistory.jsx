@@ -117,6 +117,10 @@ const OrderHistory = () => {
   };
 
   const handleFeedbackSubmit = async () => {
+    if (feedbackContent.length < 20) {
+      alert('Feedback must be at least 20 characters long.');
+      return;
+    }
     try {
       await axios.patch(`http://26.61.210.173:3001/api/orders/create-order-feedback`,{
         orderId: selectedOrder.orderId,
@@ -132,6 +136,7 @@ const OrderHistory = () => {
       setIsFeedbackModalOpen(false);
       setFeedbackStars(0);
       setFeedbackContent('');
+      fetchOrder();
     } catch (error) {
       console.error('Error submitting feedback:', error);
     }
@@ -147,9 +152,10 @@ const OrderHistory = () => {
   const otherOrders = order.filter(orderItem => orderItem.orderStatus !== 'completed');
 
   return (
+    
     <div className="records">
-      
-        <h2 className="section-title" style={{ margin: 0 }}>Order History</h2>
+      <h1 className="section-title" >Order History</h1>
+        
       
       
       {loading ? (

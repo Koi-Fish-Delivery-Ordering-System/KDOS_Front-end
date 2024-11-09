@@ -94,6 +94,7 @@ function DeliveryPage() {
             }
         } finally {
             setLoading(false);
+            navigate('/delivery', { state: { activeComponent: 'process' } });
         }
     };
 
@@ -212,7 +213,7 @@ function DeliveryPage() {
                             <button
                                 className="new-route-button"
                             style={{}}
-                            onClick={() => handlePickup(selectedRoute.routeId)}
+                            onClick={() => handlePickup(selectedRoute.routeId).then(() => navigate('/delivery', { state: { activeComponent: 'process' } }))}
                                 disabled={loading}
                             >
                                 Pickup
