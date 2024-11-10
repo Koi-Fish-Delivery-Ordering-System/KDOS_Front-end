@@ -58,6 +58,10 @@ function LoginPage() {
             sessionStorage.setItem("phone", phone);
             sessionStorage.setItem("address", address);
             sessionStorage.setItem("password", password);
+            //Roles is the array of roles
+            const roleNames = roles.map(role => role.name); // Extract role names into an array
+            sessionStorage.setItem("roles", JSON.stringify(roleNames)); // Store as a JSON string
+            console.log("Roles:", roleNames);
             console.log("Email:", email);
             console.log("Address:", address);
             console.log("Phone:", phone);

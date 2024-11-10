@@ -7,7 +7,7 @@ import AdditionalserviceManagement from './manageaddtionalservice.jsx';
 import ManageRoute from './manageroute';
 import Analytics from './analytics';
 import '../../../css/accountmanagement.css';
-
+import { Modal } from 'antd'; // Import Modal from antd
 function Manager() {
   const [activeComponent, setActiveComponent] = useState('profile');
   const [selectedTransportId, setSelectedTransportId] = useState(null);
@@ -15,7 +15,17 @@ function Manager() {
   const [selectedAdditionalServiceId, setSelectedAdditionalServiceId] = useState(null); // New state for selected account
   const [selectedRouteId, setSelectedRouteId] = useState(null); // New state for selected route 
 
+  // Retrieve roles from sessionStorage
+  const roles = JSON.parse(sessionStorage.getItem("roles")); // Parse the JSON string back into an array
 
+  // Check if roles is not null and contains the role "manager"
+  if (!roles || !roles.includes("manager")) {
+    // Redirect to the appropriate page if the role is not present
+    window.location.href = '/unauthorized'; // Change '/unauthorized' to your desired redirect URL
+  } else {
+    // Proceed with the logic for users with the "manager" role
+    console.log("User has the manager role.");
+  }
   const handleDetailClick = (transportId) => {
     setSelectedTransportId(transportId);
     setActiveComponent('detail');
@@ -56,7 +66,6 @@ function Manager() {
 
   return (
     <div>
-      <Navbar2 />
       <div className="account-management">
         <div className="sidebar">
           <h3>Manager</h3>
@@ -89,6 +98,21 @@ function Manager() {
             <li>
               <button onClick={() => setActiveComponent('manageRoute')} className={activeComponent === 'manageRoute' ? 'active' : ''}>
                 Manage Route
+              </button>
+            </li>
+            <li>
+              <button onClick={() => {
+                Modal.confirm({
+                  title: 'Confirm Logout',
+                  content: 'Are you sure you want to log out?',
+                  onOk() {
+                    // Call the logout logic directly
+                    sessionStorage.clear(); // Clear session storage
+                    window.location.href = '/login'; // Change '/login' to your desired redirect URL
+                  },
+                });
+              }} className={activeComponent === 'logout' ? 'active' : ''}>
+                Logout
               </button>
             </li>
           </ul>
