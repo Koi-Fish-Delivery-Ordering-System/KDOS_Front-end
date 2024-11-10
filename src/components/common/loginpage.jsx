@@ -1,6 +1,6 @@
 import React from "react";
 import AuthenTemplate from "./validationlogin";
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../config/axios";
 import { toast } from "react-toastify";
@@ -20,6 +20,7 @@ function LoginPage() {
         const { accessToken } = loginResponse.data.tokens;
         sessionStorage.setItem("accessToken", accessToken);
         console.log("Đăng nhập thành công. Access Token:", accessToken);
+        message.success("Login successful", 1);
         const query = `
           query Init {
             init {
@@ -79,11 +80,14 @@ function LoginPage() {
                 case 'user':
                   navigate('/');
                   break;
-                case 'shipper':
+                case 'delivery':
                   navigate('/delivery');
                   break;
                 case 'healchecker':
                   navigate('/healchecker');
+                  break;
+                case 'manager':
+                  navigate('/manager');
                   break;
                 default:
                   console.error("Unknown role:", userRole);

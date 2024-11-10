@@ -1,6 +1,6 @@
 import React from "react";
 import AuthenTemplate from "./validationlogin";
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../config/axios";
 import { toast, ToastContainer } from "react-toastify";
@@ -14,12 +14,12 @@ function RegisterPage() {
 
     try {
       const response = await api.post('http://26.61.210.173:3001/api/auth/sign-up', dataToSend);
-      toast.success("Register successfully!");
+      message.success("Register successfully!");
       console.log(response.data);
       navigate('/login');
     } catch (error) {
       console.error("Registration error:", error);
-      toast.error("Registration failed: Please check your information");
+      toast.error("Email Or Username Already Exists",);
     }
   };
 
