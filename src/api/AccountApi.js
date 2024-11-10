@@ -1,5 +1,5 @@
 import { getJwtToken, Url, headers, GraphQLUrl } from "./Url";
-import { useQuery, ApolloProvider, ApolloClient, InMemoryCache, gql } from '@apollo/client';
+import { useQuery, ApolloClient, InMemoryCache, gql } from '@apollo/client';
 import axios from "axios";
 
 //URL For Swagger API
@@ -57,5 +57,23 @@ export const GetAllAccount = () => {
 
   return { loading, error, data: data ? data.findAllAccount : [] };
 };
+
+// Create a reusable function to update an account
+export const UpdateCustomerProfile = async (accountData) => {
+  try {
+    const response = await axios.patch(`${baseAccountUrl}/update-profile`, accountData);
+
+    if (response.status === 200) {
+      return { success: true, message: "Account updated successfully!" };
+    } else {
+      return { success: false, message: "Failed to update account." };
+    }
+  } catch (error) {
+    console.error('Error updating account:', error);
+    throw new Error("Error updating account: " + error.message);
+  }
+};
+
+
 
 

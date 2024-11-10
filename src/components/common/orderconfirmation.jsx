@@ -25,6 +25,17 @@ const OrderConfirmation = () => {
   const defaultPosition = [10.8231, 106.6297]; // Default coordinates for Ho Chi Minh City
   const [image, setImage] = useState('');
 
+  // Retrieve roles from sessionStorage
+  const roles = JSON.parse(sessionStorage.getItem("roles")); // Parse the JSON string back into an array
+
+  // Check if roles is not null and contains the role "manager"
+  if (!roles || !roles.includes("customer")) {
+    // Redirect to the appropriate page if the role is not present
+    window.location.href = '/unauthorized'; // Change '/unauthorized' to your desired redirect URL
+  } else {
+    // Proceed with the logic for users with the "manager" role
+    console.log("User has the manager role.");
+  }
   const navigate = useNavigate();
   const location = useLocation();
   const [form] = Form.useForm();
@@ -133,39 +144,39 @@ const OrderConfirmation = () => {
 
       // Prepare the order data
       const orderData = {
-        
-          notes: values.notes,
-          totalPrice: calculatedFinalPrice,
-          fishes: fishOrders.map(order => ({
-            name: order.name,
-            gender: order.gender,
-            species: order.species,
-            ageInMonth: order.age,
-            weight: order.weight,
-            length: order.length,
-            description: order.descriptions,
-            qualifications: order.qualifications.map(q => q.url),
-            fishImageUrl: order.fishImage?.url
-          })),
-          transportServiceId: vehicleType,
-          fromAddress: pickUpLocationName,
-          toAddress: dropOffLocationName,
-          fromProvince: fromProvince,
-          toProvince: toProvince,
-          receiverName: values.receiverName,
-          receiverPhone: values.receiverPhone,
-          paymentMethod: values.paymentMethod,
-          additionalServiceIds: selectedAdditionalServices,
-          servicePricingType: servicePricingType
-        
-        
+
+        notes: values.notes,
+        totalPrice: calculatedFinalPrice,
+        fishes: fishOrders.map(order => ({
+          name: order.name,
+          gender: order.gender,
+          species: order.species,
+          ageInMonth: order.age,
+          weight: order.weight,
+          length: order.length,
+          description: order.descriptions,
+          qualifications: order.qualifications.map(q => q.url),
+          fishImageUrl: order.fishImage?.url
+        })),
+        transportServiceId: vehicleType,
+        fromAddress: pickUpLocationName,
+        toAddress: dropOffLocationName,
+        fromProvince: fromProvince,
+        toProvince: toProvince,
+        receiverName: values.receiverName,
+        receiverPhone: values.receiverPhone,
+        paymentMethod: values.paymentMethod,
+        additionalServiceIds: selectedAdditionalServices,
+        servicePricingType: servicePricingType
+
+
       };
 
       // Convert orderData to FormData if you need to send files
       const formData = new FormData();
       formData.append('data', JSON.stringify(orderData));
       // console.log('FormData:', formData.get('data'));
-      
+
       console.log(orderData);
       const accessToken = sessionStorage.getItem("accessToken");
       console.log(accessToken);
@@ -177,7 +188,7 @@ const OrderConfirmation = () => {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Content-Type': 'application/json'
-          },         
+          },
         }
       );
 
@@ -817,7 +828,7 @@ const OrderConfirmation = () => {
                       >
                         {Array.isArray(newFish.qualifications) && newFish.qualifications.length < 5 && '+ Upload'}
                       </Upload>
-                      
+
                     </Spin>
                   </Form.Item>
 
@@ -849,7 +860,7 @@ const OrderConfirmation = () => {
               <h2 className="section-title">Note</h2>
               <Form.Item
                 name="notes"
-                rules={[{  message: 'Please enter your notes' }]}
+                rules={[{ message: 'Please enter your notes' }]}
               >
                 <TextArea placeholder="Enter your notes" />
               </Form.Item>
@@ -868,107 +879,107 @@ const OrderConfirmation = () => {
               </Form.Item>
               <div className="distance-display">
                 Final Price: {calculatedFinalPrice.toLocaleString()} VNĐ
-                <Tooltip 
+                <Tooltip
                   title={
-                      <div>
-                        Provisional Price: Total distance × Price per Km<br />
-                        Transport Fee ({servicePricingType}): {servicePricingType === 'volume'
-                          ? `Price per kg (${pricePerKg?.toLocaleString()} VNĐ) × Total Weight (${fishOrders.reduce((sum, fish) => sum + Number(fish.weight), 0)} kg)`
-                          : `Price per amount (${pricePerAmount?.toLocaleString()} VNĐ) × Number of Fish (${fishOrders.length})`
-                        }<br />
-                        Final Price = Provisional Price + Transport Fee + Additional Services Price (optional)<br />
-                        <br />
-                        Provisional Price: {totalPrice.toLocaleString()} VNĐ<br />
-                        Transport Fee ({servicePricingType}): {servicePricingType === 'volume'
-                          ? `${(pricePerKg * fishOrders.reduce((sum, fish) => sum + Number(fish.weight), 0)).toLocaleString()} VNĐ`
-                          : `${(pricePerAmount * fishOrders.length).toLocaleString()} VNĐ`
-                        }<br />
+                    <div>
+                      Provisional Price: Total distance × Price per Km<br />
+                      Transport Fee ({servicePricingType}): {servicePricingType === 'volume'
+                        ? `Price per kg (${pricePerKg?.toLocaleString()} VNĐ) × Total Weight (${fishOrders.reduce((sum, fish) => sum + Number(fish.weight), 0)} kg)`
+                        : `Price per amount (${pricePerAmount?.toLocaleString()} VNĐ) × Number of Fish (${fishOrders.length})`
+                      }<br />
+                      Final Price = Provisional Price + Transport Fee + Additional Services Price (optional)<br />
+                      <br />
+                      Provisional Price: {totalPrice.toLocaleString()} VNĐ<br />
+                      Transport Fee ({servicePricingType}): {servicePricingType === 'volume'
+                        ? `${(pricePerKg * fishOrders.reduce((sum, fish) => sum + Number(fish.weight), 0)).toLocaleString()} VNĐ`
+                        : `${(pricePerAmount * fishOrders.length).toLocaleString()} VNĐ`
+                      }<br />
 
-                        Additional Services Price: {selectedAdditionalServices.reduce((sum, serviceId) => {
-                          const service = additionalServices.find(s => s.additionalServiceId === serviceId);
-                          return sum + (service ? service.price : 0);
-                        }, 0).toLocaleString()} VNĐ<br />
-                        <br />
-                        Final Price: {calculatedFinalPrice.toLocaleString()} VNĐ
+                      Additional Services Price: {selectedAdditionalServices.reduce((sum, serviceId) => {
+                        const service = additionalServices.find(s => s.additionalServiceId === serviceId);
+                        return sum + (service ? service.price : 0);
+                      }, 0).toLocaleString()} VNĐ<br />
+                      <br />
+                      Final Price: {calculatedFinalPrice.toLocaleString()} VNĐ
 
-                      </div>
-                    }
-                    overlayStyle={{
-                      maxWidth: '400px',
-                      minWidth: '300px'
-                    }}
-                  >
-                    <FontAwesomeIcon icon={faCircleInfo} style={{ marginLeft: '10px' }} />
-                  </Tooltip>
-                </div>
-                <Form.Item >
-                  <Button type="primary" htmlType="submit" className="submit-btn">
-
-                    Submit
-                  </Button>
-                </Form.Item>
-              </Form>
-
-            </Col>
-
-            <Col span={16} className="map-section">
-
-              {isScriptLoaded && (
-                <div style={{ height: '400px', width: '100%' }}>
-                  <GoogleMap
-                    mapContainerStyle={mapContainerStyle}
-                    zoom={12}
-                    center={location.state?.pickUpLocation || { lat: 10.8231, lng: 106.6297 }}
-                    onLoad={onMapLoad}
-                  >
-                    {pickUpLocation && (
-                      <Marker
-                        position={pickUpLocation}
-                        icon={{
-
-                          url: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
-                          scaledSize: new window.google.maps.Size(40, 40)
-                        }}
-                        title="Pick-up Location"
-                      />
-                    )}
-
-                    {dropOffLocation && (
-                      <Marker
-                        position={dropOffLocation}
-                        icon={{
-                          url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
-                          scaledSize: new window.google.maps.Size(40, 40)
-                        }}
-                        title="Drop-off Location"
-                      />
-                    )}
-                  </GoogleMap>
-
-                  {location.state?.distance && (
-                    <div className="distance-info" style={{
-                      position: 'absolute',
-                      bottom: '20px',
-                      left: '20px',
-                      backgroundColor: 'white',
-                      padding: '10px',
-                      borderRadius: '8px',
-                      boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
-                      zIndex: 1
-                    }}>
-                      <strong>Distance:</strong> {location.state.distance.toFixed(2)} km
                     </div>
+                  }
+                  overlayStyle={{
+                    maxWidth: '400px',
+                    minWidth: '300px'
+                  }}
+                >
+                  <FontAwesomeIcon icon={faCircleInfo} style={{ marginLeft: '10px' }} />
+                </Tooltip>
+              </div>
+              <Form.Item >
+                <Button type="primary" htmlType="submit" className="submit-btn">
+
+                  Submit
+                </Button>
+              </Form.Item>
+            </Form>
+
+          </Col>
+
+          <Col span={16} className="map-section">
+
+            {isScriptLoaded && (
+              <div style={{ height: '400px', width: '100%' }}>
+                <GoogleMap
+                  mapContainerStyle={mapContainerStyle}
+                  zoom={12}
+                  center={location.state?.pickUpLocation || { lat: 10.8231, lng: 106.6297 }}
+                  onLoad={onMapLoad}
+                >
+                  {pickUpLocation && (
+                    <Marker
+                      position={pickUpLocation}
+                      icon={{
+
+                        url: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
+                        scaledSize: new window.google.maps.Size(40, 40)
+                      }}
+                      title="Pick-up Location"
+                    />
                   )}
-                </div>
-              )}
 
-            </Col>
+                  {dropOffLocation && (
+                    <Marker
+                      position={dropOffLocation}
+                      icon={{
+                        url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                        scaledSize: new window.google.maps.Size(40, 40)
+                      }}
+                      title="Drop-off Location"
+                    />
+                  )}
+                </GoogleMap>
 
-          </Row>
-          <Footer />
-        </div>
-      </LoadScriptNext>
-    );
-  };
+                {location.state?.distance && (
+                  <div className="distance-info" style={{
+                    position: 'absolute',
+                    bottom: '20px',
+                    left: '20px',
+                    backgroundColor: 'white',
+                    padding: '10px',
+                    borderRadius: '8px',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+                    zIndex: 1
+                  }}>
+                    <strong>Distance:</strong> {location.state.distance.toFixed(2)} km
+                  </div>
+                )}
+              </div>
+            )}
 
-  export default OrderConfirmation;
+          </Col>
+
+        </Row>
+        <Footer />
+      </div>
+    </LoadScriptNext>
+  );
+};
+
+export default OrderConfirmation;

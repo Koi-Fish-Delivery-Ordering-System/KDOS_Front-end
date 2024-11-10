@@ -4,7 +4,7 @@ import { Button, Table, Modal, Form, Input, Checkbox } from 'antd';
 import { toast, ToastContainer } from 'react-toastify';
 import axios from 'axios';
 import 'react-toastify/dist/ReactToastify.css';
-import { GetAllAccount, client } from '../../../api/AccountApi';
+import { GetAllAccount, UpdateCustomerProfile, client } from '../../../api/AccountApi';
 
 
 function AccountManager() {
@@ -18,7 +18,6 @@ function AccountManager() {
   const [form] = Form.useForm();
 
   const { loading: queryLoading, error, data: apiData } = GetAllAccount();
-
   //Effect to set the data and loading state
   useEffect(() => {
     if (apiData) {
@@ -43,18 +42,22 @@ function AccountManager() {
   };
 
   const handleEdit = async (values) => {
-    try {
-      const response = await axios.patch('http://26.61.210.173:3001/api/accounts/update-profile', {
-        username: values.username,
-        phone: values.phone,
-        email: values.email,
-        address: values.address,
-      });
+    // Construct profileData using the values from the form
+    const profileData = {
+      username: values.username,
+      phone: values.phone,
+      email: values.email,
+      address: values.address,
+    };
 
-      if (response.status === 200) {
+    try {
+      // Call the UpdateAccount function with the account ID and profileData
+      const response = await UpdateCustomerProfile(profileData); // Ensure formData contains the accountId
+
+      if (response.success) {
         toast.success("Account updated successfully!");
         setShowForm(false);
-        refetch(); // Refresh the data to reflect changes
+        GetAllAccount(); // Refresh the data to reflect changes
       } else {
         toast.error("Failed to update account.");
       }
@@ -65,11 +68,6 @@ function AccountManager() {
   };
 
   const handleSubmit = async (values) => {
-    // if (formData) {
-    //   await handleEdit(values);
-    // } else {
-    //   await handleCreate(values);
-    // }
     await handleEdit(values);
   };
 
@@ -79,11 +77,11 @@ function AccountManager() {
     { title: 'Email', dataIndex: 'email' },
     { title: 'Phone', dataIndex: 'phone' },
     { title: 'Address', dataIndex: 'address' },
-    {
-      title: 'Verified',
-      dataIndex: 'verified',
-      render: (verified) => (verified ? 'Yes' : 'No'),
-    },
+    // {
+    //   title: 'Verified',
+    //   dataIndex: 'verified',
+    //   render: (verified) => (verified ? 'Yes' : 'No'),
+    // },
     {
       title: 'Roles',
       dataIndex: 'roles',

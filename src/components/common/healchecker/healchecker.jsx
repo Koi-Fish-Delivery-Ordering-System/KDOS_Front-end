@@ -4,8 +4,20 @@ import Navbar2 from '../navbar2';
 import HealDetail from './healdetail';
 import HealOrder from './healorder';
 import '../../../css/accountmanagement.css';
+import { Modal } from 'antd';
 
 function HealChecker() {
+  // Retrieve roles from sessionStorage
+  const roles = JSON.parse(sessionStorage.getItem("roles")); // Parse the JSON string back into an array
+
+  // Check if roles is not null and contains the role "manager"
+  if (!roles || !roles.includes("healthchecker")) {
+    // Redirect to the appropriate page if the role is not present
+    window.location.href = '/unauthorized'; // Change '/unauthorized' to your desired redirect URL
+  } else {
+    // Proceed with the logic for users with the "manager" role
+    console.log("User has the healthchecker role.");
+  }
   const [activeComponent, setActiveComponent] = useState('profile');
   const [selectedOrderId, setSelectedOrderId] = useState(null);
 
@@ -38,7 +50,6 @@ function HealChecker() {
 
   return (
     <div>
-      <Navbar2/>
       <div className="account-management">
         <div className="sidebar">
           <h3>Heal Checker</h3>
@@ -50,7 +61,22 @@ function HealChecker() {
             </li>
             <li>
               <button onClick={() => setActiveComponent('orders')} className={activeComponent === 'orders' ? 'active' : ''}>
-                 Orders
+                Orders
+              </button>
+            </li>
+            <li>
+              <button onClick={() => {
+                Modal.confirm({
+                  title: 'Confirm Logout',
+                  content: 'Are you sure you want to log out?',
+                  onOk() {
+                    // Call the logout logic directly
+                    sessionStorage.clear(); // Clear session storage
+                    window.location.href = '/login'; // Change '/login' to your desired redirect URL
+                  },
+                });
+              }} className={activeComponent === 'logout' ? 'active' : ''}>
+                Logout
               </button>
             </li>
           </ul>

@@ -6,23 +6,35 @@ import DeliveryPage from './deliverypickup';
 import DeliveryProcess from './deliveryprocess';
 import DeliveryDelivered from './deliveredroute';
 import '../../../css/accountmanagement.css';
+import { Modal } from 'antd';
 
 function Delivery() {
+
+  const roles = JSON.parse(sessionStorage.getItem("roles")); // Parse the JSON string back into an array
+
+  // Check if roles is not null and contains the role "manager"
+  if (!roles || !roles.includes("delivery")) {
+    // Redirect to the appropriate page if the role is not present
+    window.location.href = '/unauthorized'; // Change '/unauthorized' to your desired redirect URL
+  } else {
+    // Proceed with the logic for users with the "manager" role
+    console.log("User has the delivery role.");
+  }
   const location = useLocation();
   const [activeComponent, setActiveComponent] = useState(location.state?.activeComponent || 'profile');
 
- 
+
 
   const renderContent = () => {
     switch (activeComponent) {
       case 'profile':
         return <ProfilePage />;
       case 'pending':
-        return <DeliveryPage  />;
+        return <DeliveryPage />;
       case 'process':
-        return <DeliveryProcess  />;
+        return <DeliveryProcess />;
       case 'delivered':
-        return <DeliveryDelivered  />;
+        return <DeliveryDelivered />;
       default:
         return (
           <div>
@@ -35,7 +47,6 @@ function Delivery() {
 
   return (
     <div>
-      <Navbar2/>
       <div className="account-management">
         <div className="sidebar">
           <h3>Delivery</h3>
@@ -47,7 +58,7 @@ function Delivery() {
             </li>
             <li>
               <button onClick={() => setActiveComponent('pending')} className={activeComponent === 'pending' ? 'active' : ''}>
-                Delivery Route 
+                Delivery Route
               </button>
             </li>
             <li>
@@ -58,6 +69,21 @@ function Delivery() {
             <li>
               <button onClick={() => setActiveComponent('delivered')} className={activeComponent === 'delivered' ? 'active' : ''}>
                 Delivered Route
+              </button>
+            </li>
+            <li>
+              <button onClick={() => {
+                Modal.confirm({
+                  title: 'Confirm Logout',
+                  content: 'Are you sure you want to log out?',
+                  onOk() {
+                    // Call the logout logic directly
+                    sessionStorage.clear(); // Clear session storage
+                    window.location.href = '/login'; // Change '/login' to your desired redirect URL
+                  },
+                });
+              }} className={activeComponent === 'logout' ? 'active' : ''}>
+                Logout
               </button>
             </li>
           </ul>
