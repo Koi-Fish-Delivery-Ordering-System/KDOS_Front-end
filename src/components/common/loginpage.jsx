@@ -20,7 +20,6 @@ function LoginPage() {
         const { accessToken } = loginResponse.data.tokens;
         sessionStorage.setItem("accessToken", accessToken);
         console.log("Đăng nhập thành công. Access Token:", accessToken);
-        
         const query = `
           query Init {
             init {
@@ -37,11 +36,11 @@ function LoginPage() {
             }
           }
         `;
-        
+
         try {
-          const initResponse = await axios.post('http://26.61.210.173:3001/graphql', 
+          const initResponse = await axios.post('http://26.61.210.173:3001/graphql',
             { query },
-            { 
+            {
               headers: {
                 "Authorization": `Bearer ${accessToken}`,
                 "Content-Type": "application/json"
@@ -66,13 +65,13 @@ function LoginPage() {
             console.log("Username:", username);
             console.log("Account ID:", accountId);
             console.log("Roles:", roles);
-            
+
             if (roles && Array.isArray(roles) && roles.length > 0) {
               const userRole = roles[0].name.toLowerCase(); // Lấy vai trò đầu tiên
               console.log("User role:", userRole);
-              
+
               // Chuyển hướng dựa trên vai trò
-              switch(userRole) {
+              switch (userRole) {
                 case 'user':
                   navigate('/');
                   break;
@@ -106,7 +105,7 @@ function LoginPage() {
       }
     } catch (err) {
       console.error("Login error:", err);
-      toast.error( "Login failed: Please check your username and password");
+      toast.error("Login failed: Please check your username and password");
     }
   };
 
@@ -115,45 +114,45 @@ function LoginPage() {
       <ToastContainer />
       <AuthenTemplate>
         <h2 style={{ marginBottom: '24px', textAlign: 'center' }}>Log in</h2>
-      <Form
-        labelCol={{
-          span: 24,
-        }}
-        onFinish={handleLogin}
-      >
-        <Form.Item
-          label="Username"
-          name="username"
-          rules={[
-            {
-              required: true,
-              message: "Please input your username!",
-            },
-          ]}
+        <Form
+          labelCol={{
+            span: 24,
+          }}
+          onFinish={handleLogin}
         >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          label="Password"
-          name="password"
-          rules={[
-            {
-              required: true,
-              message: "Please input your password!",
-            },
-          ]}
-        >
-          <Input.Password />
-        </Form.Item>
-        <div style={{ marginBottom: '24px' }}>
-          <Link to="/register">Don't have account? Register new account</Link>
-        </div>
+          <Form.Item
+            label="Username"
+            name="username"
+            rules={[
+              {
+                required: true,
+                message: "Please input your username!",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            label="Password"
+            name="password"
+            rules={[
+              {
+                required: true,
+                message: "Please input your password!",
+              },
+            ]}
+          >
+            <Input.Password />
+          </Form.Item>
+          <div style={{ marginBottom: '24px' }}>
+            <Link to="/register">Don't have account? Register new account</Link>
+          </div>
 
-        <Form.Item>
-          <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
-            Login
-          </Button>
-        </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit" style={{ width: '100%' }} >
+              Login
+            </Button>
+          </Form.Item>
 
         </Form>
       </AuthenTemplate>

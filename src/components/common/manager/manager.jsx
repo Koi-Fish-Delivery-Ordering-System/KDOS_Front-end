@@ -62,6 +62,11 @@ function Manager() {
           <h3>Manager</h3>
           <ul>
             <li>
+              <button onClick={() => setActiveComponent('analytics')} className={activeComponent === 'analytics' ? 'active' : ''}>
+                Analytics
+              </button>
+            </li>
+            <li>
               <button onClick={() => setActiveComponent('profile')} className={activeComponent === 'profile' ? 'active' : ''}>
                 Profile
               </button>
@@ -84,11 +89,6 @@ function Manager() {
             <li>
               <button onClick={() => setActiveComponent('manageRoute')} className={activeComponent === 'manageRoute' ? 'active' : ''}>
                 Manage Route
-              </button>
-            </li>
-            <li>
-              <button onClick={() => setActiveComponent('analytics')} className={activeComponent === 'analytics' ? 'active' : ''}>
-                Analytics
               </button>
             </li>
           </ul>

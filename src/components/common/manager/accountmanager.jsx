@@ -1,45 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { useQuery, ApolloProvider, ApolloClient, InMemoryCache, gql } from '@apollo/client';
-import { Button, Table, Modal, Form, Input } from 'antd';
+import { useQuery, ApolloProvider } from '@apollo/client';
+import { Button, Table, Modal, Form, Input, Checkbox } from 'antd';
 import { toast, ToastContainer } from 'react-toastify';
 import axios from 'axios';
 import 'react-toastify/dist/ReactToastify.css';
+import { GetAllAccount, client } from '../../../api/AccountApi';
 
-const GET_ACCOUNTS = gql`
-  query FindAllAccount {
-  findAllAccount {
-    accountId
-    username
-    password
-    roles {
-      roleId
-      name
-      isDisabled
-    }
-    email
-    address
-    phone
-    verified
-    driver {
-      driverId
-      status
-      currentProvince
-    }
-  }
-}
-`;
-
-const client = new ApolloClient({
-  uri: 'http://26.61.210.173:3001/graphql',
-  cache: new InMemoryCache(),
-  headers: {
-    Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
-  },
-  defaultOptions: {
-    watchQuery: { fetchPolicy: 'network-only', errorPolicy: 'all' },
-    query: { fetchPolicy: 'network-only', errorPolicy: 'all' },
-  },
-});
 
 function AccountManager() {
   const [data, setData] = useState([]);
@@ -48,29 +14,22 @@ function AccountManager() {
   const [roleModalVisible, setRoleModalVisible] = useState(false);
   const [selectedRoles, setSelectedRoles] = useState([]);
   const [loading, setLoading] = useState(true);
-  // const [driverDetails, setDriverDetails] = useState(null);
-  // const [driverModalVisible, setDriverModalVisible] = useState(false);
 
   const [form] = Form.useForm();
 
-  const { loading: queryLoading, data: apiData, refetch } = useQuery(GET_ACCOUNTS, {
-    client,
-    onError: (error) => {
-      console.error('GraphQL Error:', error);
-      toast.error("Error fetching accounts: " + error.message);
-    },
-  });
+  const { loading: queryLoading, error, data: apiData } = GetAllAccount();
 
+  //Effect to set the data and loading state
   useEffect(() => {
     if (apiData) {
-      setData(apiData.findAllAccount || []);
+      setData(apiData);
       setLoading(false);
     }
-  }, [apiData]);
-  // const viewDriverDetails = (driver) => {
-  //   setDriverDetails(driver);
-  //   setDriverModalVisible(true);
-  // };
+    if (error) {
+      toast.error("Error fetching accounts: " + error.message);
+    }
+  }, [apiData, error]);
+
   const openAddModal = () => {
     form.resetFields();
     setFormData(null);
@@ -82,19 +41,6 @@ function AccountManager() {
     form.setFieldsValue(record);
     setShowForm(true);
   };
-
-  // const openRoleModal = (roles) => {
-  //   if (roles && roles.length > 0) {
-  //     setSelectedRoles(roles); // Set selected roles for the modal
-  //     setRoleModalVisible(true); // Show the modal
-  //   } else {
-  //     toast.warn("No roles available for this account.");
-  //   }
-  // };
-
-  // const handleCreate = async (values) => {
-  //   // Handle create logic here
-  // };
 
   const handleEdit = async (values) => {
     try {
@@ -128,7 +74,7 @@ function AccountManager() {
   };
 
   const columns = [
-    { title: 'Account ID', dataIndex: 'accountId' },
+    { title: 'Account ID', dataIndex: 'accountId', width: '200' },
     { title: 'Username', dataIndex: 'username' },
     { title: 'Email', dataIndex: 'email' },
     { title: 'Phone', dataIndex: 'phone' },
@@ -171,14 +117,14 @@ function AccountManager() {
     <ApolloProvider client={client}>
       <ToastContainer />
       <div>
-        <h2>Manage Accounts</h2>
-        <Button
+        <h1 className='section-title'>Manage Accounts</h1>
+        <button
           onClick={openAddModal}
           type="primary"
-          style={{ marginBottom: '16px', backgroundColor: '#ff7700', borderColor: '#ff7700' }}
+          className='new-route-button'
         >
           Add Account
-        </Button>
+        </button>
         <Table
           columns={columns}
           dataSource={data}
@@ -204,14 +150,19 @@ function AccountManager() {
             <Form.Item name="username" style={{ display: 'none' }} >
               <Input type="hidden" />
             </Form.Item>
-            <Form.Item label="Phone" name="phone" rules={[{ required: true, message: 'Please input phone number!' }]}>
+            <Form.Item label="Phone" name="phone">
               <Input />
             </Form.Item>
-            <Form.Item label="Email" name="email" rules={[{ required: true, message: 'Please input email!' }]}>
+            <Form.Item label="Email" name="email" >
               <Input />
             </Form.Item>
-            <Form.Item label="Address" name="address" rules={[{ required: true, message: 'Please input address!' }]}>
+            <Form.Item label="Address" name="address" >
               <Input />
+            </Form.Item>
+            <Form.Item label="Roles" name="roles">
+              <Checkbox value="customer">Customer</Checkbox>
+              <Checkbox value="delivery">Delivery</Checkbox>
+              <Checkbox value="manager">Manager</Checkbox>
             </Form.Item>
             <Form.Item>
               <Button type="primary" htmlType="submit" style={{ backgroundColor: '#ff7700', borderColor: '#ff7700' }}>
