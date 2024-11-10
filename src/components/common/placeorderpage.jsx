@@ -28,7 +28,7 @@ function PlaceOrderPage() {
     };
     useEffect(() => {
         const roles = JSON.parse(sessionStorage.getItem("roles")); // Assuming you pass this state from placeorder.jsx
-        if (!roles || !roles.includes("customers")) {
+        if (!roles || !roles.includes("customer")) {
             Modal.error({
                 title: 'Unauthorized Access',
                 content: 'You need to log in as customer to access this page.',
