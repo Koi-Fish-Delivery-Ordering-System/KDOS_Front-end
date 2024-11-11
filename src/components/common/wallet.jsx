@@ -122,7 +122,7 @@ function Wallet() {
         <div className="balance-container">
           <div>Balance</div>
           <div className="balance-value">
-            <h3>{sessionStorage.getItem("walletAmount").toLocaleString()} VNĐ</h3>
+            <h3>{new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(sessionStorage.getItem("walletAmount"))}</h3>
             <Button className="top-up-button" onClick={() => setOpenTopUpModal(true)}>Top up</Button>
           </div>
 
@@ -138,8 +138,11 @@ function Wallet() {
         footer={null}
       >
         <h3>Top up</h3>
-        <Input name="amount" placeholder="Amount" onChange={(e) => setAmount(e.target.value)} />
-        <Button className="continue-vnpay-button" onClick={() => createTransaction(amount)}>Continue with VNPAY</Button>
+        <div className="top-up-container">
+          <div>Input the amount you want to top up</div>
+          <Input name="amount" placeholder="Amount" onChange={(e) => setAmount(e.target.value)} />
+          <Button className="continue-vnpay-button" onClick={() => createTransaction(amount)}>Continue with VNPAY</Button>
+        </div>
       </Modal>
     </>
   )

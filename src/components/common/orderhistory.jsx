@@ -242,6 +242,23 @@ const OrderHistory = () => {
         <div className="loading">Loading...</div>
       ) : order.length > 0 ? (
         <Tabs defaultActiveKey="1">
+          <TabPane tab="Uncompleted Orders" key="0">
+            {otherOrders.length > 0 ? (
+              <div className="orders-container">
+                {otherOrders.map((orderItem) => (
+                  <div key={orderItem.orderId} className="order-card">
+                    <div className="order-detail">
+                      <span className="label">Order ID:</span> {orderItem.orderId}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="emptyState">
+                <p>No uncompleted orders found.</p>
+              </div>
+            )}
+          </TabPane>
           <TabPane tab="Process Orders" key="1">
             {otherOrders.length > 0 ? (
               <div className="orders-container">
