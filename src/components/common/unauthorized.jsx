@@ -12,8 +12,8 @@ const Unauthorized = () => {
 
   return (
     <div className="unauthorized-container">
-      <h1>Page Not Found</h1>
-      <p>You Are Entered Wrong URL</p>
+      <h1>Unauthorized User</h1>
+      <p>You have to login to access this page</p>
       <button className="back-button" onClick={handleBackToHome}>
         Back to Homepage
       </button>

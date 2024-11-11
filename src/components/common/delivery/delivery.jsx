@@ -7,19 +7,9 @@ import DeliveryProcess from './deliveryprocess';
 import DeliveryDelivered from './deliveredroute';
 import '../../../css/accountmanagement.css';
 import { Modal } from 'antd';
-
 function Delivery() {
 
-  const roles = JSON.parse(sessionStorage.getItem("roles")); // Parse the JSON string back into an array
 
-  // Check if roles is not null and contains the role "manager"
-  if (!roles || !roles.includes("delivery")) {
-    // Redirect to the appropriate page if the role is not present
-    window.location.href = '/unauthorized'; // Change '/unauthorized' to your desired redirect URL
-  } else {
-    // Proceed with the logic for users with the "manager" role
-    console.log("User has the delivery role.");
-  }
   const location = useLocation();
   const [activeComponent, setActiveComponent] = useState(location.state?.activeComponent || 'profile');
 

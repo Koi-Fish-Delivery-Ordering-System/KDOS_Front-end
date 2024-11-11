@@ -15,17 +15,7 @@ function Manager() {
   const [selectedAdditionalServiceId, setSelectedAdditionalServiceId] = useState(null); // New state for selected account
   const [selectedRouteId, setSelectedRouteId] = useState(null); // New state for selected route 
 
-  // Retrieve roles from sessionStorage
-  const roles = JSON.parse(sessionStorage.getItem("roles")); // Parse the JSON string back into an array
 
-  // Check if roles is not null and contains the role "manager"
-  if (!roles || !roles.includes("manager")) {
-    // Redirect to the appropriate page if the role is not present
-    window.location.href = '/unauthorized'; // Change '/unauthorized' to your desired redirect URL
-  } else {
-    // Proceed with the logic for users with the "manager" role
-    console.log("User has the manager role.");
-  }
   const handleDetailClick = (transportId) => {
     setSelectedTransportId(transportId);
     setActiveComponent('detail');

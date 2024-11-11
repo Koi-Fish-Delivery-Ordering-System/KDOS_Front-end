@@ -26,18 +26,7 @@ function PlaceOrderPage() {
         height: "100%",
         width: "100%",
     };
-    useEffect(() => {
-        const roles = JSON.parse(sessionStorage.getItem("roles")); // Assuming you pass this state from placeorder.jsx
-        if (!roles || !roles.includes("customer")) {
-            Modal.error({
-                title: 'Unauthorized Access',
-                content: 'You need to log in as customer to access this page.',
-                onOk: () => {
-                    navigate('/login'); // Redirect to login page when the user clicks OK
-                },
-            });
-        }
-    }, [navigate]);
+
     const center = {
         lat: 10.8231,
         lng: 106.6297,
