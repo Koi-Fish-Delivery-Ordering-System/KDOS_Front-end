@@ -375,8 +375,8 @@ const OrderHistory = () => {
                     />
                   </div>
                   <p><strong>Qualifications:</strong></p>
-                  <div className="fish-images" style={{ display: 'flex', alignItems: 'center' }}>
-                    {fishImages[selectedFish.orderFishId]?.slice(0, 2).map((imageUrl, index) => (
+                  <div className="fish-images" onClick={() => setShowAllImages(!showAllImages)} style={{ display: 'flex', alignItems: 'center' }}>
+                    {fishImages[selectedFish.orderFishId]?.slice(0, showAllImages ? fishImages[selectedFish.orderFishId].length : 2).map((imageUrl, index) => (
                       <div key={index} style={{ position: 'relative', marginRight: '10px' }}>
                         <img
                           src={imageUrl}
@@ -395,12 +395,8 @@ const OrderHistory = () => {
                         />
                       </div>
                     ))}
-                    {fishImages[selectedFish.orderFishId]?.length > 2 && (
-                      <span
-                        className="plus-sign"
-                        style={{ fontSize: '150%', marginLeft: '30px', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
-                        onClick={() => setIsImageModalOpen(true)}
-                      >
+                    {fishImages[selectedFish.orderFishId]?.length > 2 && !showAllImages && (
+                      <span className="plus-sign" style={{ fontSize: '150%', marginLeft: '30px', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center' }} onClick={() => setShowAllImages(!showAllImages)}>
                         +{fishImages[selectedFish.orderFishId].length - 2} images
                       </span>
                     )}
