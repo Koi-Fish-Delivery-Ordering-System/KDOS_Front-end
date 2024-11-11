@@ -58,6 +58,7 @@ function LoginPage() {
             sessionStorage.setItem("phone", phone);
             sessionStorage.setItem("address", address);
             sessionStorage.setItem("password", password);
+            sessionStorage.setItem("role", role);
             //Roles is the array of roles
             sessionStorage.setItem("role", role);
             sessionStorage.setItem("walletAmount", walletAmount);
@@ -67,36 +68,13 @@ function LoginPage() {
             console.log("Password:", password);
             console.log("Username:", username);
             console.log("Account ID:", accountId);
-            navigate('/');
+            console.log("Roles:", role);
 
-            // if (roles && Array.isArray(roles) && roles.length > 0) {
-            //   const userRole = roles[0].name.toLowerCase(); // Lấy vai trò đầu tiên
-            //   console.log("User role:", userRole);
+            if (role) {
+              const userRole = role.toLowerCase();
+              console.log("User role:", userRole);}
 
-            //   // Chuyển hướng dựa trên vai trò
-            //   switch (userRole) {
-            //     case 'user':
-            //       navigate('/');
-            //       break;
-            //     case 'delivery':
-            //       navigate('/delivery');
-            //       break;
-            //     case 'healchecker':
-            //       navigate('/healchecker');
-            //       break;
-            //     case 'manager':
-            //       navigate('/manager');
-            //       break;
-            //     default:
-            //       console.error("Unknown role:", userRole);
-            //       toast.error("Unknown user role");
-            //       navigate('/');
-            //   }
-            // } else {
-            //   console.error("No roles found for user");
-            //   toast.error("No roles assigned to user");
-            //   navigate('/');
-            // }
+            
           } else {
             console.error("Unexpected init response structure:", initResponse.data);
             toast.error("Unexpected response from server");

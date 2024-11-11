@@ -1,4 +1,5 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 import Homepage from './components/common/Homepage';
 import LoginPage from './components/common/loginpage';
@@ -20,6 +21,47 @@ import NewsPage from './components/common/NEWS';
 import PaymentStatus from './components/common/paymentstatus';
 import RegisterDriverPage from './components/common/registerdriver';
 import Unauthorized from './components/common/unauthorized';
+import OrderHistory from './components/common/orderhistory';
+
+const ProtectedRoute = ({ element, roles }) => {
+  const isAuthenticated = sessionStorage.getItem('accessToken');
+  const userRole = sessionStorage.getItem('role'); // Retrieve the role directly as a string
+
+  // If authenticated, check the role
+  if (isAuthenticated) {
+    // Redirect customers trying to access the delivery page
+    if (userRole === "customer" && roles === "delivery") {
+      return <Navigate to="/" />;
+    } else if (userRole === "customer" && roles === "manager") {
+      return <Navigate to="/" />;
+    } else if (userRole === "delivery" && roles === "manager") {
+      return <Navigate to="/delivery" />;
+    } else if (userRole === "manager" && roles === "delivery") {
+      return <Navigate to="/manager" />;
+    } else if (userRole === "manager" && roles === "customer") {
+      return <Navigate to="/manager" />;
+    } else if (userRole === "delivery" && roles === "customer") {
+      return <Navigate to="/delivery" />;
+    }
+
+    // If the role matches, render the element
+    if (userRole === roles) {
+      return element;
+    }
+
+    // If the role does not match, you can choose to render the element or redirect
+    return <Navigate to="/" />; // Redirect to homepage or another page
+  }
+
+  // If not authenticated, navigate to login
+  return <Navigate to="/unauthorized" />;
+};
+
+ProtectedRoute.propTypes = {
+  element: PropTypes.element.isRequired,
+  roles: PropTypes.string.isRequired, // Validate 'roles' prop as a string
+};
+
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -39,47 +81,43 @@ export const router = createBrowserRouter([
   },
   {
     path: "records",
-    element: <Records />,
+    element: <ProtectedRoute element={<OrderHistory />} roles="customer" />,
   },
   {
     path: "trackorder",
-    element: <TrackOrderPage />,
+    element: <ProtectedRoute element={<TrackOrderPage />} roles="customer" />,
   },
   {
     path: "placeorder",
-    element: <PlaceOrderPage />,
+    element: <ProtectedRoute element={<PlaceOrderPage />} roles="customer" />,
   },
   {
     path: "deliverypage",
-    element: <DeliveryPage />,
+    element: <ProtectedRoute element={<DeliveryPage />} roles="customer" />,
   },
   {
     path: "deliverydetail/:orderId",
-    element: <DeliveryDetail />,
+    element: <ProtectedRoute element={<DeliveryDetail />} roles="customer" />,
   },
   {
     path: "account-management",
-    element: <AccountManagement />,
-  },
-  {
-    path: "transport-service",
-    element: <TransportService />,
+    element: <ProtectedRoute element={<AccountManagement />} roles="customer" />,
   },
   {
     path: "order-confirmation",
-    element: <OrderConfirmation />,
+    element: <ProtectedRoute element={<OrderConfirmation />} roles="customer" />,
   },
   {
     path: "delivery",
-    element: <Delivery />,
+    element: <ProtectedRoute element={<Delivery />} roles="delivery" />,
   },
   {
     path: "healchecker",
-    element: <HealChecker />,
+    element: <ProtectedRoute element={<HealChecker />} roles="healchecker" />,
   },
   {
     path: "manager",
-    element: <Manager />,
+    element: <ProtectedRoute element={<Manager />} roles="manager" />,
   },
   {
     path: "faq",
@@ -91,7 +129,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "paymentstatus",
-    element: <PaymentStatus />,
+    element: <ProtectedRoute element={<PaymentStatus />} roles="customer" />,
   },
   {
     path: "register-driver",

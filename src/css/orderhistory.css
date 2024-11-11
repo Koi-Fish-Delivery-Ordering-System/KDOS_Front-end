@@ -3,7 +3,20 @@
   
   margin: 0 auto;
 }
+.plus-sign {
+  transition: transform 0.2s ease; /* Smooth transition for scaling */
+}
 
+.plus-sign:hover {
+  transform: scale(1.5); /* Scale up the "+" sign and number on hover */
+}
+.fish-images div:hover .eye-icon {
+  display: block; /* Show the eye icon on hover */
+}
+
+.eye-icon {
+  display: none; /* Hide the eye icon by default */
+}
 .title {
   color: #ff7700 !important;
   text-align: center;
