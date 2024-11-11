@@ -23,19 +23,43 @@ import RegisterDriverPage from './components/common/registerdriver';
 import Unauthorized from './components/common/unauthorized';
 import OrderHistory from './components/common/orderhistory';
 
-
 const ProtectedRoute = ({ element, roles }) => {
   const isAuthenticated = sessionStorage.getItem('accessToken');
   const userRole = sessionStorage.getItem('role'); // Retrieve the role directly as a string
 
-  const hasRequiredRole = userRole === roles; // Check if the user's role matches the required role
+  // If authenticated, check the role
+  if (isAuthenticated) {
+    // Redirect customers trying to access the delivery page
+    if (userRole === "customer" && roles === "delivery") {
+      return <Navigate to="/" />;
+    } else if (userRole === "customer" && roles === "manager") {
+      return <Navigate to="/" />;
+    } else if (userRole === "delivery" && roles === "manager") {
+      return <Navigate to="/delivery" />;
+    } else if (userRole === "manager" && roles === "delivery") {
+      return <Navigate to="/manager" />;
+    } else if (userRole === "manager" && roles === "customer") {
+      return <Navigate to="/manager" />;
+    } else if (userRole === "delivery" && roles === "customer") {
+      return <Navigate to="/delivery" />;
+    }
 
-  return isAuthenticated && hasRequiredRole ? element : <Navigate to="/login" />;
-}
+    // If the role matches, render the element
+    if (userRole === roles) {
+      return element;
+    }
+
+    // If the role does not match, you can choose to render the element or redirect
+    return <Navigate to="/" />; // Redirect to homepage or another page
+  }
+
+  // If not authenticated, navigate to login
+  return <Navigate to="/unauthorized" />;
+};
 
 ProtectedRoute.propTypes = {
   element: PropTypes.element.isRequired,
-  roles: PropTypes.string, // Validate 'roles' prop
+  roles: PropTypes.string.isRequired, // Validate 'roles' prop as a string
 };
 
 export const router = createBrowserRouter([
@@ -105,7 +129,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "paymentstatus",
-    element: <ProtectedRoute element={<PaymentStatus />} roles={['customer']} />,
+    element: <ProtectedRoute element={<PaymentStatus />} roles="customer" />,
   },
   {
     path: "register-driver",
