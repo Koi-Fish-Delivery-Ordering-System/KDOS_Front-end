@@ -226,7 +226,7 @@
   background-color: #ffcdcd;
   color: #790808;
 }
-.status-route.pending{
+/* .status-route.pending{
   text-align: center;
   background-color: #ffcdcd;
   color: #790808;
@@ -240,7 +240,7 @@
   text-align: center;
   background-color: #d4edda;
   color: #155724;
-}
+} */
 
 .route-stops {
   padding: 10px 0;

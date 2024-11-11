@@ -32,6 +32,7 @@ function LoginPage() {
               phone
               address
               role
+              walletAmount
             }
           }
         `;
@@ -49,7 +50,7 @@ function LoginPage() {
           console.log("Full Init response:", initResponse);
 
           if (initResponse.data && initResponse.data.data && initResponse.data.data.init) {
-            const { accountId, role, username, email, password, phone, address, fullName } = initResponse.data.data.init;
+            const { accountId, username, email, password, phone, address, fullName, role, walletAmount } = initResponse.data.data.init;
             sessionStorage.setItem("accountId", accountId);
             sessionStorage.setItem("username", username);
             sessionStorage.setItem("fullName", fullName);
@@ -59,8 +60,8 @@ function LoginPage() {
             sessionStorage.setItem("password", password);
             sessionStorage.setItem("role", role);
             //Roles is the array of roles
-
-            console.log("Roles:", role);
+            sessionStorage.setItem("role", role);
+            sessionStorage.setItem("walletAmount", walletAmount);
             console.log("Email:", email);
             console.log("Address:", address);
             console.log("Phone:", phone);
@@ -71,32 +72,9 @@ function LoginPage() {
 
             if (role) {
               const userRole = role.toLowerCase();
-              console.log("User role:", userRole);
+              console.log("User role:", userRole);}
 
-              // Chuyển hướng dựa trên vai trò
-              switch (userRole) {
-                case 'user':
-                  navigate('/');
-                  break;
-                case 'delivery':
-                  navigate('/delivery');
-                  break;
-                case 'healchecker':
-                  navigate('/healchecker');
-                  break;
-                case 'manager':
-                  navigate('/manager');
-                  break;
-                default:
-                  console.error("Unknown role:", userRole);
-                  toast.error("Unknown user role");
-                  navigate('/');
-              }
-            } else {
-              console.error("No roles found for user");
-              toast.error("No roles assigned to user");
-              navigate('/');
-            }
+            
           } else {
             console.error("Unexpected init response structure:", initResponse.data);
             toast.error("Unexpected response from server");

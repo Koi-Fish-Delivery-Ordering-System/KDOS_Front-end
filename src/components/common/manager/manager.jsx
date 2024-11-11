@@ -15,7 +15,6 @@ function Manager() {
   const [selectedAdditionalServiceId, setSelectedAdditionalServiceId] = useState(null); // New state for selected account
   const [selectedRouteId, setSelectedRouteId] = useState(null); // New state for selected route 
 
-
   const handleDetailClick = (transportId) => {
     setSelectedTransportId(transportId);
     setActiveComponent('detail');

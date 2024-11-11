@@ -1,16 +1,23 @@
 /* Add this to your CSS file */
 
 .payment-status {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('../images/background3.jpg');
+  
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh; /* Full viewport height */
+    
   }
   
   .success-message {
     text-align: center;
     background-color: #ffffff;
-    padding: 20px;
+    padding: 80px 100px;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   }
@@ -19,3 +26,20 @@
     color: #00c853;
     margin-top: 10px;
   }
+  .check-icon {
+    margin-bottom: 80px;
+  }
+.back-button {
+  margin-top: 20px !important;
+  background-color: #ff7700 !important;
+  color: white !important;
+  border: none !important;
+  padding: 15px 30px !important;
+  font-size: 18px !important;
+  font-weight: bold !important;
+}
+.back-button:hover {
+  background-color: orangered !important;
+  color: white !important;
+}
+
