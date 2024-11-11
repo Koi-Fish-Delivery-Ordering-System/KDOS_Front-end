@@ -3,11 +3,13 @@ import axios from "axios";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "../../css/orderhistory.css";
-import { Modal, Input, Tabs, Carousel } from 'antd';
+import { Modal, Input, Tabs, Carousel, Select, Button, message } from 'antd';
 import { faFish } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEye } from '@fortawesome/free-solid-svg-icons';
 import { LeftOutlined, RightOutlined } from '@ant-design/icons'; // Import icons for arrows
+
+const { Option } = Select;
 
 const OrderHistory = () => {
   const [order, setOrder] = useState([]);
@@ -24,6 +26,11 @@ const OrderHistory = () => {
   const [showAllImages, setShowAllImages] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isImageModalOpen, setIsImageModalOpen] = useState(false);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
+  const [selectedReason, setSelectedReason] = useState('');
 
   const { TabPane } = Tabs;
 
@@ -54,6 +61,7 @@ const OrderHistory = () => {
               imageUrl
             }
           }
+          paymentMethod
           toAddress
           receiverName
           receiverPhone
@@ -168,8 +176,9 @@ const OrderHistory = () => {
 
   // Separate orders into completed and other orders
   const completedOrders = order.filter(orderItem => orderItem.orderStatus === 'completed');
-  const otherOrders = order.filter(orderItem => orderItem.orderStatus !== 'completed');
-  const cancelledOrders = order.filter(orderItem => orderItem.orderStatus === 'cancelled');
+  const otherOrders = order.filter(orderItem => orderItem.orderStatus === 'processing');
+  const unCompletedOrders = order.filter(orderItem => orderItem.orderStatus === 'uncompleted');
+  const cancelledOrders = order.filter(orderItem => orderItem.orderStatus === 'canceled');
 
   const openImageOverlay = (imageUrl) => {
     // Create an image element
@@ -231,6 +240,115 @@ const OrderHistory = () => {
     </div>
   );
 
+  const handleContinuePayment = async () => {
+    const accessToken = sessionStorage.getItem("accessToken");
+    setIsPaymentModalOpen(true);
+    setSelectedOrder(selectedOrder);
+    setSelectedPaymentMethod(selectedPaymentMethod);
+    try {
+      // First API Call: Process Payment
+      if (selectedPaymentMethod === 'vnpay') {
+        const paymentResponse = await axios.post(
+          'http://26.61.210.173:3001/api/orders/create-transaction', // Adjust this endpoint as needed
+          {
+            orderId: selectedOrder.orderId,
+            type: selectedPaymentMethod,
+            amount: selectedOrder.totalPrice
+          },
+          {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+
+        if (paymentResponse.status === 200 || paymentResponse.status === 201) {
+          window.location.href = paymentResponse.data.others?.paymentUrl; // Redirect to VNPAY payment URL
+        } else {
+          message.error('Failed to initiate VNPAY payment. Please try again.');
+        }
+      } else if (selectedPaymentMethod === 'Account Wallet') {
+        // Handle wallet payment logic here
+        if (walletAmount >= selectedOrder.totalPrice) {
+          message.success('Payment successful via Account Wallet!');
+        } else {
+          message.error('Not enough balance in Account Wallet.');
+        }
+      } else {
+        message.success('Payment method selected: ' + selectedPaymentMethod);
+      }
+    } catch (error) {
+      console.error('Error during payment process:', error);
+      message.error('An error occurred during the payment process. Please try again.');
+    } finally {
+      // Change Payment Method
+      try {
+        const changePaymentResponse = await axios.patch(
+          'http://26.61.210.173:3001/api/orders/change-payment-method',
+          {
+            orderId: selectedOrder.orderId,
+            paymentMethod: selectedPaymentMethod
+          },
+          {
+            headers: {
+              'Authorization': `Bearer ${accessToken}`,
+              'Content-Type': 'application/json',
+            },
+          }
+        );
+
+        if (changePaymentResponse.status === 200) {
+          message.success('Payment method changed successfully!');
+        } else {
+          message.error('Failed to change payment method. Please try again.');
+        }
+      } catch (error) {
+        console.error('Error changing payment method:', error);
+        message.error('An error occurred while changing the payment method. Please try again.');
+      } finally {
+        // Reset any necessary state or perform cleanup
+        setIsPaymentModalOpen(false); // Close the payment modal
+        setSelectedPaymentMethod(''); // Reset selected payment method
+      }
+    }
+  };
+
+  const walletAmount = sessionStorage.getItem("walletAmount");
+
+  const handleCancelOrder = (orderItem) => {
+    setSelectedOrder(orderItem); // Store the selected order
+    setIsCancelModalOpen(true); // Open the cancel modal
+  };
+
+  const handleConfirmCancel = async () => {
+    const reasonToCancel = selectedReason === 'Others' ? cancelReason : selectedReason;
+
+    try {
+      const response = await axios.patch('http://26.61.210.173:3001/api/orders/cancel-order', {
+        orderId: selectedOrder.orderId,
+        reasonToCancel: reasonToCancel,
+      }, {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`
+        }
+      });
+
+      if (response.status === 200) {
+        message.success('Order canceled successfully!');
+        // Optionally, refresh the order list or update the state
+      }
+    } catch (error) {
+      console.error('Error canceling order:', error);
+      message.error('Failed to cancel the order. Please try again.');
+    } finally {
+      // Close the modal and reset the state
+      setIsCancelModalOpen(false);
+      setCancelReason('');
+      setSelectedReason('');
+    }
+  };
+
   return (
 
     <div className="records">
@@ -243,12 +361,42 @@ const OrderHistory = () => {
       ) : order.length > 0 ? (
         <Tabs defaultActiveKey="1">
           <TabPane tab="Uncompleted Orders" key="0">
-            {otherOrders.length > 0 ? (
+            {unCompletedOrders.length > 0 ? (
               <div className="orders-container">
-                {otherOrders.map((orderItem) => (
+                {unCompletedOrders.map((orderItem) => (
                   <div key={orderItem.orderId} className="order-card">
                     <div className="order-detail">
                       <span className="label">Order ID:</span> {orderItem.orderId}
+                    </div>
+                    <div className="order-detail">
+                      <span className="label">Date:</span> {new Date(orderItem.createdAt).toLocaleDateString()}
+                    </div>
+                    <div className="order-detail">
+                      <span className="label">Receiver Name:</span> {orderItem.receiverName}
+                    </div>
+                    <div className="order-detail">
+                      <span className="label">Total Price:</span> {orderItem.totalPrice.toLocaleString()} VNĐ
+                    </div>
+                    <div className="order-detail">
+                      <span className="label">Payment Method:</span> {orderItem.paymentMethod}
+                    </div>
+                    <div className="order-actions">
+                      <span className={`status ${orderItem.orderStatus}`}>{orderItem.orderStatus}</span>
+                      <div className="order-actions-button" style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <button className="detail-button" style={{ width: '150px' }} onClick={() => showOrderDetail(orderItem)}>View Details</button>
+                      </div>
+                    </div>
+                    <div className="order-actions-button" style={{ display: 'flex', justifyContent: 'flex-end', width: '100%', alignItems: 'center' }}>
+                      <button className="detail-button" style={{ width: '100%', display: 'flex', alignItems: 'center' }} onClick={() => handleContinuePayment(orderItem, orderItem.paymentMethod)}>
+                        <span style={{ flexGrow: 1, textAlign: 'center' }}>Continue Payment</span>
+                        <RightOutlined style={{ marginLeft: '8px' }} />
+                      </button>
+                    </div>
+                    <div className="order-actions-button" style={{ display: 'flex', justifyContent: 'flex-end', width: '100%', alignItems: 'center' }}>
+                      <button className="detail-button" style={{ width: '100%', display: 'flex', alignItems: 'center' }} onClick={() => handleCancelOrder(orderItem)}>
+                        <span style={{ flexGrow: 1, textAlign: 'center' }}>Cancel Order</span>
+                        <RightOutlined style={{ marginLeft: '8px' }} />
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -259,7 +407,7 @@ const OrderHistory = () => {
               </div>
             )}
           </TabPane>
-          <TabPane tab="Process Orders" key="1">
+          <TabPane tab="Processing Orders" key="1">
             {otherOrders.length > 0 ? (
               <div className="orders-container">
                 {otherOrders.map((orderItem) => (
@@ -276,11 +424,20 @@ const OrderHistory = () => {
                     <div className="order-detail">
                       <span className="label">Total Price:</span> {orderItem.totalPrice.toLocaleString()} VNĐ
                     </div>
+                    <div className="order-detail">
+                      <span className="label">Payment Method:</span> {orderItem.paymentMethod}
+                    </div>
                     <div className="order-actions">
                       <span className={`status ${orderItem.orderStatus}`}>{orderItem.orderStatus}</span>
                       <div className="order-actions-button" style={{ display: 'flex', justifyContent: 'flex-end' }}>
                         <button className="detail-button" onClick={() => showOrderDetail(orderItem)}>View Details</button>
                       </div>
+                    </div>
+                    <div className="order-actions-button" style={{ display: 'flex', justifyContent: 'flex-end', width: '100%', alignItems: 'center' }}>
+                      <button className="detail-button" style={{ width: '100%', display: 'flex', alignItems: 'center' }} onClick={() => handleCancelOrder(orderItem)}>
+                        <span style={{ flexGrow: 1, textAlign: 'center' }}>Cancel Order</span>
+                        <RightOutlined style={{ marginLeft: '8px' }} />
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -307,6 +464,9 @@ const OrderHistory = () => {
                     </div>
                     <div className="order-detail">
                       <span className="label">Total Price:</span> {orderItem.totalPrice.toLocaleString()} VNĐ
+                    </div>
+                    <div className="order-detail">
+                      <span className="label">Payment Method:</span> {orderItem.paymentMethod}
                     </div>
                     <div className="order-actions">
                       <span className={`status ${orderItem.orderStatus}`}>{orderItem.orderStatus}</span>
@@ -344,6 +504,9 @@ const OrderHistory = () => {
                     </div>
                     <div className="order-detail">
                       <span className="label">Total Price:</span> {orderItem.totalPrice.toLocaleString()} VNĐ
+                    </div>
+                    <div className="order-detail">
+                      <span className="label">Payment Method:</span> {orderItem.paymentMethod}
                     </div>
                     <div className="order-actions">
                       <span className={`status ${orderItem.orderStatus}`}>{orderItem.orderStatus}</span>
@@ -552,6 +715,104 @@ const OrderHistory = () => {
             </div>
           ))}
         </Carousel>
+      </Modal>
+
+      {isPaymentModalOpen && (
+        <Modal
+          title="Payment Details"
+          open={isPaymentModalOpen}
+          onCancel={() => setIsPaymentModalOpen(false)}
+          footer={null}
+          centered
+        >
+          <div>
+            <h3>Order Total Price: {selectedOrder ? selectedOrder.totalPrice.toLocaleString() : 'N/A'} VNĐ</h3>
+            <h3>Current Payment Method: {selectedPaymentMethod.toUpperCase()}</h3>
+            <label>Select Payment Method:</label>
+            <Select
+              value={selectedPaymentMethod}
+              onChange={setSelectedPaymentMethod}
+              style={{ width: '100%', marginTop: '10px' }}
+            >
+              <Option value="cash">CASH</Option>
+              <Option value="vnpay">VNPAY</Option>
+              <Option value="Account Wallet">Account Wallet</Option>
+            </Select>
+
+            {/* Display Account Wallet Balance if selected */}
+            {selectedPaymentMethod === 'Account Wallet' && (
+              <div style={{ margin: '10px 0' }}>
+                <strong>Account Wallet Balance: {walletAmount.toLocaleString()} VND</strong>
+              </div>
+            )}
+
+            {/* Error message for insufficient balance */}
+            {selectedPaymentMethod === 'Account Wallet' && walletAmount < selectedOrder.totalPrice && (
+              <div style={{ color: 'red', margin: '5px 0' }}>
+                Not enough Balance
+              </div>
+            )}
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+              <Button
+                className={`detail-button ${selectedPaymentMethod === 'Account Wallet' && walletAmount < selectedOrder.totalPrice ? 'disabled-button' : ''}`}
+                style={{ width: '100%' }}
+                onClick={handleContinuePayment}
+                disabled={selectedPaymentMethod === 'Account Wallet' && walletAmount < selectedOrder.totalPrice} // Disable if balance is insufficient
+              >
+                Confirm
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      <Modal
+        title="Cancel Order"
+        open={isCancelModalOpen}
+        onCancel={() => setIsCancelModalOpen(false)}
+        footer={null}
+        centered
+      >
+        <div>
+          <h3>Select Reason for Cancellation</h3>
+          <Select
+            placeholder="Select Reason"
+            value={selectedReason}
+            onChange={(value) => {
+              setSelectedReason(value);
+              if (value !== 'Others') {
+                setCancelReason(''); // Clear custom reason if a predefined reason is selected
+              }
+            }}
+            style={{ width: '100%', marginBottom: '10px' }}
+          >
+            <Option value="Order no longer needed">Order no longer needed</Option>
+            <Option value="Wrong address ordered">Wrong item ordered</Option>
+            <Option value="Wrong fishes information">Item arrived damaged</Option>
+            <Option value="Others">Others</Option>
+          </Select>
+
+          {selectedReason === 'Others' && (
+            <Input.TextArea
+              value={cancelReason}
+              onChange={(e) => setCancelReason(e.target.value)}
+              placeholder="Please specify your reason"
+              rows={4}
+              style={{ width: '100%', marginTop: '10px' }}
+            />
+          )}
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+            <Button
+              style={{ width: '100%' }}
+              onClick={handleConfirmCancel}
+              disabled={!selectedReason && !cancelReason} // Disable if no reason is selected or entered
+            >
+              Confirm
+            </Button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

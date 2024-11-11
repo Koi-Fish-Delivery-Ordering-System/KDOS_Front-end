@@ -1,6 +1,4 @@
 .records {
-  
-  
   margin: 0 auto;
 }
 .plus-sign {
@@ -16,6 +14,16 @@
 
 .eye-icon {
   display: none; /* Hide the eye icon by default */
+}
+/* orderhistory.css */
+.disabled-button {
+  pointer-events: none; /* Prevent any mouse events */
+  opacity: 0.5; /* Optional: make it look disabled */
+}
+
+.disabled-button:hover {
+  background-color: inherit; /* Prevent hover background change */
+  color: inherit; /* Prevent hover text color change */
 }
 .title {
   color: #ff7700 !important;
@@ -116,6 +124,10 @@
 .status.processing {
   background-color: #fff3cd;
   color: #856404;
+}
+.status.uncompleted {
+  background-color: #d03139;
+  color: #ffffff;
 }
 
 .status.delivering {
