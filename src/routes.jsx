@@ -18,6 +18,8 @@ import Manager from './components/common/manager/manager';
 import FAQ from './components/common/FAQ';
 import NewsPage from './components/common/NEWS';
 import PaymentStatus from './components/common/paymentstatus';
+import RegisterDriverPage from './components/common/registerdriver';
+import Unauthorized from './components/common/unauthorized';
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -90,5 +92,13 @@ export const router = createBrowserRouter([
   {
     path: "paymentstatus",
     element: <PaymentStatus />,
+  },
+  {
+    path: "register-driver",
+    element: <RegisterDriverPage />,
+  },
+  {
+    path: "unauthorized",
+    element: <Unauthorized />,
   }
 ]);

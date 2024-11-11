@@ -10,25 +10,37 @@ import { Tooltip } from 'antd';
 import { faCircleInfo } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-const defaultPosition = [10.8231, 106.6297]; 
+const defaultPosition = [10.8231, 106.6297];
 const libraries = ["places"];
-    
+
 function PlaceOrderPage() {
+
     const navigate = useNavigate();
     const location = useLocation();
     const formData = location.state || {};
-    const [form] = Form.useForm(); 
-    const [vehicleTypes, setVehicleTypes] = useState([]); 
-    const [vehicleType, setVehicleType] = useState(null); 
-    const [distance, setDistance] = useState(null); 
+    const [form] = Form.useForm();
+    const [vehicleTypes, setVehicleTypes] = useState([]);
+    const [vehicleType, setVehicleType] = useState(null);
+    const [distance, setDistance] = useState(null);
     const mapContainerStyle = {
-        height: "100%", 
-        width: "100%",   
+        height: "100%",
+        width: "100%",
     };
-
+    useEffect(() => {
+        const roles = JSON.parse(sessionStorage.getItem("roles")); // Assuming you pass this state from placeorder.jsx
+        if (!roles || !roles.includes("customer")) {
+            Modal.error({
+                title: 'Unauthorized Access',
+                content: 'You need to log in as customer to access this page.',
+                onOk: () => {
+                    navigate('/login'); // Redirect to login page when the user clicks OK
+                },
+            });
+        }
+    }, [navigate]);
     const center = {
-        lat: 10.8231,    
-        lng: 106.6297,   
+        lat: 10.8231,
+        lng: 106.6297,
     };
 
     const handleContinue = (values) => {
@@ -38,7 +50,7 @@ function PlaceOrderPage() {
         navigate('/order-confirmation', {
             state: {
                 fromProvince: formData.pickUpProvince,
-                toProvince: formData.dropOffProvince,   
+                toProvince: formData.dropOffProvince,
                 pricePerAmount: selectedService.pricePerAmount,
                 pricePerKg: selectedService.pricePerKg,
                 servicePricingType: formData.servicePricing,
@@ -58,7 +70,7 @@ function PlaceOrderPage() {
         if (!accessToken) {
             navigate('/login');
         }
-    },[navigate]);
+    }, [navigate]);
 
 
     useEffect(() => {
@@ -86,7 +98,7 @@ function PlaceOrderPage() {
         if (!origin || !destination) return;
 
         const service = new window.google.maps.DistanceMatrixService();
-        
+
         try {
             const response = await service.getDistanceMatrix({
                 origins: [{ lat: origin.lat, lng: origin.lng }],
@@ -118,18 +130,18 @@ function PlaceOrderPage() {
                 lat: place.geometry.location.lat(),
                 lng: place.geometry.location.lng()
             };
-            
+
             setPickUpLocation(newPickUpLocation);
-            
+
             // Lấy tỉnh/thành phố từ address_components
             const province = place.address_components?.find(
-                component => 
+                component =>
                     component.types.includes('administrative_area_level_1') ||
                     component.types.includes('locality')
             )?.long_name || '';
 
             setPickUpInputValue(place.formatted_address);
-            form.setFieldsValue({ 
+            form.setFieldsValue({
                 pickUpLocation: place.formatted_address,
                 pickUpProvince: province
             });
@@ -157,15 +169,15 @@ function PlaceOrderPage() {
             };
 
             setDropOffLocation(newDropOffLocation);
-            
+
             const province = place.address_components?.find(
-                component => 
+                component =>
                     component.types.includes('administrative_area_level_1') ||
                     component.types.includes('locality')
             )?.long_name || '';
 
             setDropOffInputValue(place.formatted_address);
-            form.setFieldsValue({ 
+            form.setFieldsValue({
                 dropOffLocation: place.formatted_address,
                 dropOffProvince: province
             });
@@ -234,10 +246,10 @@ function PlaceOrderPage() {
                 setVehicleTypes(services);
                 setFetchedServices(services);
                 console.log('Fetched transport services:', services);
-                
+
             } else {
                 console.log('No transport services found or unexpected response structure');
-                
+
                 setFetchedServices(null);
             }
         } catch (error) {
@@ -300,23 +312,23 @@ function PlaceOrderPage() {
     }, [formData, form]);
 
     // Add useEffect to update price when distance changes
-    const [isMinPriceKm,setisMinPriceKm] = useState(false)
+    const [isMinPriceKm, setisMinPriceKm] = useState(false)
     useEffect(() => {
-        
+
         if (selectedService && distance !== null) {
 
-                const calculatedPrice = Math.round(distance * selectedService.pricePerKm);
-                if(calculatedPrice <30000){
-                    setPrice(30000);
+            const calculatedPrice = Math.round(distance * selectedService.pricePerKm);
+            if (calculatedPrice < 30000) {
+                setPrice(30000);
                 form.setFieldsValue({ price: 30000 });
                 setisMinPriceKm(true)
-                }else{
-                    setPrice(calculatedPrice);
-                    form.setFieldsValue({ price: calculatedPrice });
-                }
-                
-            
-            
+            } else {
+                setPrice(calculatedPrice);
+                form.setFieldsValue({ price: calculatedPrice });
+            }
+
+
+
         }
     }, [selectedService, distance, form]);
 
@@ -405,7 +417,7 @@ function PlaceOrderPage() {
     };
 
     return (
-        <LoadScriptNext 
+        <LoadScriptNext
             googleMapsApiKey="AIzaSyDJO2B-_FLwk1R1pje5gKEAB9h2qUDb-FU"
             libraries={libraries}
         >
@@ -413,7 +425,7 @@ function PlaceOrderPage() {
                 <Row className="placeorder-page">
                     <Navbar2 />
                     <Col span={8} className="left-section">
-                    <h1 style={{textAlign:'center', color:'#ff7700'}}>New Order</h1>
+                        <h1 style={{ textAlign: 'center', color: '#ff7700' }}>New Order</h1>
                         <h2 className="section-title">Location</h2>
                         <Form
                             layout="vertical"
@@ -431,12 +443,12 @@ function PlaceOrderPage() {
                                     values.servicePricing;
                                 setFormIsComplete(isComplete);
                             }}
-                        
+
                         >
                             <h3>Pick-up location</h3>
                             <Row gutter={0} style={{ display: 'flex', alignItems: 'center' }}>
                                 <Col>
-                                    <Form.Item name="pickUpProvince" style={{ marginBottom: 0, marginRight: 8, display:'none' }}>
+                                    <Form.Item name="pickUpProvince" style={{ marginBottom: 0, marginRight: 8, display: 'none' }}>
                                         <Input
                                             style={{ width: '150px' }}
                                             type="text"
@@ -456,7 +468,7 @@ function PlaceOrderPage() {
                                                 types: ['address']
                                             }}
                                         >
-                                            <Input 
+                                            <Input
                                                 placeholder="Select pick-up location"
                                                 value={pickUpInputValue}
                                                 onChange={(e) => setPickUpInputValue(e.target.value)}
@@ -466,225 +478,225 @@ function PlaceOrderPage() {
                                 </Col>
                             </Row>
 
-                                <h3>Drop-off location</h3>
-                                <Row gutter={0} style={{ display: 'flex', alignItems: 'center' }}>
-                                    <Col>
-                                        <Form.Item name="dropOffProvince" style={{ marginBottom: 0, marginRight: 8, display:'none'}}>
+                            <h3>Drop-off location</h3>
+                            <Row gutter={0} style={{ display: 'flex', alignItems: 'center' }}>
+                                <Col>
+                                    <Form.Item name="dropOffProvince" style={{ marginBottom: 0, marginRight: 8, display: 'none' }}>
+                                        <Input
+                                            style={{ width: '150px' }}
+                                            type="text"
+                                            onChange={(e) => handleProvinceChange('dropOffProvince', e.target.value)}
+                                            placeholder='Drop-off Province'
+                                        />
+                                    </Form.Item>
+                                </Col>
+                                <Col flex="auto">
+                                    <Form.Item name="dropOffLocation" style={{ marginBottom: 0 }}>
+                                        <Autocomplete
+                                            onLoad={onDropOffLoad}
+                                            onPlaceChanged={handleDropOffPlaceSelect}
+                                            options={{
+                                                componentRestrictions: { country: 'vn' },
+                                                fields: ['address_components', 'formatted_address', 'geometry'],
+                                                types: ['address']
+                                            }}
+                                        >
                                             <Input
-                                                style={{ width: '150px' }}
-                                                type="text"
-                                                onChange={(e) => handleProvinceChange('dropOffProvince', e.target.value)}
-                                                placeholder='Drop-off Province'
+                                                placeholder="Select drop-off location"
+                                                value={dropOffInputValue}
+                                                onChange={(e) => setDropOffInputValue(e.target.value)}
                                             />
-                                        </Form.Item>
-                                    </Col>
-                                    <Col flex="auto">
-                                        <Form.Item name="dropOffLocation" style={{ marginBottom: 0 }}>
-                                            <Autocomplete
-                                                onLoad={onDropOffLoad}
-                                                onPlaceChanged={handleDropOffPlaceSelect}
-                                                options={{
-                                                    componentRestrictions: { country: 'vn' },
-                                                    fields: ['address_components', 'formatted_address', 'geometry'],
-                                                    types: ['address']
-                                                }}
-                                            >
-                                                <Input 
-                                                    placeholder="Select drop-off location"
-                                                    value={dropOffInputValue}
-                                                    onChange={(e) => setDropOffInputValue(e.target.value)}
-                                                />
-                                            </Autocomplete>
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-                                
+                                        </Autocomplete>
+                                    </Form.Item>
+                                </Col>
+                            </Row>
 
 
 
-                        {fetchedServices && (
-                            <Form.Item name="vehicleType" rules={[{ required: true, message: 'Please select a transport service' }]}>
-                                <h2 className="section-title">Transport Services</h2>
-                                <div className="vehicle-scroll-container" style={{ border: 'none' }}>
-                                    <Radio.Group className="vehicle-radio-group" onChange={handleServiceSelect}>
-                                        {fetchedServices.map(service => (
-                                            <Radio key={service.transportServiceId} value={service.transportServiceId}>
-                                                {service.name === "Road" && <img src='src/images/truck.png' alt="Road" />}
-                                                {service.name === "Air" && <img src='src/images/plane.png' alt="Air" />}
-                                                <div>{service.name}</div>
-                                                
-                                                <a 
-                                                    className="detail-service-btn"
-                                                    href="#" 
-                                                    onClick={(e) => {
-                                                        e.preventDefault();
-                                                        showModal(service);
-                                                    }}                                                  
-                                                >
-                                                    Detail
-                                                </a>
-                                            </Radio>
-                                        ))}
-                                    </Radio.Group>
-                                    <Modal
-                                        title="Service Details"
-                                        open={isModalVisible}
-                                        onCancel={handleModalClose}
-                                        footer={null}
-                                        width={400}
-                                        centered
+
+                            {fetchedServices && (
+                                <Form.Item name="vehicleType" rules={[{ required: true, message: 'Please select a transport service' }]}>
+                                    <h2 className="section-title">Transport Services</h2>
+                                    <div className="vehicle-scroll-container" style={{ border: 'none' }}>
+                                        <Radio.Group className="vehicle-radio-group" onChange={handleServiceSelect}>
+                                            {fetchedServices.map(service => (
+                                                <Radio key={service.transportServiceId} value={service.transportServiceId}>
+                                                    {service.name === "Road" && <img src='src/images/truck.png' alt="Road" />}
+                                                    {service.name === "Air" && <img src='src/images/plane.png' alt="Air" />}
+                                                    <div>{service.name}</div>
+
+                                                    <a
+                                                        className="detail-service-btn"
+                                                        href="#"
+                                                        onClick={(e) => {
+                                                            e.preventDefault();
+                                                            showModal(service);
+                                                        }}
+                                                    >
+                                                        Detail
+                                                    </a>
+                                                </Radio>
+                                            ))}
+                                        </Radio.Group>
+                                        <Modal
+                                            title="Service Details"
+                                            open={isModalVisible}
+                                            onCancel={handleModalClose}
+                                            footer={null}
+                                            width={400}
+                                            centered
+                                        >
+                                            {selectedServiceDetails && (
+                                                <div style={{ padding: '10px' }}>
+                                                    <p style={{ marginBottom: '10px' }}>
+                                                        <strong>Service Name:</strong> {selectedServiceDetails.name}
+                                                    </p>
+                                                    <p style={{ marginBottom: '10px' }}>
+                                                        <strong>Price per km:</strong> {selectedServiceDetails.pricePerKm.toLocaleString()} VNĐ
+                                                    </p>
+                                                    <p style={{ marginBottom: '10px' }}>
+                                                        <strong>Price per amount:</strong> {selectedServiceDetails.pricePerAmount.toLocaleString()} VNĐ
+                                                    </p>
+                                                    <p style={{ marginBottom: '10px' }}>
+                                                        <strong>Price per kg:</strong> {selectedServiceDetails.pricePerKg.toLocaleString()} VNĐ
+                                                    </p>
+                                                    <p style={{ marginBottom: '10px' }}>
+                                                        <strong>Description:</strong> {selectedServiceDetails.description}
+                                                    </p>
+                                                    <p style={{ marginBottom: '10px' }}>
+                                                        <strong>Last updated at:</strong> {new Date(selectedServiceDetails.updatedAt).toLocaleTimeString()} {new Date(selectedServiceDetails.updatedAt).toLocaleDateString()}
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </Modal>
+                                    </div>
+                                </Form.Item>
+                            )}
+
+
+                            {selectedService && (
+                                <>
+                                    <h2 className="section-title">Service Pricing</h2>
+                                    <Form.Item
+                                        name="servicePricing"
+                                        rules={[{ required: true, message: 'Please choose a service pricing' }]}
                                     >
-                                        {selectedServiceDetails && (
-                                            <div style={{ padding: '10px' }}>
-                                                <p style={{ marginBottom: '10px' }}>
-                                                    <strong>Service Name:</strong> {selectedServiceDetails.name}
-                                                </p>
-                                                <p style={{ marginBottom: '10px' }}>
-                                                    <strong>Price per km:</strong> {selectedServiceDetails.pricePerKm.toLocaleString()} VNĐ
-                                                </p>
-                                                <p style={{ marginBottom: '10px' }}>
-                                                    <strong>Price per amount:</strong> {selectedServiceDetails.pricePerAmount.toLocaleString()} VNĐ
-                                                </p>
-                                                <p style={{ marginBottom: '10px' }}>
-                                                    <strong>Price per kg:</strong> {selectedServiceDetails.pricePerKg.toLocaleString()} VNĐ
-                                                </p>
-                                                <p style={{ marginBottom: '10px' }}>
-                                                    <strong>Description:</strong> {selectedServiceDetails.description}
-                                                </p>
-                                                <p style={{ marginBottom: '10px' }}>
-                                                    <strong>Last updated at:</strong> {new Date(selectedServiceDetails.updatedAt).toLocaleTimeString()} {new Date(selectedServiceDetails.updatedAt).toLocaleDateString()}
-                                                </p>
-                                            </div>
-                                        )}
-                                    </Modal>
-                                </div>
-                            </Form.Item>
-                        )}
+                                        <Select
+                                            placeholder="Service Pricing"
+                                            style={{ width: '180px' }}
+                                            onChange={(value) => {
+                                                setServicePricing(value);
+                                                form.setFieldsValue({ servicePricing: value });
+                                            }}
+                                        >
+                                            <Option value="volume">Volume (Kilograms)</Option>
+                                            <Option value="amount">Quantity (Fish)</Option>
+                                        </Select>
+                                    </Form.Item>
+                                </>
+                            )}
 
-                        
-                        {selectedService && (
-                            <>
-                                <h2 className="section-title">Service Pricing</h2>
-                                <Form.Item
-                                    name="servicePricing"
-                                    rules={[{ required: true, message: 'Please choose a service pricing' }]}
-                                >
-                                    <Select
-                                        placeholder="Service Pricing"
-                                        style={{ width: '180px' }}
-                                        onChange={(value) => {
-                                            setServicePricing(value);
-                                            form.setFieldsValue({ servicePricing: value });
+                            <Form.Item
+                                name="price"
+                                style={{ display: 'none' }}
+                            >
+                                <Input />
+                            </Form.Item>
+                        </Form>
+                        <div style={{ marginTop: '120px' }}>
+                            {distance !== null && distance > 0 && price !== null && (
+                                <div className="distance-display">
+                                    <span >
+                                        Provisional Price: {price?.toLocaleString() || '0'} VNĐ
+                                    </span>
+                                    <Tooltip
+                                        title={
+
+                                            <div>
+                                                Provisional Price = Distance × Price per km<br />
+                                                Distance: {distance?.toFixed(2)} km<br />
+                                                Price per km: {selectedService?.pricePerKm?.toLocaleString()} VNĐ <br />
+                                                Notice: <br />
+
+                                                Distance below {Math.ceil(30000 / selectedService?.pricePerKm)} Km will charge delivery fee of 30,000 VNĐ
+
+
+
+                                            </div>
+                                        }
+                                        overlayStyle={{
+                                            maxWidth: '400px',  // Increase tooltip width
+                                            minWidth: '300px'   // Set minimum width
                                         }}
                                     >
-                                        <Option value="volume">Volume (Kilograms)</Option>
-                                        <Option value="amount">Quantity (Fish)</Option>
-                                    </Select>
-                                </Form.Item>
-                            </>
-                        )}
+                                        <FontAwesomeIcon icon={faCircleInfo} style={{ marginLeft: '10px' }} />
+                                    </Tooltip>
+                                </div>
+                            )}
+                            <Form.Item>
+                                {formIsComplete && (
+                                    <Button
+                                        className="submit-btn"
+                                        type="primary"
+                                        htmlType="submit"
+                                        onClick={handleContinue}
+                                    >
+                                        Continue
+                                    </Button>
+                                )}
+                            </Form.Item>
+                        </div>
+                    </Col>
 
-                        <Form.Item
-                            name="price"
-                            style={{ display: 'none' }}
+                    <Col span={16} className="map-section">
+                        <GoogleMap
+                            mapContainerStyle={mapContainerStyle}
+                            zoom={12}
+                            center={pickUpLocation || center}
+                            onLoad={onMapLoad}
                         >
-                            <Input />
-                        </Form.Item>
-                    </Form>
-                    <div style={{marginTop: '120px'}}>
-                    {distance !== null && distance > 0 && price !== null && (
-                        <div className="distance-display">                            
-                                <span >
-                                    Provisional Price: {price?.toLocaleString() || '0'} VNĐ
-                                </span>                   
-                                <Tooltip 
-                                    title={
-                                        
-                                        <div>
-                                            Provisional Price = Distance × Price per km<br/>
-                                            Distance: {distance?.toFixed(2)} km<br/>
-                                            Price per km: {selectedService?.pricePerKm?.toLocaleString()} VNĐ <br/>
-                                            Notice: <br/>
-                                            
-                                            Distance below { Math.ceil(30000 / selectedService?.pricePerKm) } Km will charge delivery fee of 30,000 VNĐ
-                                            
-
-
-                                        </div>
-                                    }
-                                    overlayStyle={{ 
-                                        maxWidth: '400px',  // Increase tooltip width
-                                        minWidth: '300px'   // Set minimum width
+                            {pickUpLocation && (
+                                <Marker
+                                    position={pickUpLocation}
+                                    icon={{
+                                        url: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
+                                        scaledSize: new window.google.maps.Size(40, 40)
                                     }}
-                                >
-                                    <FontAwesomeIcon icon={faCircleInfo}  style={{marginLeft: '10px'}}/>
-                                </Tooltip>
-                        </div>
-                    )}
-                    <Form.Item>
-                        {formIsComplete && (
-                    <Button
-                         className="submit-btn"
-                        type="primary"
-                        htmlType="submit"
-                        onClick={handleContinue}                                
-                    >
-                            Continue
-                    </Button>
-                    )}
-                </Form.Item>
-                    </div>
-                </Col>
-               
-                <Col span={16} className="map-section">
-                    <GoogleMap
-                        mapContainerStyle={mapContainerStyle}
-                        zoom={12}
-                        center={pickUpLocation || center}
-                        onLoad={onMapLoad}
-                    >
-                        {pickUpLocation && (
-                            <Marker
-                                position={pickUpLocation}
-                                icon={{
-                                    url: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
-                                    scaledSize: new window.google.maps.Size(40, 40)
-                                }}
-                                title="Pick-up Location"
-                            />
+                                    title="Pick-up Location"
+                                />
+                            )}
+
+                            {dropOffLocation && (
+                                <Marker
+                                    position={dropOffLocation}
+                                    icon={{
+                                        url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                                        scaledSize: new window.google.maps.Size(40, 40)
+                                    }}
+                                    title="Drop-off Location"
+                                />
+                            )}
+                        </GoogleMap>
+
+                        {/* Hiển thị thông tin khoảng cách */}
+                        {distance !== null && (
+                            <div className="distance-info" style={{
+                                position: 'absolute',
+                                bottom: '20px',
+                                left: '20px',
+                                backgroundColor: 'white',
+                                padding: '10px',
+                                borderRadius: '8px',
+                                boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
+                                zIndex: 1
+                            }}>
+                                <strong>Distance:</strong> {distance.toFixed(2)} km
+                            </div>
                         )}
+                    </Col>
 
-                        {dropOffLocation && (
-                            <Marker
-                                position={dropOffLocation}
-                                icon={{
-                                    url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
-                                    scaledSize: new window.google.maps.Size(40, 40)
-                                }}
-                                title="Drop-off Location"
-                            />
-                        )}
-                    </GoogleMap>
-
-                    {/* Hiển thị thông tin khoảng cách */}
-                    {distance !== null && (
-                        <div className="distance-info" style={{
-                            position: 'absolute',
-                            bottom: '20px',
-                            left: '20px',
-                            backgroundColor: 'white',
-                            padding: '10px',
-                            borderRadius: '8px',
-                            boxShadow: '0 2px 6px rgba(0,0,0,0.3)',
-                            zIndex: 1
-                        }}>
-                            <strong>Distance:</strong> {distance.toFixed(2)} km
-                        </div>
-                    )}
-                </Col> 
-
-            </Row>
-            <Footer />
+                </Row>
+                <Footer />
             </div>
         </LoadScriptNext>
     );

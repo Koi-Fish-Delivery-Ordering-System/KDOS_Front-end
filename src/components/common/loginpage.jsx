@@ -1,6 +1,6 @@
 import React from "react";
 import AuthenTemplate from "./validationlogin";
-import { Button, Form, Input } from "antd";
+import { Button, Form, Input, message } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../config/axios";
 import { toast } from "react-toastify";
@@ -20,7 +20,7 @@ function LoginPage() {
         const { accessToken } = loginResponse.data.tokens;
         sessionStorage.setItem("accessToken", accessToken);
         console.log("Đăng nhập thành công. Access Token:", accessToken);
-        
+        message.success("Login successful", 1);
         const query = `
           query Init {
             init {
@@ -35,11 +35,11 @@ function LoginPage() {
             }
           }
         `;
-        
+
         try {
-          const initResponse = await axios.post('http://26.61.210.173:3001/graphql', 
+          const initResponse = await axios.post('http://26.61.210.173:3001/graphql',
             { query },
-            { 
+            {
               headers: {
                 "Authorization": `Bearer ${accessToken}`,
                 "Content-Type": "application/json"
@@ -57,6 +57,10 @@ function LoginPage() {
             sessionStorage.setItem("phone", phone);
             sessionStorage.setItem("address", address);
             sessionStorage.setItem("password", password);
+            //Roles is the array of roles
+            const roleNames = roles.map(role => role.name); // Extract role names into an array
+            sessionStorage.setItem("roles", JSON.stringify(roleNames)); // Store as a JSON string
+            console.log("Roles:", roleNames);
             console.log("Email:", email);
             console.log("Address:", address);
             console.log("Phone:", phone);
@@ -64,21 +68,24 @@ function LoginPage() {
             console.log("Username:", username);
             console.log("Account ID:", accountId);
             console.log("Roles:", roles);
-            
+
             if (roles && Array.isArray(roles) && roles.length > 0) {
               const userRole = roles[0].name.toLowerCase(); // Lấy vai trò đầu tiên
               console.log("User role:", userRole);
-              
+
               // Chuyển hướng dựa trên vai trò
-              switch(userRole) {
+              switch (userRole) {
                 case 'user':
                   navigate('/');
                   break;
-                case 'shipper':
+                case 'delivery':
                   navigate('/delivery');
                   break;
                 case 'healchecker':
                   navigate('/healchecker');
+                  break;
+                case 'manager':
+                  navigate('/manager');
                   break;
                 default:
                   console.error("Unknown role:", userRole);
@@ -104,7 +111,7 @@ function LoginPage() {
       }
     } catch (err) {
       console.error("Login error:", err);
-      toast.error( "Login failed: Please check your username and password");
+      toast.error("Login failed: Please check your username and password");
     }
   };
 
@@ -113,45 +120,45 @@ function LoginPage() {
       <ToastContainer />
       <AuthenTemplate>
         <h2 style={{ marginBottom: '24px', textAlign: 'center' }}>Log in</h2>
-      <Form
-        labelCol={{
-          span: 24,
-        }}
-        onFinish={handleLogin}
-      >
-        <Form.Item
-          label="Username"
-          name="username"
-          rules={[
-            {
-              required: true,
-              message: "Please input your username!",
-            },
-          ]}
+        <Form
+          labelCol={{
+            span: 24,
+          }}
+          onFinish={handleLogin}
         >
-          <Input />
-        </Form.Item>
-        <Form.Item
-          label="Password"
-          name="password"
-          rules={[
-            {
-              required: true,
-              message: "Please input your password!",
-            },
-          ]}
-        >
-          <Input.Password />
-        </Form.Item>
-        <div style={{ marginBottom: '24px' }}>
-          <Link to="/register">Don't have account? Register new account</Link>
-        </div>
+          <Form.Item
+            label="Username"
+            name="username"
+            rules={[
+              {
+                required: true,
+                message: "Please input your username!",
+              },
+            ]}
+          >
+            <Input />
+          </Form.Item>
+          <Form.Item
+            label="Password"
+            name="password"
+            rules={[
+              {
+                required: true,
+                message: "Please input your password!",
+              },
+            ]}
+          >
+            <Input.Password />
+          </Form.Item>
+          <div style={{ marginBottom: '24px' }}>
+            <Link to="/register">Don't have account? Register new account</Link>
+          </div>
 
-        <Form.Item>
-          <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
-            Login
-          </Button>
-        </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit" style={{ width: '100%' }} >
+              Login
+            </Button>
+          </Form.Item>
 
         </Form>
       </AuthenTemplate>

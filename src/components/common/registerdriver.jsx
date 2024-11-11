@@ -1,11 +1,11 @@
 import React from "react";
 import AuthenTemplate from "./validationlogin";
-import { Button, Form, Input, message } from "antd";
+import { Button, Form, Input } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../../config/axios";
 import { toast, ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
-function RegisterPage() {
+function RegisterDriverPage() {
   const navigate = useNavigate();
 
   const handleRegister = async (values) => {
@@ -14,12 +14,11 @@ function RegisterPage() {
 
     try {
       const response = await api.post('http://26.61.210.173:3001/api/auth/sign-up', dataToSend);
-      message.success("Register successfully!");
-      console.log(response.data);
+      toast.success("Registration successful!");
       navigate('/login');
     } catch (error) {
       console.error("Registration error:", error);
-      toast.error("Email Or Username Already Exists",);
+      toast.error("Registration failed: Please check your information");
     }
   };
 
@@ -27,7 +26,7 @@ function RegisterPage() {
     <div>
       <ToastContainer />
       <AuthenTemplate>
-        <h2 style={{ marginBottom: '24px', textAlign: 'center' }}>Register</h2>
+        <h2 style={{ marginBottom: '24px', textAlign: 'center' }}>Register As A Driver</h2>
         <Form
           labelCol={{
             span: 24,
@@ -122,4 +121,4 @@ function RegisterPage() {
   );
 }
 
-export default RegisterPage;
+export default RegisterDriverPage;
