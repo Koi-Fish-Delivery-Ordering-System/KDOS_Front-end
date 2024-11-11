@@ -3,9 +3,12 @@ import axios from "axios";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import "../../css/orderhistory.css";
-import { Modal, Input, Tabs } from 'antd';
+import { Modal, Input, Tabs, Carousel } from 'antd';
 import { faFish } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye } from '@fortawesome/free-solid-svg-icons';
+import { LeftOutlined, RightOutlined } from '@ant-design/icons'; // Import icons for arrows
+
 const OrderHistory = () => {
   const [order, setOrder] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -18,6 +21,9 @@ const OrderHistory = () => {
   const [feedbackStars, setFeedbackStars] = useState(0);
   const [feedbackContent, setFeedbackContent] = useState('');
   const [isViewFeedbackModalOpen, setIsViewFeedbackModalOpen] = useState(false);
+  const [showAllImages, setShowAllImages] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
 
   const { TabPane } = Tabs;
 
@@ -107,12 +113,20 @@ const OrderHistory = () => {
   const handleFishClick = (fish) => {
     setSelectedFish(fish);
     setFishImages({});
-    if (fish.qualifications && fish.qualifications.length > 0) {
+
+    if (fish && fish.qualifications && fish.qualifications.length > 0) {
       const imageUrls = fish.qualifications.map(qual => qual.imageUrl);
-      setFishImages(prev => ({
-        ...prev,
-        [fish.orderFishId]: imageUrls
-      }));
+
+      if (fish.orderFishId) {
+        setFishImages(prev => ({
+          ...prev,
+          [fish.orderFishId]: imageUrls
+        }));
+      } else {
+        console.error("Fish does not have an orderFishId:", fish);
+      }
+    } else {
+      console.error("Fish is null or has no qualifications:", fish);
     }
   };
 
@@ -155,6 +169,66 @@ const OrderHistory = () => {
   // Separate orders into completed and other orders
   const completedOrders = order.filter(orderItem => orderItem.orderStatus === 'completed');
   const otherOrders = order.filter(orderItem => orderItem.orderStatus !== 'completed');
+
+  const openImageOverlay = (imageUrl) => {
+    // Create an image element
+    const img = document.createElement('img');
+    img.src = imageUrl;
+    img.style.width = 'auto'; // Maintain aspect ratio
+    img.style.height = '80vh'; // Set height to 80% of the viewport height
+    img.style.maxWidth = '90vw'; // Ensure it doesn't exceed 90% of the viewport width
+    img.style.objectFit = 'contain'; // Maintain aspect ratio
+    img.style.borderRadius = '8px'; // Optional: add some border radius for aesthetics
+
+    // Create an overlay div
+    const overlayDiv = document.createElement('div');
+    overlayDiv.style.position = 'fixed';
+    overlayDiv.style.top = '0';
+    overlayDiv.style.left = '0';
+    overlayDiv.style.width = '100vw';
+    overlayDiv.style.height = '100vh';
+    overlayDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.7)'; // Semi-transparent black background
+    overlayDiv.style.display = 'flex';
+    overlayDiv.style.justifyContent = 'center';
+    overlayDiv.style.alignItems = 'center';
+    overlayDiv.style.zIndex = '1000'; // Ensure it is on top of other elements
+    overlayDiv.style.cursor = 'pointer'; // Change cursor to pointer
+
+    // Close the overlay when clicking on the overlay
+    overlayDiv.onclick = () => {
+      document.body.removeChild(overlayDiv); // Remove the overlay from the DOM
+    };
+
+    // Append the image to the overlay
+    overlayDiv.appendChild(img);
+    // Append the overlay to the body
+    document.body.appendChild(overlayDiv);
+  };
+
+  const openImageModal = (index) => {
+    if (selectedFish) {
+      setCurrentImageIndex(index);
+      setIsImageModalOpen(true);
+    } else {
+      console.error("Selected fish is null:", selectedFish);
+    }
+  };
+
+  const handleImageClick = (index) => {
+    openImageModal(index);
+  };
+
+  const nextArrow = (
+    <div style={{ position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)', cursor: 'pointer' }}>
+      <RightOutlined style={{ fontSize: '24px', color: '#fff' }} />
+    </div>
+  );
+
+  const prevArrow = (
+    <div style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', cursor: 'pointer' }}>
+      <LeftOutlined style={{ fontSize: '24px', color: '#fff' }} />
+    </div>
+  );
 
   return (
 
@@ -239,8 +313,7 @@ const OrderHistory = () => {
         </Tabs>
       ) : (
         <div className="emptyState">
-          <img src="empty-state.png" alt="Empty State" className="emptyImage" />
-          <p>It looks like you have never placed an order. Maybe it is time to place your first order!</p>
+          <h2>There is no order</h2>
         </div>
       )}
 
@@ -302,18 +375,37 @@ const OrderHistory = () => {
                     />
                   </div>
                   <p><strong>Qualifications:</strong></p>
-                  <div className="fish-images">
-                    {fishImages[selectedFish.orderFishId]?.map((imageUrl, index) => (
-                      <img
-                        key={index}
-                        src={imageUrl}
-                        alt={`Fish ${index + 1}`}
-                        className="fish-image"
-                        style={{ maxWidth: '150px', maxHeight: '150px' }}
-                      />
+                  <div className="fish-images" style={{ display: 'flex', alignItems: 'center' }}>
+                    {fishImages[selectedFish.orderFishId]?.slice(0, 2).map((imageUrl, index) => (
+                      <div key={index} style={{ position: 'relative', marginRight: '10px' }}>
+                        <img
+                          src={imageUrl}
+                          alt={`Fish ${index + 1}`}
+                          className="fish-image"
+                          style={{ maxWidth: '150px', maxHeight: '150px', cursor: 'pointer' }}
+                          onClick={() => handleImageClick(index)}
+                        />
+                        <FontAwesomeIcon
+                          icon={faEye}
+                          style={{ position: 'absolute', top: '5px', right: '5px', cursor: 'pointer', color: 'white', backgroundColor: 'rgba(0, 0, 0, 0.5)', borderRadius: '50%', padding: '5px' }}
+                          onClick={(e) => {
+                            e.stopPropagation(); // Prevent click from bubbling up to the parent div
+                            openImageOverlay(imageUrl); // Call the function to open the image in fullscreen
+                          }}
+                        />
+                      </div>
                     ))}
+                    {fishImages[selectedFish.orderFishId]?.length > 2 && (
+                      <span
+                        className="plus-sign"
+                        style={{ fontSize: '150%', marginLeft: '30px', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+                        onClick={() => setIsImageModalOpen(true)}
+                      >
+                        +{fishImages[selectedFish.orderFishId].length - 2} images
+                      </span>
+                    )}
                   </div>
-                  
+
                 </div>
               ) : (
                 <div className="empty-state">
@@ -373,6 +465,22 @@ const OrderHistory = () => {
             </p>
           </div>
         )}
+      </Modal>
+
+      <Modal
+        title="Image Gallery"
+        open={isImageModalOpen}
+        onCancel={() => setIsImageModalOpen(false)}
+        footer={null}
+        centered
+      >
+        <Carousel afterChange={setCurrentImageIndex} nextArrow={nextArrow} prevArrow={prevArrow}>
+          {fishImages[selectedFish?.orderFishId]?.map((imageUrl, index) => (
+            <div key={index}>
+              <img src={imageUrl} alt={`Fish ${index + 1}`} style={{ width: '100%', height: 'auto' }} />
+            </div>
+          ))}
+        </Carousel>
       </Modal>
     </div>
   );

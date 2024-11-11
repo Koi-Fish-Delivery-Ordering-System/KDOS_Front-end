@@ -31,9 +31,7 @@ function LoginPage() {
               fullName
               phone
               address
-              roles {
-                name
-              }
+              role
             }
           }
         `;
@@ -51,7 +49,7 @@ function LoginPage() {
           console.log("Full Init response:", initResponse);
 
           if (initResponse.data && initResponse.data.data && initResponse.data.data.init) {
-            const { accountId, roles, username, email, password, phone, address, fullName } = initResponse.data.data.init;
+            const { accountId, role, username, email, password, phone, address, fullName } = initResponse.data.data.init;
             sessionStorage.setItem("accountId", accountId);
             sessionStorage.setItem("username", username);
             sessionStorage.setItem("fullName", fullName);
@@ -59,20 +57,20 @@ function LoginPage() {
             sessionStorage.setItem("phone", phone);
             sessionStorage.setItem("address", address);
             sessionStorage.setItem("password", password);
+            sessionStorage.setItem("role", role);
             //Roles is the array of roles
-            const roleNames = roles.map(role => role.name); // Extract role names into an array
-            sessionStorage.setItem("roles", JSON.stringify(roleNames)); // Store as a JSON string
-            console.log("Roles:", roleNames);
+
+            console.log("Roles:", role);
             console.log("Email:", email);
             console.log("Address:", address);
             console.log("Phone:", phone);
             console.log("Password:", password);
             console.log("Username:", username);
             console.log("Account ID:", accountId);
-            console.log("Roles:", roles);
+            console.log("Roles:", role);
 
-            if (roles && Array.isArray(roles) && roles.length > 0) {
-              const userRole = roles[0].name.toLowerCase(); // Lấy vai trò đầu tiên
+            if (role) {
+              const userRole = role.toLowerCase();
               console.log("User role:", userRole);
 
               // Chuyển hướng dựa trên vai trò

@@ -1,4 +1,5 @@
-import { createBrowserRouter } from 'react-router-dom';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
 import Homepage from './components/common/Homepage';
 import LoginPage from './components/common/loginpage';
@@ -20,6 +21,23 @@ import NewsPage from './components/common/NEWS';
 import PaymentStatus from './components/common/paymentstatus';
 import RegisterDriverPage from './components/common/registerdriver';
 import Unauthorized from './components/common/unauthorized';
+import OrderHistory from './components/common/orderhistory';
+
+
+const ProtectedRoute = ({ element, roles }) => {
+  const isAuthenticated = sessionStorage.getItem('accessToken');
+  const userRole = sessionStorage.getItem('role'); // Retrieve the role directly as a string
+
+  const hasRequiredRole = userRole === roles; // Check if the user's role matches the required role
+
+  return isAuthenticated && hasRequiredRole ? element : <Navigate to="/login" />;
+}
+
+ProtectedRoute.propTypes = {
+  element: PropTypes.element.isRequired,
+  roles: PropTypes.string, // Validate 'roles' prop
+};
+
 export const router = createBrowserRouter([
   {
     path: '/',
@@ -35,51 +53,47 @@ export const router = createBrowserRouter([
   },
   {
     path: "profile",
-    element: <ProfilePage />,
+    element: <ProtectedRoute element={<ProfilePage />} roles={['customer', 'manager', 'delivery']} />,
   },
   {
     path: "records",
-    element: <Records />,
+    element: <OrderHistory />
   },
   {
     path: "trackorder",
-    element: <TrackOrderPage />,
+    element: <ProtectedRoute element={<TrackOrderPage />} roles={['customer']} />,
   },
   {
     path: "placeorder",
-    element: <PlaceOrderPage />,
+    element: <ProtectedRoute element={<PlaceOrderPage />} roles={['customer']} />,
   },
   {
     path: "deliverypage",
-    element: <DeliveryPage />,
+    element: <ProtectedRoute element={<DeliveryPage />} roles={['customer']} />,
   },
   {
     path: "deliverydetail/:orderId",
-    element: <DeliveryDetail />,
+    element: <ProtectedRoute element={<DeliveryDetail />} roles={['customer']} />,
   },
   {
     path: "account-management",
-    element: <AccountManagement />,
-  },
-  {
-    path: "transport-service",
-    element: <TransportService />,
+    element: <ProtectedRoute element={<AccountManagement />} roles="customer" />,
   },
   {
     path: "order-confirmation",
-    element: <OrderConfirmation />,
+    element: <ProtectedRoute element={<OrderConfirmation />} roles={['customer']} />,
   },
   {
     path: "delivery",
-    element: <Delivery />,
+    element: <ProtectedRoute element={<Delivery />} roles={['delivery', 'customer']} />,
   },
   {
     path: "healchecker",
-    element: <HealChecker />,
+    element: <ProtectedRoute element={<HealChecker />} roles={['healchecker']} />,
   },
   {
     path: "manager",
-    element: <Manager />,
+    element: <ProtectedRoute element={<Manager />} roles={['manager']} />,
   },
   {
     path: "faq",
@@ -91,7 +105,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "paymentstatus",
-    element: <PaymentStatus />,
+    element: <ProtectedRoute element={<PaymentStatus />} roles={['customer']} />,
   },
   {
     path: "register-driver",
