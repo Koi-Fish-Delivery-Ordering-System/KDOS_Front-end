@@ -49,7 +49,7 @@ function LoginPage() {
           console.log("Full Init response:", initResponse);
 
           if (initResponse.data && initResponse.data.data && initResponse.data.data.init) {
-            const { accountId, roles, username, email, password, phone, address, fullName } = initResponse.data.data.init;
+            const { accountId, username, email, password, phone, address, fullName, role } = initResponse.data.data.init;
             sessionStorage.setItem("accountId", accountId);
             sessionStorage.setItem("username", username);
             sessionStorage.setItem("fullName", fullName);
@@ -58,45 +58,44 @@ function LoginPage() {
             sessionStorage.setItem("address", address);
             sessionStorage.setItem("password", password);
             //Roles is the array of roles
-            const roleNames = roles.map(role => role.name); // Extract role names into an array
-            sessionStorage.setItem("roles", JSON.stringify(roleNames)); // Store as a JSON string
-            console.log("Roles:", roleNames);
+            sessionStorage.setItem("role", role);
+            
             console.log("Email:", email);
             console.log("Address:", address);
             console.log("Phone:", phone);
             console.log("Password:", password);
             console.log("Username:", username);
             console.log("Account ID:", accountId);
-            console.log("Roles:", roles);
+            navigate('/');
 
-            if (roles && Array.isArray(roles) && roles.length > 0) {
-              const userRole = roles[0].name.toLowerCase(); // Lấy vai trò đầu tiên
-              console.log("User role:", userRole);
+            // if (roles && Array.isArray(roles) && roles.length > 0) {
+            //   const userRole = roles[0].name.toLowerCase(); // Lấy vai trò đầu tiên
+            //   console.log("User role:", userRole);
 
-              // Chuyển hướng dựa trên vai trò
-              switch (userRole) {
-                case 'user':
-                  navigate('/');
-                  break;
-                case 'delivery':
-                  navigate('/delivery');
-                  break;
-                case 'healchecker':
-                  navigate('/healchecker');
-                  break;
-                case 'manager':
-                  navigate('/manager');
-                  break;
-                default:
-                  console.error("Unknown role:", userRole);
-                  toast.error("Unknown user role");
-                  navigate('/');
-              }
-            } else {
-              console.error("No roles found for user");
-              toast.error("No roles assigned to user");
-              navigate('/');
-            }
+            //   // Chuyển hướng dựa trên vai trò
+            //   switch (userRole) {
+            //     case 'user':
+            //       navigate('/');
+            //       break;
+            //     case 'delivery':
+            //       navigate('/delivery');
+            //       break;
+            //     case 'healchecker':
+            //       navigate('/healchecker');
+            //       break;
+            //     case 'manager':
+            //       navigate('/manager');
+            //       break;
+            //     default:
+            //       console.error("Unknown role:", userRole);
+            //       toast.error("Unknown user role");
+            //       navigate('/');
+            //   }
+            // } else {
+            //   console.error("No roles found for user");
+            //   toast.error("No roles assigned to user");
+            //   navigate('/');
+            // }
           } else {
             console.error("Unexpected init response structure:", initResponse.data);
             toast.error("Unexpected response from server");

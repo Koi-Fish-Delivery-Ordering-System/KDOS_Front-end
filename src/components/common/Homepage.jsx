@@ -26,7 +26,8 @@ export default function Homepage() {
     "src/images/fish5.png",
     "src/images/fish6.png",
   ];
-
+  
+  
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -61,19 +62,19 @@ export default function Homepage() {
   return (
     <>
       <div>
-
-        <Navbar2 />
+        
+      <Navbar2 />
         {/* Hero Section */}
         <section className="hero-section">
-
+          
           <div className="hero-content">
-
+            
             <div className="hero-buttons">
               <button className="primary-button" onClick={() => navigate('/placeorder')}>
                 Book Shipping Now
               </button>
-              <button className="secondary-button" onClick={() => navigate('/register-driver')}>
-                Register as a Driver
+              <button className="secondary-button" onClick={() => navigate('/account-management', {state:{activeComponent: 'orders'}})}>
+                Track Your Order
               </button>
             </div>
           </div>
@@ -105,14 +106,14 @@ export default function Homepage() {
             <div className="content-text">
               <h2>Professional Transportation Service</h2>
               <p>
-                We provide professional Koi fish transportation services with modern
-                transport tanks featuring temperature and oxygen control systems.
-                Our experienced team ensures your fish receive the best care throughout
+                We provide professional Koi fish transportation services with modern 
+                transport tanks featuring temperature and oxygen control systems. 
+                Our experienced team ensures your fish receive the best care throughout 
                 their journey.
               </p>
             </div>
           </div>
-
+          
           <div className="divider" />
           <div className="row reverse" ref={(el) => (rowsRef.current[1] = el)}>
             <img
@@ -153,7 +154,7 @@ export default function Homepage() {
             <div className="item item8"><img src={fishImageList[1]}></img></div>
           </div>
           <div className="divider" />
-
+          
         </section>
       </div>
       <Footer />

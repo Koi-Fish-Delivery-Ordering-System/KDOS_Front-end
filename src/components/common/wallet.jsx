@@ -1,8 +1,27 @@
-import React from 'react';
-import { Button, Table } from 'antd';
+import React, { useState } from 'react';
+import { Button, Table, message } from 'antd';
+import axios from 'axios';
 import '../../css/wallet.css';
 function Wallet() {
-
+  
+  const createTransaction = async () => {
+    try {
+      const response = await axios.post('http://26.61.210.173:3001/api/transaction/create-transaction', {type: 'topUp', amount: 1000000}, {
+        headers: {
+        'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
+        'Content-Type': 'application/json',
+      }
+    });
+    console.log(response);
+    const url = response.data.others.paymentUrl;
+    console.log(url);
+    window.location.href = url;
+    message.success('Transaction created successfully');
+    } catch (error) {
+      message.error('Error creating transaction');
+      console.error('Error creating transaction:', error);
+    }
+  }
   const columns = [
     {
       title: 'Transaction ID',
@@ -40,7 +59,7 @@ function Wallet() {
         <div>Balance</div>
         <div className="balance-value">
           <h3>1000000đ</h3>
-          <Button className="top-up-button">Top up</Button>
+          <Button className="top-up-button" onClick={createTransaction}>Top up</Button>
         </div>
         
       </div>
