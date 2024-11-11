@@ -6,10 +6,11 @@ import '../../css/wallet.css';
 function Wallet() {
   const [transactions, setTransactions] = useState([]);
   const [openTopUpModal, setOpenTopUpModal] = useState(false);
+  const [amount, setAmount] = useState('');
 
   const fetchTransactions = async () => {
-    try{
-      const query =`
+    try {
+      const query = `
       query FindManyTransaction {
   findManyTransaction {
     transactionId
@@ -19,7 +20,7 @@ function Wallet() {
   }
 }
       `
-      const response = await axios.post('http://26.61.210.173:3001/graphql', {query},
+      const response = await axios.post('http://26.61.210.173:3001/graphql', { query },
         {
           headers: {
             'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
@@ -43,13 +44,13 @@ function Wallet() {
               walletAmount
             }
           }`
-    const initResponse = await axios.post('http://26.61.210.173:3001/graphql', {query},
-    {
-      headers: {
-        'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
-        'Content-Type': 'application/json',
-      }
-    });
+    const initResponse = await axios.post('http://26.61.210.173:3001/graphql', { query },
+      {
+        headers: {
+          'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
+          'Content-Type': 'application/json',
+        }
+      });
     const walletAmount = initResponse.data.data.init.walletAmount;
     sessionStorage.setItem("walletAmount", walletAmount);
   }
@@ -59,18 +60,27 @@ function Wallet() {
   }, []);
   const createTransaction = async (amount) => {
     try {
-      const response = await axios.post('http://26.61.210.173:3001/api/transaction/create-transaction', {type: 'topUp', amount: amount}, {
-        headers: {
-        'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
-        'Content-Type': 'application/json',
+      const numericAmount = parseFloat(amount);
+      if (isNaN(numericAmount) || numericAmount <= 0) {
+        message.error('Please enter a valid amount.');
+        return;
       }
-    });
-    
-    console.log(response);
-    const url = response.data.others.paymentUrl;
-    console.log(url);
-    window.location.href = url;
-    message.success('Transaction created successfully');
+
+      const response = await axios.post('http://26.61.210.173:3001/api/transaction/create-transaction', {
+        type: 'topUp',
+        amount: numericAmount
+      }, {
+        headers: {
+          'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
+          'Content-Type': 'application/json',
+        }
+      });
+
+      console.log(response);
+      const url = response.data.others.paymentUrl;
+      console.log(url);
+      window.location.href = url;
+      message.success('Transaction created successfully');
     } catch (error) {
       message.error('Error creating transaction');
       console.error('Error creating transaction:', error);
@@ -104,33 +114,33 @@ function Wallet() {
       render: (status) => <span className={`status-transaction ${status.toLowerCase()}`}>{status}</span>,
     },
   ]
-  
-  return(
+
+  return (
     <>
-    <div>
-      <h1 className="section-title">Wallet</h1>
-      <div className="balance-container">
-        <div>Balance</div>
-        <div className="balance-value">
-          <h3>{sessionStorage.getItem("walletAmount").toLocaleString()} VNĐ</h3>
-          <Button className="top-up-button" onClick={() => setOpenTopUpModal(true)}>Top up</Button>
+      <div>
+        <h1 className="section-title">Wallet</h1>
+        <div className="balance-container">
+          <div>Balance</div>
+          <div className="balance-value">
+            <h3>{sessionStorage.getItem("walletAmount").toLocaleString()} VNĐ</h3>
+            <Button className="top-up-button" onClick={() => setOpenTopUpModal(true)}>Top up</Button>
+          </div>
+
         </div>
-        
+        <div className="transaction-history">
+          <h3 style={{ margin: '20px 0' }}>Transaction History</h3>
+          <Table columns={columns} dataSource={transactions} />
+        </div>
       </div>
-      <div className="transaction-history">
-        <h3 style={{margin: '20px 0'}}>Transaction History</h3>
-        <Table columns={columns} dataSource={transactions} />
-      </div>
-    </div>
-    <Modal
-    open={openTopUpModal}
-    onCancel={() => setOpenTopUpModal(false)}
-    footer={null}
-    >
-      <h3>Top up</h3>
-      <Input name="amount" placeholder="Amount" onChange={(e) => setAmount(e.target.value)} />
-      <Button className="continue-vnpay-button" onClick={createTransaction}>Continue with VNPAY</Button>
-    </Modal>
+      <Modal
+        open={openTopUpModal}
+        onCancel={() => setOpenTopUpModal(false)}
+        footer={null}
+      >
+        <h3>Top up</h3>
+        <Input name="amount" placeholder="Amount" onChange={(e) => setAmount(e.target.value)} />
+        <Button className="continue-vnpay-button" onClick={() => createTransaction(amount)}>Continue with VNPAY</Button>
+      </Modal>
     </>
   )
 }
