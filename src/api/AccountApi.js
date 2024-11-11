@@ -25,10 +25,7 @@ const GET_ALL_ACCOUNT = gql`
     phone
     address
     walletAmount
-    roles {
-      roleId
-      name
-    }
+    role
   }
 }
 `;
