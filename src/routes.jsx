@@ -53,27 +53,27 @@ export const router = createBrowserRouter([
   },
   {
     path: "profile",
-    element: <ProtectedRoute element={<ProfilePage />} roles={['customer', 'manager', 'delivery']} />,
+    element: <ProfilePage />,
   },
   {
     path: "records",
-    element: <OrderHistory />
+    element: <ProtectedRoute element={<OrderHistory />} roles="customer" />,
   },
   {
     path: "trackorder",
-    element: <ProtectedRoute element={<TrackOrderPage />} roles={['customer']} />,
+    element: <ProtectedRoute element={<TrackOrderPage />} roles="customer" />,
   },
   {
     path: "placeorder",
-    element: <ProtectedRoute element={<PlaceOrderPage />} roles={['customer']} />,
+    element: <ProtectedRoute element={<PlaceOrderPage />} roles="customer" />,
   },
   {
     path: "deliverypage",
-    element: <ProtectedRoute element={<DeliveryPage />} roles={['customer']} />,
+    element: <ProtectedRoute element={<DeliveryPage />} roles="customer" />,
   },
   {
     path: "deliverydetail/:orderId",
-    element: <ProtectedRoute element={<DeliveryDetail />} roles={['customer']} />,
+    element: <ProtectedRoute element={<DeliveryDetail />} roles="customer" />,
   },
   {
     path: "account-management",
@@ -81,19 +81,19 @@ export const router = createBrowserRouter([
   },
   {
     path: "order-confirmation",
-    element: <ProtectedRoute element={<OrderConfirmation />} roles={['customer']} />,
+    element: <ProtectedRoute element={<OrderConfirmation />} roles="customer" />,
   },
   {
     path: "delivery",
-    element: <ProtectedRoute element={<Delivery />} roles={['delivery', 'customer']} />,
+    element: <ProtectedRoute element={<Delivery />} roles="delivery" />,
   },
   {
     path: "healchecker",
-    element: <ProtectedRoute element={<HealChecker />} roles={['healchecker']} />,
+    element: <ProtectedRoute element={<HealChecker />} roles="healchecker" />,
   },
   {
     path: "manager",
-    element: <ProtectedRoute element={<Manager />} roles={['manager']} />,
+    element: <ProtectedRoute element={<Manager />} roles="manager" />,
   },
   {
     path: "faq",
