@@ -31,9 +31,7 @@ function LoginPage() {
               fullName
               phone
               address
-              roles {
-                name
-              }
+              role 
             }
           }
         `;

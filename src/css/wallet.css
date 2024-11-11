@@ -1,0 +1,23 @@
+.balance-container {
+  border: 1px solid rgb(128, 128, 128, 0.3);
+  border-radius: 10px;
+  padding: 30px;
+}
+.balance-value {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+.top-up-button {
+  padding: 15px;
+  background-color: #ff7700;
+  color: #f7f7f7;
+  font-weight: bold;
+}
+.top-up-button:hover {
+  
+  background-color: orangered !important;
+  color: #f7f7f7 !important;
+  border-color: orangered !important;
+}
