@@ -311,8 +311,8 @@ const OrderHistory = () => {
               </div>
             )}
           </TabPane>
-          <TabPane tab = "Cancelled Orders" key="3">
-          {cancelledOrders.length > 0 ? (
+          <TabPane tab="Cancelled Orders" key="3">
+            {cancelledOrders.length > 0 ? (
               <div className="orders-container">
                 {cancelledOrders.map((orderItem) => (
                   <div key={orderItem.orderId} className="order-card">
@@ -342,7 +342,7 @@ const OrderHistory = () => {
                 <p>No cancelled orders found.</p>
               </div>
             )}
-          </TabPane>        
+          </TabPane>
         </Tabs>
       ) : (
         <div className="emptyState">
@@ -400,16 +400,36 @@ const OrderHistory = () => {
                   <p><strong>Description:</strong> {selectedFish.description}</p>
                   <div className="fish-images">
                     <p><strong>Fish Image:</strong></p>
-                    <img
-                      src={selectedFish.fishImageUrl}
-                      alt="Fish Image"
-                      className="fish-image"
-                      style={{ maxWidth: '150px', maxHeight: '150px' }}
-                    />
+                    <div className="fish-image-container" style={{ display: 'flex', alignItems: 'center' }}>
+                      <img
+                        src={selectedFish.fishImageUrl}
+                        alt="Fish Image"
+                        className="fish-image"
+                        style={{ maxWidth: '150px', maxHeight: '150px' }}
+                      />
+                      <FontAwesomeIcon
+                        icon={faEye}
+                        style={{
+                          position: 'absolute',
+                          top: '5px',
+                          right: '5px',
+                          cursor: 'pointer',
+                          color: 'white',
+                          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+                          borderRadius: '50%',
+                          padding: '5px',
+                          zIndex: 10 // Ensure it appears above other elements
+                        }}
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent click from bubbling up to the parent div
+                          openImageOverlay(selectedFish.fishImageUrl); // Call the function to open the image in fullscreen
+                        }}
+                      />
+                    </div>
                   </div>
                   <p><strong>Qualifications:</strong></p>
-                  <div className="fish-images" onClick={() => setShowAllImages(!showAllImages)} style={{ display: 'flex', alignItems: 'center' }}>
-                    {fishImages[selectedFish.orderFishId]?.slice(0, showAllImages ? fishImages[selectedFish.orderFishId].length : 2).map((imageUrl, index) => (
+                  <div className="fish-images" style={{ display: 'flex', alignItems: 'center' }}>
+                    {fishImages[selectedFish.orderFishId]?.slice(0, 2).map((imageUrl, index) => (
                       <div key={index} style={{ position: 'relative', marginRight: '10px' }}>
                         <img
                           src={imageUrl}
@@ -418,18 +438,22 @@ const OrderHistory = () => {
                           style={{ maxWidth: '150px', maxHeight: '150px', cursor: 'pointer' }}
                           onClick={() => handleImageClick(index)}
                         />
-                        <FontAwesomeIcon
+                        {/* <FontAwesomeIcon
                           icon={faEye}
                           style={{ position: 'absolute', top: '5px', right: '5px', cursor: 'pointer', color: 'white', backgroundColor: 'rgba(0, 0, 0, 0.5)', borderRadius: '50%', padding: '5px' }}
                           onClick={(e) => {
                             e.stopPropagation(); // Prevent click from bubbling up to the parent div
                             openImageOverlay(imageUrl); // Call the function to open the image in fullscreen
                           }}
-                        />
+                        /> */}
                       </div>
                     ))}
-                    {fishImages[selectedFish.orderFishId]?.length > 2 && !showAllImages && (
-                      <span className="plus-sign" style={{ fontSize: '150%', marginLeft: '30px', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center' }} onClick={() => setShowAllImages(!showAllImages)}>
+                    {fishImages[selectedFish.orderFishId]?.length > 2 && (
+                      <span
+                        className="plus-sign"
+                        style={{ fontSize: '150%', marginLeft: '30px', cursor: 'pointer', display: 'flex', justifyContent: 'center', alignItems: 'center' }}
+                        onClick={() => setIsImageModalOpen(true)}
+                      >
                         +{fishImages[selectedFish.orderFishId].length - 2} images
                       </span>
                     )}
@@ -502,6 +526,7 @@ const OrderHistory = () => {
         onCancel={() => setIsImageModalOpen(false)}
         footer={null}
         centered
+        dots={false}
       >
         <Carousel afterChange={setCurrentImageIndex} nextArrow={nextArrow} prevArrow={prevArrow}>
           {fishImages[selectedFish?.orderFishId]?.map((imageUrl, index) => (
