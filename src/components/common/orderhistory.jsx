@@ -169,6 +169,7 @@ const OrderHistory = () => {
   // Separate orders into completed and other orders
   const completedOrders = order.filter(orderItem => orderItem.orderStatus === 'completed');
   const otherOrders = order.filter(orderItem => orderItem.orderStatus !== 'completed');
+  const cancelledOrders = order.filter(orderItem => orderItem.orderStatus === 'cancelled');
 
   const openImageOverlay = (imageUrl) => {
     // Create an image element
@@ -310,6 +311,38 @@ const OrderHistory = () => {
               </div>
             )}
           </TabPane>
+          <TabPane tab = "Cancelled Orders" key="3">
+          {cancelledOrders.length > 0 ? (
+              <div className="orders-container">
+                {cancelledOrders.map((orderItem) => (
+                  <div key={orderItem.orderId} className="order-card">
+                    <div className="order-detail">
+                      <span className="label">Order ID:</span> {orderItem.orderId}
+                    </div>
+                    <div className="order-detail">
+                      <span className="label">Date:</span> {new Date(orderItem.createdAt).toLocaleDateString()}
+                    </div>
+                    <div className="order-detail">
+                      <span className="label">Receiver Name:</span> {orderItem.receiverName}
+                    </div>
+                    <div className="order-detail">
+                      <span className="label">Total Price:</span> {orderItem.totalPrice.toLocaleString()} VNĐ
+                    </div>
+                    <div className="order-actions">
+                      <span className={`status ${orderItem.orderStatus}`}>{orderItem.orderStatus}</span>
+                      <div className="order-actions-button" style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <button className="detail-button" onClick={() => showOrderDetail(orderItem)}>View Details</button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="emptyState">
+                <p>No cancelled orders found.</p>
+              </div>
+            )}
+          </TabPane>        
         </Tabs>
       ) : (
         <div className="emptyState">
