@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Button } from 'antd';
 import { CheckCircleFilled, CloseCircleFilled } from '@ant-design/icons';
 import '../../css/paymentstatus.css';
-
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 function PaymentStatus() {
     const [vnp_ResponseCode, setVnpResponseCode] = useState(null);
     const [txnRef, setTxnRef] = useState(null);
+    const navigate = useNavigate();
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         const responseCode = params.get('vnp_ResponseCode');
@@ -16,7 +18,21 @@ function PaymentStatus() {
     }, []);
 
     const continueToHome = () => {
+      try {
+        axios.patch('http://26.61.210.173:3001/api/transaction/update-transaction', {
+          transactionId: txnRef,
+          vnp_ResponseCode: vnp_ResponseCode,
+        
+      }, {
+        headers: {
+          'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
+          'Content-Type': 'application/json',
+        }
+      });
+        
+      } finally {
         navigate('/');
+      }
     };
 
     return (
@@ -26,8 +42,7 @@ function PaymentStatus() {
                 <div className="check-icon">
                     <CheckCircleFilled  style={{ fontSize: '150px', color: '#00c853' }} />
                 </div>
-                <h2>Payment Successful!</h2>
-                
+                <h2>Payment Successful!</h2>               
                 <Button className="back-button" onClick={continueToHome}>Continue</Button>
             </div>
           ) : (

@@ -31,7 +31,8 @@ function LoginPage() {
               fullName
               phone
               address
-              role 
+              role
+              walletAmount
             }
           }
         `;
@@ -49,7 +50,7 @@ function LoginPage() {
           console.log("Full Init response:", initResponse);
 
           if (initResponse.data && initResponse.data.data && initResponse.data.data.init) {
-            const { accountId, username, email, password, phone, address, fullName, role } = initResponse.data.data.init;
+            const { accountId, username, email, password, phone, address, fullName, role, walletAmount } = initResponse.data.data.init;
             sessionStorage.setItem("accountId", accountId);
             sessionStorage.setItem("username", username);
             sessionStorage.setItem("fullName", fullName);
@@ -59,7 +60,7 @@ function LoginPage() {
             sessionStorage.setItem("password", password);
             //Roles is the array of roles
             sessionStorage.setItem("role", role);
-            
+            sessionStorage.setItem("walletAmount", walletAmount);
             console.log("Email:", email);
             console.log("Address:", address);
             console.log("Phone:", phone);
