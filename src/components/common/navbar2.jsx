@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Dropdown, Menu } from 'antd';
+import { Dropdown, Menu, message } from 'antd';
 import { HomeOutlined } from '@ant-design/icons';
 import "../../css/navbar.css"; // Ensure the path is correct
 
@@ -21,8 +21,9 @@ export default function Navbar2() {
   const handleLogout = () => {
     sessionStorage.clear();
     sessionStorage.removeItem("accessToken");
+    message.success("Logout successfully!");
     setUserInfo({});
-    navigate('/login');
+    navigate('/');
   };
 
   const handleAccountManagement = () => {

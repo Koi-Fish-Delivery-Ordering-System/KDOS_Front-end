@@ -226,7 +226,7 @@ const OrderConfirmation = () => {
         if (values.paymentMethod === "vnpay") {
           window.location.href = response.data.others?.paymentUrl;
         } else {
-          navigate('/a  ccount-management', { state: { activeComponent: 'orders' } });
+          navigate('/account-management', { state: { activeComponent: 'orders' } });
           message.success('Order placed successfully!');
         }
       } else {

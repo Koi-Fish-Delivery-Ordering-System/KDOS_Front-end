@@ -17,7 +17,7 @@
 }
 /* orderhistory.css */
 .custom-disabled-button {
-  background-color: #f0f0f0 !important; /* Change to your desired background color */
+  background-color: #f0f0f0; /* Change to your desired background color */
   color: rgba(0, 0, 0, 0.25); /* Change to your desired text color */
   cursor: not-allowed; /* Show not-allowed cursor */
   border-color: rgba(0, 0, 0, 0.1); /* Optional: Change border color */

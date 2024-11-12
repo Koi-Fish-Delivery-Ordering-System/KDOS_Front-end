@@ -122,7 +122,7 @@ function Wallet() {
         <div className="balance-container">
           <div>Balance</div>
           <div className="balance-value">
-            <h3>{sessionStorage.getItem("walletAmount").toLocaleString()} VNĐ</h3>
+            <h3>{(sessionStorage.getItem("walletAmount") ? parseFloat(sessionStorage.getItem("walletAmount")) : 0).toLocaleString()} VNĐ</h3>
             <Button className="top-up-button" onClick={() => setOpenTopUpModal(true)}>Top up</Button>
           </div>
 

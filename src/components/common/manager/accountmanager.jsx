@@ -72,7 +72,7 @@ function AccountManager() {
   };
 
   const columns = [
-    { title: 'Account ID', dataIndex: 'accountId', width: '200' },
+    { title: 'Account ID', dataIndex: 'accountId', width: '100' },
     { title: 'Username', dataIndex: 'username' },
     { title: 'Email', dataIndex: 'email' },
     { title: 'Phone', dataIndex: 'phone' },

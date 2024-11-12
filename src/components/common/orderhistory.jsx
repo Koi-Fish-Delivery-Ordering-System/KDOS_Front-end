@@ -61,6 +61,7 @@ const OrderHistory = () => {
               imageUrl
             }
           }
+          reasonToCancel
           paymentMethod
           toAddress
           receiverName
@@ -524,7 +525,7 @@ const OrderHistory = () => {
                       <span className="label">Date:</span> {new Date(orderItem.createdAt).toLocaleDateString()}
                     </div>
                     <div className="order-detail">
-                      <span className="label">Receiver Name:</span> {orderItem.receiverName}
+                      <span className="label">Reason Cancel:</span> {orderItem.reasonToCancel}
                     </div>
                     <div className="order-detail">
                       <span className="label">Total Price:</span> {orderItem.totalPrice.toLocaleString()} VNĐ

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import ProfilePage from './profilepage'; 
-import Orders from './orderhistory'; 
+import ProfilePage from './profilepage';
+import Orders from './orderhistory';
 import Wallet from './wallet';
 import '../../css/accountManagement.css';
 import Navbar2 from './navbar2';
@@ -49,7 +49,7 @@ const AccountManagement = () => {
             </li>
             <li>
               <button onClick={() => setActiveComponent('orders')} className={activeComponent === 'orders' ? 'active' : ''}>
-                Orders
+                Orders History
               </button>
             </li>
           </ul>
