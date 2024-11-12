@@ -14,6 +14,7 @@ function AccountManager() {
   const [roleModalVisible, setRoleModalVisible] = useState(false);
   const [selectedRoles, setSelectedRoles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
 
   const [form] = Form.useForm();
 
@@ -72,65 +73,56 @@ function AccountManager() {
   };
 
   const columns = [
-    { title: 'Account ID', dataIndex: 'accountId', width: '100' },
+    { title: 'Account ID', dataIndex: 'accountId', width: '19%' },
     { title: 'Username', dataIndex: 'username' },
+    { title: 'Full Name', dataIndex: 'fullName' },
     { title: 'Email', dataIndex: 'email' },
     { title: 'Phone', dataIndex: 'phone' },
-    { title: 'Address', dataIndex: 'address' },
     // {
     //   title: 'Verified',
     //   dataIndex: 'verified',
     //   render: (verified) => (verified ? 'Yes' : 'No'),
     // },
     {
-      title: 'Roles',
-      dataIndex: 'roles',
-      render: (roles) => (
-        <span>{roles && roles.length > 0 ? roles.map(role => role.name).join(', ') : 'No Roles'}</span>
-      ),
+      title: 'Role',
+      dataIndex: 'role',
       filters: [
-        { text: 'Admin', value: 'Admin' },
-        { text: 'User', value: 'User' },
+        { text: 'manager', value: 'manager' },
+        { text: 'delivery', value: 'delivery' },
+        { text: 'customer', value: 'customer' },
       ],
       onFilter: (value, record) => {
-        return record.roles && record.roles.some(role => role.name.includes(value));
+        return record.role && record.role === value;
       },
-    },
-    {
-      title: 'Actions',
-      render: (text, record) => (
-        <>
-          <Button onClick={() => openEditModal(record)}>Edit</Button>
-          {/* {record.driver && (
-            <Button onClick={() => viewDriverDetails(record.driver)} style={{ marginLeft: '8px' }}>
-              View Driver Details
-            </Button>
-          )} */}
-        </>
-      ),
-    },
+    }
   ];
+
+  const filteredData = data.filter(account =>
+    account.username.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
     <ApolloProvider client={client}>
       <ToastContainer />
       <div>
         <h1 className='section-title'>Manage Accounts</h1>
-        <button
-          onClick={openAddModal}
-          type="primary"
-          className='new-route-button'
-        >
-          Add Account
-        </button>
+
+        <Input
+          placeholder="Search by username..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ marginBottom: '20px', width: '30%' }}
+        />
+
         <Table
           columns={columns}
-          dataSource={data}
+          dataSource={filteredData}
           loading={loading || queryLoading}
           rowKey="accountId"
           pagination={{
             pageSize: 5,
             showSizeChanger: false,
+            total: filteredData.length,
           }}
         />
         <Modal

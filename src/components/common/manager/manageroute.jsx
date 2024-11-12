@@ -34,6 +34,7 @@ function ManageRoute() {
     const query = `
       query FindManyProcessingOrder {
         findManyProcessingOrder {
+        hasCompletedFirstDelivery
           orderId
           notes
           account {
@@ -267,6 +268,23 @@ function ManageRoute() {
       title: 'Transport Type',
       dataIndex: ['transportService', 'type'],
       key: 'transportType',
+      width: 130,
+      render: (type, record) => (
+        <div style={{ textAlign: 'center' }}>
+          <span
+            className={type === 'road' ? 'road-type' : type === 'air' ? 'plan-type' : ''}
+            style={{ display: 'inline-block', width: '60px', textAlign: 'center' }}
+          >
+            {type.charAt(0).toUpperCase() + type.slice(1)}
+          </span>
+          {/* Check for 'air' type and hasCompletedFirstDelivery */}
+          {type === 'air' && record.hasCompletedFirstDelivery && (
+            <div style={{ marginTop: '4px', color: 'red' }}>
+              First Delivered
+            </div>
+          )}
+        </div>
+      ),
     },
     {
       title: 'From Province',
@@ -286,7 +304,7 @@ function ManageRoute() {
           checked={selectedOrders.includes(record.orderId)}
           onChange={() => handleOrderSelect(record.orderId)}
         />
-        
+
       ),
     },
     {
@@ -412,7 +430,7 @@ function ManageRoute() {
                 <h2 className="section-title" style={{ margin: 0 }}>Orders</h2>
               </div>
               <div className="fish-orders-scroll-container">
-                <Table 
+                <Table
                   loading={{
                     indicator: (
                       <div style={{ padding: "20px 0" }}>
@@ -449,11 +467,11 @@ function ManageRoute() {
                 </div>
                 <div className="fish-orders-scroll-container">
 
-                  <Table 
+                  <Table
                     loading={{
                       indicator: (
                         <div style={{ padding: "20px 0" }}>
-                          <Spin tip="Loading..."  />
+                          <Spin tip="Loading..." />
                         </div>
                       ),
                       spinning: loading
@@ -470,7 +488,7 @@ function ManageRoute() {
                 <h2 className="section-title" style={{ margin: 0 }}>Note</h2>
               </div>
               <Form.Item name="note" >
-                <Input.TextArea style={{ height: '150px',marginTop:'15px' }} />
+                <Input.TextArea style={{ height: '150px', marginTop: '15px' }} />
               </Form.Item>
             </Form>
             <div style={{ marginTop: '20px', textAlign: 'right' }}>
@@ -485,7 +503,7 @@ function ManageRoute() {
         </Row>
 
       </Modal>
-      <Table 
+      <Table
         loading={{
           indicator: (
             <div style={{ padding: "20px 0" }}>
@@ -531,13 +549,13 @@ function ManageRoute() {
               </div>
               <div className="info-item">
                 <span className="info-label"><strong>Notes:</strong></span>
-                <span className="info-value">{selectedRoute.notes?selectedRoute.notes:'No notes available'}</span>
+                <span className="info-value">{selectedRoute.notes ? selectedRoute.notes : 'No notes available'}</span>
               </div>
               <div className="info-item">
                 <span className="info-label"><strong>Notes:</strong></span>
-                <span className="info-value">{selectedRoute.notes?selectedRoute.notes:'No notes available'}</span>
+                <span className="info-value">{selectedRoute.notes ? selectedRoute.notes : 'No notes available'}</span>
               </div>
-              
+
               <div className="info-item" >
                 <span className="info-label"><strong>Status:</strong></span>
                 <span className={`status-route ${selectedRoute.status.toLowerCase()}`}>
@@ -548,13 +566,13 @@ function ManageRoute() {
                 <span className="info-label"><strong>Number of orders:</strong></span>
                 <span className="info-value">{selectedRoute.numberOfOrders}</span>
               </div>
-              
+
 
 
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <h2 className="section-title" style={{ margin: 0 }}>Route Stops</h2>
-             
+
             </div>
             <div className="route-stops">
               {Object.entries(selectedRoute.routeStops.reduce((groups, stop) => {
@@ -566,7 +584,7 @@ function ManageRoute() {
               }, {})).map(([orderId, orderStops]) => (
                 <div key={orderId} className="order-group">
                   <h3 className="info-label">Order ID: {orderId}</h3>
-                  
+
                   <div className="stops-container">
                     {orderStops
                       .sort((a, b) => {
@@ -580,7 +598,7 @@ function ManageRoute() {
                           <span className="route-stop-marker"></span>
                           <p>{stop.address}</p>
                           <span>Stops type: {stop.stopType}</span>
-                          
+
                           <span className={`status-route ${stop.status.toLowerCase()}`}>
                             {stop.status}
                           </span>
@@ -621,7 +639,7 @@ function ManageRoute() {
               </div>
               <div className="info-item">
                 <span className="info-label">Notes:</span>
-                <span className="info-value">{selectedOrderDetail.notes??'No notes available'}</span>
+                <span className="info-value">{selectedOrderDetail.notes ?? 'No notes available'}</span>
               </div>
               <div className="info-item">
                 <span className="info-label">Status:</span>
@@ -630,13 +648,13 @@ function ManageRoute() {
                 </span>
               </div>
               <div className="price-section">
-              <div className="info-item">
-                <span className="info-label">Total Price:</span>
-                <span className="info-value price">
-                  {selectedOrderDetail.totalPrice.toLocaleString()} VND
-                </span>
+                <div className="info-item">
+                  <span className="info-label">Total Price:</span>
+                  <span className="info-value price">
+                    {selectedOrderDetail.totalPrice.toLocaleString()} VND
+                  </span>
+                </div>
               </div>
-            </div>
             </div>
 
             <div className="address-section">
@@ -679,7 +697,7 @@ function ManageRoute() {
               </div>
             </div>
 
-            
+
 
             <div className="fish-section">
               <h3>Ordered Fish</h3>
@@ -708,7 +726,7 @@ function ManageRoute() {
                       <p><strong>Qualifications:</strong></p>
                       <div className="fish-images">
                         {fish.qualifications?.map((qualification) => (
-                          <img key={qualification.imageUrl} src={qualification.imageUrl} style={{ maxWidth: '150px', maxHeight: '150px' }}  />
+                          <img key={qualification.imageUrl} src={qualification.imageUrl} style={{ maxWidth: '150px', maxHeight: '150px' }} />
                         ))}
                       </div>
                     </div>

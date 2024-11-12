@@ -425,3 +425,17 @@
   margin-right: 5px;
   color: #666;
 }
+/* styles.css */
+.road-type {
+  background-color: rgb(207, 201, 201);
+  color: black;
+  padding: 5px;
+  border-radius: 4px;
+}
+
+.plan-type {
+  background-color: lightblue;
+  color: blue;
+  padding: 5px;
+  border-radius: 4px;
+}
