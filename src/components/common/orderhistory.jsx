@@ -30,7 +30,8 @@ const OrderHistory = () => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('');
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
-  const [selectedReason, setSelectedReason] = useState('');
+  const [selectedReason, setSelectedReason] = useState(null);
+  const [disabled, setDisabled] = useState(true);
 
   const { TabPane } = Tabs;
 
@@ -791,16 +792,15 @@ const OrderHistory = () => {
       )}
 
       <Modal
-        title="Cancel Order"
+        title={<span style={{ color: '#ff7700', fontSize: '18px' }}>Cancel Order</span>}
         open={isCancelModalOpen}
         onCancel={() => setIsCancelModalOpen(false)}
         footer={null}
         centered
       >
-        <div>
-          <h3>Select Reason for Cancellation</h3>
+        <div style={{ padding: '20px', fontSize: '14px' }}>
+          <h3 style={{ marginBottom: '10px' }}>Select Reason for Cancellation</h3>
           <Select
-            placeholder="Select Reason"
             value={selectedReason}
             onChange={(value) => {
               setSelectedReason(value);
@@ -808,6 +808,7 @@ const OrderHistory = () => {
                 setCancelReason(''); // Clear custom reason if a predefined reason is selected
               }
             }}
+            placeholder="Select your reason"
             style={{ width: '100%', marginBottom: '10px' }}
           >
             <Option value="Order no longer needed">Order no longer needed</Option>
@@ -828,9 +829,30 @@ const OrderHistory = () => {
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
             <Button
-              style={{ width: '100%' }}
+              style={{
+                width: '100%',
+                marginTop: '10px',
+                backgroundColor: (selectedReason || cancelReason) ? '#ff7700' : '#d9d9d9', // Normal color if reason is selected, grey otherwise
+                color: (selectedReason || cancelReason) ? '#ffffff' : '#a6a6a6', // White text if reason is selected, grey otherwise
+                border: 'none',
+                borderRadius: '5px',
+                padding: '10px',
+                fontSize: '16px',
+                cursor: (selectedReason || cancelReason) ? 'pointer' : 'not-allowed', // Change cursor based on selection
+                transition: 'background-color 0.3s ease',
+              }}
               onClick={handleConfirmCancel}
               disabled={!selectedReason && !cancelReason} // Disable if no reason is selected or entered
+              onMouseEnter={(e) => {
+                if (selectedReason || cancelReason) { // Change hover effect based on selection
+                  e.currentTarget.style.backgroundColor = '#e66a00'; // Darker shade on hover
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (selectedReason || cancelReason) { // Change hover effect based on selection
+                  e.currentTarget.style.backgroundColor = '#ff7700'; // Original color
+                }
+              }}
             >
               Confirm
             </Button>
