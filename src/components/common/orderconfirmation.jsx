@@ -127,6 +127,23 @@ const OrderConfirmation = () => {
       qualifications: compressedFileList
     }));
   };
+
+  const handleUseWallet = () => {
+    return new Promise((resolve) => {
+      Modal.confirm({
+        title: 'Insufficient Balance',
+        content: 'Are you sure to submit? Your order will not be processed until you complete the payment.',
+        onOk() {
+          // User clicked OK, resolve with true
+          resolve(true);
+        },
+        onCancel() {
+          // User clicked cancel, resolve with false
+          resolve(false);
+        },
+      });
+    });
+  };
   const handleSubmit = async (values) => {
     try {
       // Map fishOrders to the format required by the API
@@ -180,6 +197,18 @@ const OrderConfirmation = () => {
       console.log(orderData);
       const accessToken = sessionStorage.getItem("accessToken");
       console.log(accessToken);
+      if (values.paymentMethod === "wallet") {
+        if (balance < calculatedFinalPrice) {
+          // Show confirmation modal
+          const result = await handleUseWallet();
+          console.log(result);
+          if (!result) {
+            return;
+          }
+        }
+      }
+
+      //Continue here if click OK at the warning modal
       // Send the data to the API with the token in the headers
       const response = await axios.post(
         'http://26.61.210.173:3001/api/orders/create-order',
@@ -192,11 +221,12 @@ const OrderConfirmation = () => {
         }
       );
 
+
       if (response.status === 200 || response.status === 201) {
         if (values.paymentMethod === "vnpay") {
           window.location.href = response.data.others?.paymentUrl;
         } else {
-          navigate('/account-management', { state: { activeComponent: 'orders' } });
+          navigate('/a  ccount-management', { state: { activeComponent: 'orders' } });
           message.success('Order placed successfully!');
         }
       } else {
@@ -566,6 +596,7 @@ const OrderConfirmation = () => {
       );
     }
   };
+  const balance = sessionStorage.getItem("walletAmount");
 
   return (
     <LoadScriptNext
@@ -875,6 +906,8 @@ const OrderConfirmation = () => {
 
                   <Option value="vnpay">VN Pay</Option>
                   <Option value="cash">Cash</Option>
+                  <Option value="wallet">Account Wallet</Option>
+
                 </Select>
               </Form.Item>
               <div className="distance-display">

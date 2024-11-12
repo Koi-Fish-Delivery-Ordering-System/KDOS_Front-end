@@ -240,19 +240,65 @@ const OrderHistory = () => {
     </div>
   );
 
-  const handleContinuePayment = async () => {
-    const accessToken = sessionStorage.getItem("accessToken");
-    setIsPaymentModalOpen(true);
-    setSelectedOrder(selectedOrder);
-    setSelectedPaymentMethod(selectedPaymentMethod);
+  const handleContinuePayment = (orderItem, paymentMethod) => {
+    setSelectedOrder(orderItem);
+    setSelectedPaymentMethod(paymentMethod);
+    setIsPaymentModalOpen(true); // Open the payment modal
+  };
+
+  const handleChangePaymentMethod = async () => {
+    if (!selectedOrder || !selectedOrder.orderId || !selectedPaymentMethod) {
+      console.error("No valid order or payment method selected");
+      return;
+    }
+
     try {
-      // First API Call: Process Payment
+      const accessToken = sessionStorage.getItem("accessToken");
+
+      const response = await axios.patch(
+        'http://26.61.210.173:3001/api/orders/change-payment-method',
+        {
+          orderId: selectedOrder.orderId,
+          paymentMethod: selectedPaymentMethod
+        },
+        {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      if (response.status === 200) {
+        console.log("Payment method updated successfully");
+      } else {
+        console.error("Failed to update payment method");
+      }
+    } catch (error) {
+      console.error("Error updating payment method:", error);
+    }
+  };
+
+  const handleConfirmPayment = async () => {
+    if (!selectedOrder || !selectedOrder.orderId) {
+      message.error('No valid order selected. Please try again.');
+      return;
+    }
+
+    try {
+      const accessToken = sessionStorage.getItem("accessToken");
+
+      // Process payment based on the selected payment method
       if (selectedPaymentMethod === 'vnpay') {
+        console.log('Order ID:', selectedOrder.orderId);
+        console.log('Payment Method:', selectedPaymentMethod);
+        console.log('Total Price:', selectedOrder.totalPrice);
+
         const paymentResponse = await axios.post(
-          'http://26.61.210.173:3001/api/orders/create-transaction', // Adjust this endpoint as needed
+          'http://26.61.210.173:3001/api/transaction/create-transaction',
           {
             orderId: selectedOrder.orderId,
-            type: selectedPaymentMethod,
+            type: "pay",
             amount: selectedOrder.totalPrice
           },
           {
@@ -262,14 +308,18 @@ const OrderHistory = () => {
             },
           }
         );
+        console.log(selectedOrder.orderId);
+        console.log(selectedPaymentMethod);
+        console.log(selectedOrder.totalPrice);
 
         if (paymentResponse.status === 200 || paymentResponse.status === 201) {
-          window.location.href = paymentResponse.data.others?.paymentUrl; // Redirect to VNPAY payment URL
+          window.location.href = paymentResponse.data.others?.paymentUrl;
         } else {
           message.error('Failed to initiate VNPAY payment. Please try again.');
         }
       } else if (selectedPaymentMethod === 'Account Wallet') {
-        // Handle wallet payment logic here
+        // Wallet payment logic
+        const walletAmount = sessionStorage.getItem("walletAmount");
         if (walletAmount >= selectedOrder.totalPrice) {
           message.success('Payment successful via Account Wallet!');
         } else {
@@ -282,35 +332,9 @@ const OrderHistory = () => {
       console.error('Error during payment process:', error);
       message.error('An error occurred during the payment process. Please try again.');
     } finally {
-      // Change Payment Method
-      try {
-        const changePaymentResponse = await axios.patch(
-          'http://26.61.210.173:3001/api/orders/change-payment-method',
-          {
-            orderId: selectedOrder.orderId,
-            paymentMethod: selectedPaymentMethod
-          },
-          {
-            headers: {
-              'Authorization': `Bearer ${accessToken}`,
-              'Content-Type': 'application/json',
-            },
-          }
-        );
-
-        if (changePaymentResponse.status === 200) {
-          message.success('Payment method changed successfully!');
-        } else {
-          message.error('Failed to change payment method. Please try again.');
-        }
-      } catch (error) {
-        console.error('Error changing payment method:', error);
-        message.error('An error occurred while changing the payment method. Please try again.');
-      } finally {
-        // Reset any necessary state or perform cleanup
-        setIsPaymentModalOpen(false); // Close the payment modal
-        setSelectedPaymentMethod(''); // Reset selected payment method
-      }
+      setIsPaymentModalOpen(false); // Close the modal after processing
+      setSelectedPaymentMethod(''); // Reset the payment method
+      await handleChangePaymentMethod(); // Update payment method after payment processing
     }
   };
 
@@ -722,15 +746,25 @@ const OrderHistory = () => {
           title="Payment Details"
           open={isPaymentModalOpen}
           onCancel={() => setIsPaymentModalOpen(false)}
-          footer={null}
+          footer={[
+            <Button
+              key="confirm"
+              type="primary"
+              onClick={handleConfirmPayment}
+              disabled={selectedPaymentMethod === 'Account Wallet' && walletAmount < selectedOrder.totalPrice}
+              className={`  ${selectedPaymentMethod === 'Account Wallet' && walletAmount < selectedOrder.totalPrice ? 'custom-disabled-button' : 'confirm-button'}`}
+              style={{ width: '100%', height: '50px' }}
+            >
+              Confirm
+            </Button>,
+          ]}
           centered
         >
           <div>
             <h3>Order Total Price: {selectedOrder ? selectedOrder.totalPrice.toLocaleString() : 'N/A'} VNĐ</h3>
             <h3>Current Payment Method: {selectedPaymentMethod.toUpperCase()}</h3>
-            <label>Select Payment Method:</label>
             <Select
-              value={selectedPaymentMethod}
+              placeholder="Select Payment Method"
               onChange={setSelectedPaymentMethod}
               style={{ width: '100%', marginTop: '10px' }}
             >
@@ -748,23 +782,11 @@ const OrderHistory = () => {
 
             {/* Error message for insufficient balance */}
             {selectedPaymentMethod === 'Account Wallet' && walletAmount < selectedOrder.totalPrice && (
-              <div style={{ color: 'red', margin: '5px 0' }}>
-                Not enough Balance
-              </div>
+              <div style={{ color: 'red', margin: '5px 0' }}>Not enough Balance</div>
             )}
-
-            <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
-              <Button
-                className={`detail-button ${selectedPaymentMethod === 'Account Wallet' && walletAmount < selectedOrder.totalPrice ? 'disabled-button' : ''}`}
-                style={{ width: '100%' }}
-                onClick={handleContinuePayment}
-                disabled={selectedPaymentMethod === 'Account Wallet' && walletAmount < selectedOrder.totalPrice} // Disable if balance is insufficient
-              >
-                Confirm
-              </Button>
-            </div>
           </div>
         </Modal>
+
       )}
 
       <Modal

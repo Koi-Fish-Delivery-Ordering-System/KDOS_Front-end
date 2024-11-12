@@ -16,15 +16,14 @@
   display: none; /* Hide the eye icon by default */
 }
 /* orderhistory.css */
-.disabled-button {
-  pointer-events: none; /* Prevent any mouse events */
-  opacity: 0.5; /* Optional: make it look disabled */
+.custom-disabled-button {
+  background-color: #f0f0f0 !important; /* Change to your desired background color */
+  color: rgba(0, 0, 0, 0.25); /* Change to your desired text color */
+  cursor: not-allowed; /* Show not-allowed cursor */
+  border-color: rgba(0, 0, 0, 0.1); /* Optional: Change border color */
 }
 
-.disabled-button:hover {
-  background-color: inherit; /* Prevent hover background change */
-  color: inherit; /* Prevent hover text color change */
-}
+
 .title {
   color: #ff7700 !important;
   text-align: center;
@@ -147,6 +146,23 @@
   color: #721c24;
 }
 
+.confirm-button{
+  display: inline-block;
+  padding: 0.6rem 1.2rem;
+  background-color: #ff7700 !important;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  text-decoration: none;
+  margin-top: 1rem;
+}
+.confirm-button:hover{
+  background-color: orangered !important;
+}
 .detail-button {
   display: inline-block;
   padding: 0.6rem 1.2rem;
