@@ -1,0 +1,77 @@
+.balance-container {
+  border: 1px solid rgb(128, 128, 128, 0.3);
+  border-radius: 10px;
+  padding: 30px;
+}
+.balance-value {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+}
+.top-up-button {
+  padding: 15px;
+  background-color: #ff7700;
+  color: #f7f7f7;
+  font-weight: bold;
+}
+.top-up-button:hover {
+  
+  background-color: orangered !important;
+  color: #f7f7f7 !important;
+  border-color: orangered !important;
+}
+.status-transaction {
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+.status-transaction.success {
+  text-align: center;
+  background-color: #d4edda;
+  color: #155724;
+}
+.status-transaction.failed {
+  text-align: center;
+  background-color: #ffcdcd;
+  color: #790808;
+}
+.type-transaction{
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+.type-transaction.topup {
+  background-color: #BCBEC0;
+  color: black;
+}
+.type-transaction.pay {
+  background-color: #fff7e6;
+  color: #d46b08;
+}
+/* use wallet refund */
+.type-transaction.usewallet {
+  background-color: #f0f5ff;
+  color: #096dd9;
+}
+.type-transaction.refund {
+  background-color: #f6ffed;
+  color: #389e0d;
+}
+.continue-vnpay-button{
+  margin-top: 20px;
+    background-color: #ff7700;
+    color: white;
+    width: 100%;
+}
+.continue-vnpay-button:hover{
+  background-color: orangered !important;
+  color: white !important;
+  border-color: orangered !important;
+}
