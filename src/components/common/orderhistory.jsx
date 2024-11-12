@@ -362,7 +362,7 @@ const OrderHistory = () => {
 
       if (response.status === 200) {
         message.success('Order canceled successfully!');
-        // Optionally, refresh the order list or update the state
+        await fetchOrder(); // Refetch the orders after cancellation
       }
     } catch (error) {
       console.error('Error canceling order:', error);
@@ -404,7 +404,7 @@ const OrderHistory = () => {
                       <span className="label">Total Price:</span> {orderItem.totalPrice.toLocaleString()} VNĐ
                     </div>
                     <div className="order-detail">
-                      <span className="label">Payment Method:</span> {orderItem.paymentMethod}
+                      <span className="label">Payment Method:</span> {orderItem.paymentMethod.toUpperCase()}
                     </div>
                     <div className="order-actions">
                       <span className={`status ${orderItem.orderStatus}`}>{orderItem.orderStatus}</span>
@@ -451,7 +451,7 @@ const OrderHistory = () => {
                       <span className="label">Total Price:</span> {orderItem.totalPrice.toLocaleString()} VNĐ
                     </div>
                     <div className="order-detail">
-                      <span className="label">Payment Method:</span> {orderItem.paymentMethod}
+                      <span className="label">Payment Method:</span> {orderItem.paymentMethod.toUpperCase()}
                     </div>
                     <div className="order-actions">
                       <span className={`status ${orderItem.orderStatus}`}>{orderItem.orderStatus}</span>
@@ -492,7 +492,7 @@ const OrderHistory = () => {
                       <span className="label">Total Price:</span> {orderItem.totalPrice.toLocaleString()} VNĐ
                     </div>
                     <div className="order-detail">
-                      <span className="label">Payment Method:</span> {orderItem.paymentMethod}
+                      <span className="label">Payment Method:</span> {orderItem.paymentMethod.toUpperCase()}
                     </div>
                     <div className="order-actions">
                       <span className={`status ${orderItem.orderStatus}`}>{orderItem.orderStatus}</span>
@@ -532,7 +532,7 @@ const OrderHistory = () => {
                       <span className="label">Total Price:</span> {orderItem.totalPrice.toLocaleString()} VNĐ
                     </div>
                     <div className="order-detail">
-                      <span className="label">Payment Method:</span> {orderItem.paymentMethod}
+                      <span className="label">Payment Method:</span> {orderItem.paymentMethod.toUpperCase()}
                     </div>
                     <div className="order-actions">
                       <span className={`status ${orderItem.orderStatus}`}>{orderItem.orderStatus}</span>
