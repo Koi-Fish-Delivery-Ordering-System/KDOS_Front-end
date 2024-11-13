@@ -33,6 +33,14 @@ function PlaceOrderPage() {
 
     const handleContinue = (values) => {
         const formData = form.getFieldsValue();
+
+
+        // Check if pick-up and drop-off locations are the same
+        if (formData.pickUpLocation === formData.dropOffLocation) {
+            message.error("The distance is too short, choose again."); // Display error message
+            return; // Prevent navigation
+        }
+
         console.log(formData.servicePricing);
         console.log(vehicleType);
         navigate('/order-confirmation', {

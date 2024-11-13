@@ -144,8 +144,25 @@ const OrderConfirmation = () => {
       });
     });
   };
+  const accessToken = sessionStorage.getItem("accessToken");
   const handleSubmit = async (values) => {
+    // Validate receiver phone number
+    const receiverPhone = values.receiverPhone;
+
+    // Check if the phone number starts with 0 and has 10 digits
+    if (!/^0\d{9}$/.test(receiverPhone)) {
+      message.error("Receiver phone number must start with 0 and have 10 digits."); // Display error message
+      return; // Prevent submission
+    }
+
+    // Check if fishOrders is null or empty
+    if (!fishOrders || fishOrders.length === 0) {
+      message.error("You have to add fish for your delivery."); // Display error message
+      return; // Prevent submission
+    }
+
     try {
+      // Proceed with the rest of the submission logic
       // Map fishOrders to the format required by the API
       const fishes = fishOrders.map(order => ({
         name: order.name,
@@ -161,42 +178,24 @@ const OrderConfirmation = () => {
 
       // Prepare the order data
       const orderData = {
-
         notes: values.notes,
         totalPrice: calculatedFinalPrice,
-        fishes: fishOrders.map(order => ({
-          name: order.name,
-          gender: order.gender,
-          species: order.species,
-          ageInMonth: order.age,
-          weight: order.weight,
-          length: order.length,
-          description: order.descriptions,
-          qualifications: order.qualifications.map(q => q.url),
-          fishImageUrl: order.fishImage?.url
-        })),
+        fishes: fishes,
         transportServiceId: vehicleType,
         fromAddress: pickUpLocationName,
         toAddress: dropOffLocationName,
         fromProvince: fromProvince,
         toProvince: toProvince,
         receiverName: values.receiverName,
-        receiverPhone: values.receiverPhone,
+        receiverPhone: receiverPhone, // Use validated phone number
         paymentMethod: values.paymentMethod,
         additionalServiceIds: selectedAdditionalServices,
         servicePricingType: servicePricingType
-
-
       };
 
       // Convert orderData to FormData if you need to send files
       const formData = new FormData();
       formData.append('data', JSON.stringify(orderData));
-      // console.log('FormData:', formData.get('data'));
-
-      console.log(orderData);
-      const accessToken = sessionStorage.getItem("accessToken");
-      console.log(accessToken);
       if (values.paymentMethod === "wallet") {
         if (balance < calculatedFinalPrice) {
           // Show confirmation modal
@@ -207,9 +206,7 @@ const OrderConfirmation = () => {
           }
         }
       }
-
-      //Continue here if click OK at the warning modal
-      // Send the data to the API with the token in the headers
+      // Send the data to the API
       const response = await axios.post(
         'http://26.61.210.173:3001/api/orders/create-order',
         formData,
@@ -220,7 +217,6 @@ const OrderConfirmation = () => {
           },
         }
       );
-
 
       if (response.status === 200 || response.status === 201) {
         if (values.paymentMethod === "vnpay") {
@@ -330,15 +326,26 @@ const OrderConfirmation = () => {
 
   const handleModalOk = async () => {
     try {
-      // Kiểm tra các trường bắt buộc
+      // Check if all required fields are filled
       if (!newFish.name || !newFish.gender || !newFish.species ||
-        !newFish.age || !newFish.weight || !newFish.length
-      ) {
+        !newFish.age || !newFish.weight || !newFish.length) {
         message.error('Please fill in all required fields');
         return;
       }
 
-      // Validate số liệu
+      // Validate fish image
+      if (!newFish.fishImage) {
+        message.error('Fish image is required.'); // Display error message
+        return; // Prevent submission
+      }
+
+      // Validate qualifications
+      if (!newFish.qualifications || newFish.qualifications.length === 0) {
+        message.error('Qualifications image is required.'); // Display error message
+        return; // Prevent submission
+      }
+
+      // Validate age, weight, and length
       if (newFish.age <= 0 || newFish.weight <= 0 || newFish.length <= 0) {
         message.error('Age, weight, and length must be greater than 0');
         return;
@@ -359,15 +366,24 @@ const OrderConfirmation = () => {
         setFishOrders([...fishOrders, fishData]);
       }
 
-      // Reset form và đóng modal
-      setNewFish({ name: '', gender: '', species: '', age: 0, weight: 0, length: 0, descriptions: '', qualifications: null, fishImage: null });
+      // Reset form and close modal
+      setNewFish({
+        name: '',
+        gender: '',
+        species: '',
+        age: 0,
+        weight: 0,
+        length: 0,
+        descriptions: '',
+        qualifications: [],
+        fishImage: null // Initialize fishImage
+      });
       setEditingIndex(null);
       setModalVisible(false);
       message.success(editingIndex !== null ? 'Fish updated successfully!' : 'Fish added successfully!');
     } catch (error) {
       console.error('Error:', error);
       message.error('Failed to save fish information');
-
     }
   };
 
@@ -551,16 +567,18 @@ const OrderConfirmation = () => {
     }
   }, [isScriptLoaded, mapLoaded, location.state, fitBounds]);
 
+  const [loadingFishImage, setLoadingFishImage] = useState(false); // Separate loading state for fish image
+
   const handleFishImageUpload = async (info) => {
     const { file } = info;
-    setLoading(true);
+    setLoadingFishImage(true); // Set loading for fish image
 
     if (file.status === 'removed') {
       setNewFish(prev => ({
         ...prev,
         fishImage: null
       }));
-      setLoading(false);
+      setLoadingFishImage(false); // Reset loading state
       return;
     }
 
@@ -577,7 +595,7 @@ const OrderConfirmation = () => {
         },
         (error) => {
           console.error(`Error uploading ${selectedImage.name}:`, error);
-          setLoading(false);
+          setLoadingFishImage(false); // Reset loading state on error
         },
         async () => {
           const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
@@ -591,7 +609,7 @@ const OrderConfirmation = () => {
               url: downloadURL
             }
           }));
-          setLoading(false);
+          setLoadingFishImage(false); // Reset loading state on success
         }
       );
     }
@@ -867,7 +885,7 @@ const OrderConfirmation = () => {
                     label="Fish Image"
                     name="fishImage"
                   >
-                    <Spin spinning={loading}>
+                    <Spin spinning={loadingFishImage}>
                       <Upload
                         listType="picture-card"
                         fileList={newFish.fishImage ? [newFish.fishImage] : []}
