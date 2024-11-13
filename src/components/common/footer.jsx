@@ -25,7 +25,7 @@ export default function Footer() {
 
       <div className="footer-column">
         <h3>Contact Us</h3>
-        <p>Email:aduconcachienxu@gmail.com</p>
+        <p>Email:koidelivertfpt@gmail.com</p>
         <p>Phone: (+84) 456-7890</p>
         <p>Address: 10.87.27.2:3000</p>
       </div>

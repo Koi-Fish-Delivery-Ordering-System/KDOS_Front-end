@@ -126,12 +126,12 @@ function Analytics() {
   };
 
   const handleConfirmCancel = async () => {
-    const reasonToCancel = selectedReason === 'Others' ? cancelReason : selectedReason;
+   
 
     try {
       const response = await axios.patch('http://26.61.210.173:3001/api/orders/cancel-order', {
         orderId: selectedOrder.orderId,
-        reasonToCancel: reasonToCancel,
+        reasonToCancel: cancelReason,
       }, {
         headers: {
           'Authorization': `Bearer ${accessToken}`
@@ -292,13 +292,13 @@ function Analytics() {
                 {selectedFish.qualifications.map((qualification, index) => (
                   <div key={index}>
                     <FontAwesomeIcon icon={faEye} />
-                    <img src={qualification.imageUrl} alt={`Qualification ${index + 1}`} />
+                    <img src={qualification.imageUrl} alt={`Qualification ${index + 1}`} style={{ maxWidth: '150px', maxHeight: '150px' }}  />
                   </div>
                 ))}
               </div>
               <p><strong>Image:</strong></p>
               <div className="fish-image">
-                <img src={selectedFish.fishImageUrl} alt="Fish" />
+                <img src={selectedFish.fishImageUrl} alt="Fish" style={{ maxWidth: '150px', maxHeight: '150px' }} />
               </div>
             </div>
           </div>
@@ -319,11 +319,11 @@ function Analytics() {
         {selectedOrder && (
           <div className="modal-content">
             <div className="cancel-order">
-              <h3>Cancel Order</h3>
+              
               <p><strong>Order ID:</strong> {selectedOrder.orderId}</p>
-              <p><strong>Receiver Name:</strong> {selectedOrder.receiverName}</p>
+              
               <p><strong>Reason:</strong></p>
-              <Select
+              {/* <Select
                 value={selectedReason || cancelReason}
                 onChange={(value) => setSelectedReason(value)}
                 style={{ width: '100%' }}
@@ -333,8 +333,8 @@ function Analytics() {
                 <Select.Option value="Driver Request">Driver Request</Select.Option>
                 <Select.Option value="Payment Issue">Payment Issue</Select.Option>
                 <Select.Option value="Other">Other</Select.Option>
-              </Select>
-              <Input
+              </Select> */}
+              <Input.TextArea
                 value={cancelReason}
                 onChange={(e) => setCancelReason(e.target.value)}
                 placeholder="Enter your reason"
@@ -345,6 +345,7 @@ function Analytics() {
                   type="primary"
                   onClick={handleConfirmCancel}
                   disabled={!selectedReason && !cancelReason}
+                  style={{ marginTop: '20px' }}
                 >
                   Confirm
                 </Button>

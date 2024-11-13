@@ -168,9 +168,9 @@ function TransportService() {
     { title: 'Service ID', dataIndex: 'transportServiceId' },
     { title: 'Name', dataIndex: 'name' },
     { title: 'Type', dataIndex: 'type' },
-    { title: 'Price per KM', dataIndex: 'pricePerKm' },
-    { title: 'Price per KG', dataIndex: 'pricePerKg' },
-    { title: 'Price per Amount', dataIndex: 'pricePerAmount' },
+    { title: 'Price per KM', dataIndex: 'pricePerKm', render: (pricePerKm) => ` ${pricePerKm.toLocaleString()} VND` },
+    { title: 'Price per KG', dataIndex: 'pricePerKg', render: (pricePerKg) => ` ${pricePerKg.toLocaleString()} VND`, width: '10%' },
+    { title: 'Price per Amount', dataIndex: 'pricePerAmount', render: (pricePerAmount) => ` ${pricePerAmount.toLocaleString()} VND` },
     { title: 'Description', dataIndex: 'description' },
     {
       title: 'Status',

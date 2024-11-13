@@ -117,15 +117,15 @@ const ProfilePage = () => {
               )}
               {editingField === 'email' ? (
                 <>
-                  <Button type="primary" onClick={() => handleSave('email')} style={{ fontSize: '18px' }}>
+                  <Button type="primary" onClick={() => handleSave('email')} style={{ fontSize: '18px', backgroundColor: '#ff4500' }}>
                     Save
                   </Button>
-                  <Button type="link" onClick={handleCancelEdit} style={{ fontSize: '18px' }}>
+                  <Button type="link" onClick={handleCancelEdit} style={{ fontSize: '18px', color: '#ff4500' }}>
                     Cancel
                   </Button>
                 </>
               ) : (
-                <Button type="link" onClick={() => handleEditClick('email')} style={{ fontSize: '18px' }}>
+                <Button type="link" onClick={() => handleEditClick('email')} style={{ fontSize: '18px', color: '#ff4500' }}>
                   Change
                 </Button>
               )}
@@ -143,22 +143,22 @@ const ProfilePage = () => {
               )}
               {editingField === 'phone' ? (
                 <>
-                  <Button type="primary" onClick={() => handleSave('phone')} style={{ fontSize: '18px' }}>
+                  <Button type="primary" onClick={() => handleSave('phone')} style={{ fontSize: '18px', backgroundColor: '#ff4500' }}>
                     Save
                   </Button>
-                  <Button type="link" onClick={handleCancelEdit} style={{ fontSize: '18px' }}>
+                  <Button type="link" onClick={handleCancelEdit} style={{ fontSize: '18px', color: '#ff4500' }}>
                     Cancel
                   </Button>
                 </>
               ) : (
-                <Button type="link" onClick={() => handleEditClick('phone')} style={{ fontSize: '18px' }}>
+                <Button type="link" onClick={() => handleEditClick('phone')} style={{ fontSize: '18px', color: '#ff4500' }}>
                   Change
                 </Button>
               )}
             </div>
             <div className="profile-item" style={{ fontSize: '18px' }}>
               <div className="profile-label">Password</div>
-              <Button type="link" onClick={handleChangePassword} style={{ fontSize: '18px' }}>
+              <Button type="link" onClick={handleChangePassword} style={{ fontSize: '18px', color: '#ff4500' }}>
                 Change Password
               </Button>
             </div>

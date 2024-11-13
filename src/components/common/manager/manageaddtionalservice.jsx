@@ -156,7 +156,7 @@ function ManageAdditionalService() {
     { title: 'Service ID', dataIndex: 'additionalServiceId' },
     { title: 'Name', dataIndex: 'name' },
     { title: 'Type', dataIndex: 'forTransportType' },
-    { title: 'Price', dataIndex: 'price' },
+    { title: 'Price', dataIndex: 'price', render: (price) => ` ${price.toLocaleString()} VND`, width: '10%' },
     { title: 'Description', dataIndex: 'description' },
     {
       title: 'Status',

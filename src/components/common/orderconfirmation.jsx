@@ -821,7 +821,7 @@ const OrderConfirmation = () => {
                       <Form.Item
                         name="weight"
                         rules={[{ required: true, message: 'Please enter fish weight(kg)' }]}
-                        label="Fish Weight"
+                        label="Fish Weight (kg)"
                       >
                         <Input
                           name="weight"
@@ -836,7 +836,7 @@ const OrderConfirmation = () => {
                       <Form.Item
                         name="length"
                         rules={[{ required: true, message: 'Please enter fish length(cm)' }]}
-                        label="Fish Length"
+                        label="Fish Length (cm) "
                       >
                         <Input
                           name="length"

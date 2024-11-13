@@ -11,7 +11,7 @@
 .fish-images div:hover .eye-icon {
   display: block; /* Show the eye icon on hover */
 }
-
+  
 .eye-icon {
   display: none; /* Hide the eye icon by default */
 }

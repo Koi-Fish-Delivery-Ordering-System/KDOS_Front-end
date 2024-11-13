@@ -16,7 +16,7 @@ export default function Homepage() {
   const imageList = [
     "src/images/homepage1.png",
     "src/images/homepage2.png",
-    "src/images/homepage3.png"
+    "src/images/header.png"
   ];
   const fishImageList = [
     "src/images/fish1.png",
