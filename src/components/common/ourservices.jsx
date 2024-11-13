@@ -68,7 +68,6 @@ const OurServices = () => {
                 {service.type === "air" && (
                   <img src='src/images/plane.png' alt="Air" className="service-image" />
                 )}
-                <p><strong>Type:</strong> {service.type === 'road' ? 'Road' : service.type === 'air' ? 'Air' : service.type}</p>
                 <p><strong>Description:</strong> {service.description}</p>
                 <p><strong>Price per Amount:</strong> {formatCurrency(service.pricePerAmount)}</p>
                 <p><strong>Price per Kg:</strong> {formatCurrency(service.pricePerKg)}</p>
