@@ -6,20 +6,23 @@ import axios from 'axios';
 import 'react-toastify/dist/ReactToastify.css';
 
 const GET_ADDITIONAL_SERVICE = gql`
-  query FindAllAdditionalService($data: FindAllTransportServiceInputData!) {
-    findAllAdditionalService(data: $data) {
-      price
-      name
-      isActive
-      forTransportType
-      description
-      additionalServiceId
-    }
+  query FindAllAdditionalService {
+  findAllAdditionalService {
+    additionalServiceId
+    description
+    isActive
+    name
+    price
+    forTransportType
   }
+}
 `;
 
 const client = new ApolloClient({
   uri: 'http://26.61.210.173:3001/graphql',
+  headers: {
+    Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
+  },
   cache: new InMemoryCache(),
   defaultOptions: {
     watchQuery: { fetchPolicy: 'network-only', errorPolicy: 'all' },

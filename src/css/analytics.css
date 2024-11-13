@@ -7,6 +7,52 @@
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
   } */
   
+  .analytics-container {
+    padding: 20px;
+    background-color: #f9f9f9;
+  }
+  
+  .section-title {
+    color: #ff7700;
+    font-size: 2.5rem;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .statistic-card {
+    background-color: #fff7e6;
+    border: 1px solid #ff7700;
+    border-radius: 8px;
+  }
+  
+  .chart-container {
+    margin: 40px 0;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .orders-title {
+    font-size: 1.8rem;
+    text-align: center;
+    color: #333;
+    margin-top: 30px;
+  }
+  
+  .orders-table {
+    margin-top: 20px;
+    background-color: #fff;
+  }
+  
+  .ant-table-thead > tr > th {
+    background-color: #ff7700;
+    color: #fff;
+  }
+  
+  .ant-table-tbody > tr > td {
+    color: #555;
+  }
   
   
   .analytics-cards {

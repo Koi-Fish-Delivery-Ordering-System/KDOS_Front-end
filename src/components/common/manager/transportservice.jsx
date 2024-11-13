@@ -6,18 +6,20 @@ import axios from 'axios';
 import 'react-toastify/dist/ReactToastify.css';
 
 const GET_TRANSPORT_SERVICE = gql`
-  query FindAllTransportService($data: FindAllTransportServiceInputData!) {
-    findAllTransportService(data: $data) {
-      transportServiceId
-      name
-      type
-      pricePerKm
-      pricePerKg
-      pricePerAmount
-      description
-      isActive
-    }
+  query FindAllTransportService {
+  findAllTransportService {
+    createdAt
+    description
+    isActive
+    name
+    pricePerAmount
+    pricePerKg
+    pricePerKm
+    transportServiceId
+    type
+    updatedAt
   }
+}
 `;
 
 const client = new ApolloClient({
@@ -79,11 +81,6 @@ function TransportService() {
           pricePerKm: values.pricePerKm,
           pricePerKg: values.pricePerKg,
           pricePerAmount: values.pricePerAmount
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`
-          }
         }
       );
 
