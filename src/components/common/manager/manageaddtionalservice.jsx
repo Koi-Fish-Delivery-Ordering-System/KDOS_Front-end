@@ -21,9 +21,6 @@ const GET_ADDITIONAL_SERVICE = gql`
 const client = new ApolloClient({
   uri: 'http://26.61.210.173:3001/graphql',
   cache: new InMemoryCache(),
-  headers: {
-    Authorization: `Bearer ${sessionStorage.getItem("accessToken")}`,
-  },
   defaultOptions: {
     watchQuery: { fetchPolicy: 'network-only', errorPolicy: 'all' },
     query: { fetchPolicy: 'network-only', errorPolicy: 'all' },

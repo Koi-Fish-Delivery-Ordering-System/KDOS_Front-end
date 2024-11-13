@@ -68,6 +68,12 @@ export default function Navbar2() {
                 News
               </Link>
             </li>
+            <li className="nav-item">
+              <Link to="/ourservices">
+                Our Services
+              </Link>
+            </li>
+
           </ul>
         </div>
         <div className="nav-right">

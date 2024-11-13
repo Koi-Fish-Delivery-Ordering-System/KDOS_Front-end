@@ -22,6 +22,7 @@ import PaymentStatus from './components/common/paymentstatus';
 import RegisterDriverPage from './components/common/registerdriver';
 import Unauthorized from './components/common/unauthorized';
 import OrderHistory from './components/common/orderhistory';
+import OurServices from './components/common/ourservices';
 
 const ProtectedRoute = ({ element, roles }) => {
   const isAuthenticated = sessionStorage.getItem('accessToken');
@@ -74,6 +75,10 @@ export const router = createBrowserRouter([
   {
     path: "register",
     element: <RegisterPage />,
+  },
+  {
+    path: "ourservices",
+    element: <OurServices />,
   },
   {
     path: "profile",

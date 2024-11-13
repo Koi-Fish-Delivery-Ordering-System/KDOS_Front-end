@@ -1,0 +1,74 @@
+/* Overall Page Styling */
+.our-services {
+  padding: 40px 20px;
+  background-color: #f9f9f9;
+  text-align: center;
+}
+
+.our-services h1 {
+  color: #ff7700;
+  font-size: 2.5em;
+  margin-bottom: 30px;
+  font-weight: bold;
+}
+
+/* Card Styling */
+.service-card {
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease;
+  background-color: #fff;
+}
+
+.service-card:hover {
+  transform: translateY(-5px);
+}
+
+.service-card .ant-card-head {
+  background-color: #ff7700;
+  color: #fff;
+  border-radius: 10px 10px 0 0;
+  font-weight: bold;
+}
+
+.service-card p {
+  font-size: 1rem;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.service-card strong {
+  color: #ff7700;
+}
+
+/* Image Styling */
+.service-image {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+/* Spinner and Alert Styling */
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.error-alert {
+  width: 100%;
+  text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .service-card .ant-card-head {
+    font-size: 1rem;
+  }
+  .our-services h1 {
+    font-size: 2em;
+  }
+}
