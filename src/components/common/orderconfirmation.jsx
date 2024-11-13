@@ -616,6 +616,12 @@ const OrderConfirmation = () => {
   };
   const balance = sessionStorage.getItem("walletAmount");
 
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(null);
+
+  const handlePaymentMethodChange = (value) => {
+    setSelectedPaymentMethod(value);
+  };
+
   return (
     <LoadScriptNext
       googleMapsApiKey="AIzaSyDJO2B-_FLwk1R1pje5gKEAB9h2qUDb-FU"
@@ -920,14 +926,20 @@ const OrderConfirmation = () => {
                 name="paymentMethod"
                 rules={[{ required: true, message: 'Please select a payment method' }]}
               >
-                <Select placeholder="Choose a payment method">
-
+                <Select placeholder="Choose a payment method" onChange={handlePaymentMethodChange}>
                   <Option value="vnpay">VN Pay</Option>
                   <Option value="cash">Cash</Option>
                   <Option value="wallet">Account Wallet</Option>
-
                 </Select>
               </Form.Item>
+
+              {/* Display balance if Account Wallet is selected */}
+              {selectedPaymentMethod === 'wallet' && (
+                <div style={{ marginTop: '10px', color: '#4caf50' }}>
+                  <strong>Balance:</strong> {balance} VNĐ
+                </div>
+              )}
+
               <div className="distance-display">
                 Final Price: {calculatedFinalPrice.toLocaleString()} VNĐ
                 <Tooltip
